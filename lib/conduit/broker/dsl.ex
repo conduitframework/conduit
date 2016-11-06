@@ -1,11 +1,11 @@
-defmodule Conduit.Broker do
+defmodule Conduit.Broker.DSL do
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"
       @configure nil
 
       Module.register_attribute(__MODULE__, :pipelines, accumulate: :true)
-      import Conduit.Broker
+      import Conduit.Broker.DSL
 
       Conduit.Broker.IncomingScope.init(__MODULE__)
       Conduit.Broker.OutgoingScope.init(__MODULE__)

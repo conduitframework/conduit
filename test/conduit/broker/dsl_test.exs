@@ -1,4 +1,4 @@
-defmodule Conduit.BrokerTest do
+defmodule Conduit.Broker.DSLTest do
   use ExUnit.Case
 
   defmodule PassThrough do
@@ -14,7 +14,7 @@ defmodule Conduit.BrokerTest do
   end
 
   defmodule Broker do
-    use Conduit.Broker, otp_app: :my_app
+    use Conduit.Broker.DSL, otp_app: :my_app
 
     configure do
       exchange "amq.topic"
@@ -30,7 +30,7 @@ defmodule Conduit.BrokerTest do
       plug PassThrough
     end
 
-    incoming Conduit.BrokerTest.MyApp do
+    incoming Conduit.Broker.DSLTest.MyApp do
       pipe_through :incoming
 
       sub :stuff, StuffSubscriber, from: "my_app.created.stuff"
