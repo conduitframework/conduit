@@ -1,25 +1,16 @@
 defmodule Conduit.Plug do
-  defmacro __using__(opts) do
+  @type opts :: tuple | atom | integer | float | [opts]
+
+  @callback init(opts) :: opts
+  @callback call(Conduit.Message.t, opts) :: Conduit.Message.t
+
+  defmacro __using__(_) do
     quote do
-      @otp_app unquote(opts)[:otp_app]
+      @behaviour Conduit.Plug
 
-      Module.register_attribute(__MODULE__, :plugs, accumulate: :true)
+      def init(opts), do: opts
 
-      import Conduit.Plug
-
-      @before_compile unquote(__MODULE__)
-    end
-  end
-
-  defmacro plug(name, opts \\ []) do
-    quote do
-      @exchanges {unquote(name), unquote(opts)}
-    end
-  end
-
-  defmacro __before_compile__(_) do
-    quote do
-      def plugs, do: @plugs
+      defoverridable [init: 1]
     end
   end
 end

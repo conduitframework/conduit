@@ -24,11 +24,11 @@ defmodule Conduit.Conn do
   def connect(_, state) do
     case AMQP.Connection.open(state.opts) do
       {:ok, conn} ->
-        Logger.info("Connected to RabbitMQ!")
+        Logger.info("Connected via AMQP!")
         Process.monitor(conn.pid)
         {:ok, %{state | conn: conn}}
       {:error, _reason} ->
-        Logger.error("Could not connect to RabbitMQ!")
+        Logger.error("Could not connect via AMQP!")
         {:backoff, @reconnect_after_ms, state}
     end
   end
@@ -36,13 +36,13 @@ defmodule Conduit.Conn do
   def handle_info({:DOWN, _ref, :process, pid, _reason},
     %{conn: %{pid: conn_pid}} = state)
   when pid == conn_pid do
-    Logger.error "Lost RabbitMQ connection. Attempting to reconnect..."
+    Logger.error "Lost AMQP connection. Attempting to reconnect..."
     {:connect, :reconnect, %{state | conn: nil}}
   end
 
   def terminate(_reason, %{conn: nil}), do: :ok
   def terminate(_reason, %{conn: conn}) do
-    Logger.info "RabbitMQ connection terminating"
+    Logger.info "AMQP connection terminating"
     # Taken from:
     # pma/phoenix_pubsub_rabbitmq/blob/master/lib/phoenix/pubsub/rabbitmq_conn.ex:54
     try do

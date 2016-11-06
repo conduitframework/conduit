@@ -31,7 +31,7 @@ defmodule Conduit.Pub do
   end
 
   def handle_info(:connect, %{status: :disconnected} = state) do
-    case Conduit.with_conn(&Channel.open/1) do
+    case Conduit.Adapter.AMQP.with_conn(&Channel.open/1) do
       {:ok, chan} ->
         Process.monitor(chan.pid)
         {:noreply, %{state | chan: chan, status: :connected}}

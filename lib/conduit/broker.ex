@@ -3,18 +3,12 @@ defmodule Conduit.Broker do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"
       @configure nil
-      @incoming_namespace nil
-      @pipe_through nil
-      @outgoing nil
-      @consume nil
-      @publish nil
 
       Module.register_attribute(__MODULE__, :pipelines, accumulate: :true)
-      Module.register_attribute(__MODULE__, :consumers, accumulate: :true)
-      Module.register_attribute(__MODULE__, :publishers, accumulate: :true)
-
       import Conduit.Broker
 
+      Conduit.Broker.IncomingScope.init(__MODULE__)
+      Conduit.Broker.OutgoingScope.init(__MODULE__)
       @before_compile unquote(__MODULE__)
     end
   end
@@ -31,18 +25,12 @@ defmodule Conduit.Broker do
   end
 
   defmacro pipeline(name, do: block) do
-    module_name =
-      name
-      |> Atom.to_string
-      |> Kernel.<>("_pipeline")
-      |> Macro.camelize
-
     quote do
-      module = Module.concat(__MODULE__, unquote(module_name))
+      module = Conduit.Broker.Scope.generate_module(__MODULE__, unquote(name), "_pipeline")
       @pipelines {unquote(name), module}
 
       defmodule module do
-        use Conduit.Plug
+        use Conduit.Plug.Builder
 
         unquote(block)
       end
@@ -51,13 +39,11 @@ defmodule Conduit.Broker do
 
   defmacro incoming(namespace, do: block) do
     quote do
-      @incoming_namespace unquote(namespace)
+      Conduit.Broker.IncomingScope.start_scope(__MODULE__, unquote(namespace))
 
       unquote(block)
 
-      @pipe_through nil
-      @consume nil
-      @incoming_namespace nil
+      Conduit.Broker.IncomingScope.end_scope(__MODULE__)
     end
   end
 
@@ -65,63 +51,33 @@ defmodule Conduit.Broker do
     pipelines = List.wrap(pipelines)
 
     quote do
-      cond do
-        !@incoming_namespace && !@outgoing ->
-          raise "pipe_through must be within an incoming or outgoing block"
-        @consume ->
-          raise "pipe_through must be defined before consume"
-        @publish ->
-          raise "pipe_through must be defined before publish"
-        true ->
-          @pipe_through unquote(pipelines)
+      if @scope do
+        @scope.__struct__.pipe_through(__MODULE__, unquote(pipelines))
+      else
+        raise "pipe_through can only be called in an incoming or outgoing block"
       end
     end
   end
 
-  defmacro consume(queue, consumer, opts \\ []) do
+  defmacro sub(name, subscriber, opts \\ []) do
     quote do
-      if @incoming_namespace do
-        @consumers {
-          unquote(queue),
-          @pipe_through,
-          Module.concat(@incoming_namespace, unquote(consumer)),
-          unquote(opts)
-        }
-        @consume true
-      else
-        raise "consume must be within an incoming block"
-      end
+      Conduit.Broker.IncomingScope.subscribe(__MODULE__, unquote(name), unquote(subscriber), unquote(opts))
     end
   end
 
   defmacro outgoing(do: block) do
     quote do
-      unless @incoming_namespace do
-        @outgoing true
+      Conduit.Broker.OutgoingScope.start_scope(__MODULE__)
 
-        unquote(block)
+      unquote(block)
 
-        @pipe_through nil
-        @publish nil
-        @outgoing nil
-      else
-        raise "outgoing cannot be nested in an incoming block"
-      end
+      Conduit.Broker.OutgoingScope.end_scope(__MODULE__)
     end
   end
 
-  defmacro publish(name, opts \\ []) do
+  defmacro pub(name, opts \\ []) do
     quote do
-      if @outgoing do
-        @publishers {
-          unquote(name),
-          @pipe_through,
-          unquote(opts)
-        }
-        @publish true
-      else
-        raise "publish must be withing an outgoing block"
-      end
+      Conduit.Broker.OutgoingScope.publish(__MODULE__, unquote(name), unquote(opts))
     end
   end
 
@@ -136,13 +92,12 @@ defmodule Conduit.Broker do
       end
 
       def pipelines, do: @pipelines
-      def pipelines(names) do
-        names = List.wrap(names)
-        pipelines |> Keyword.take(names)
-      end
 
-      def consumers, do: @consumers
-      def publishers, do: @publishers
+      Conduit.Broker.IncomingScope.compile(__MODULE__)
+      Conduit.Broker.OutgoingScope.compile(__MODULE__)
+
+      unquote(Conduit.Broker.IncomingScope.methods)
+      unquote(Conduit.Broker.OutgoingScope.methods)
     end
   end
 end
