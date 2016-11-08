@@ -1,46 +1,183 @@
 defmodule Conduit.Message do
+  @moduledoc """
+  The Conduit message.
 
+  This module defines a `Conduit.Message` struct and the main functions
+  for working with Conduit messages.
+
+  Note this struct is used for sending and receiving messages from a
+  message queue.
+
+  ## Public fields
+
+  These fields are for you to use in your application. The values in
+  `meta`, `headers`, and `status` may have special meaning based on
+  the adapter you use. See your adapters documention to understand
+  how to use them correctly.
+
+    * `meta` - Information applicable to every message stored as a map.
+    * `headers` - Information applicable to a specific message stored as a keyword list.
+    * `body` - The contents of the message.
+    * `status` - The operation to perform on the message. This only applies to messages
+      that are being received.
+
+  ## Private fields
+
+  These fields are reserved for library/framework usage.
+
+    * `private` - shared library data as a map
+  """
+
+  @type meta :: %{atom => any}
+  @type headers :: Keyword.t
+  @type body :: any
+  @type status :: :ack | :nack
+  @type assigns :: %{atom => any}
+  @type private :: %{atom => any}
+
+  @type t :: %__MODULE__{
+    meta: meta,
+    headers: headers,
+    body: body,
+    status: status,
+    assigns: assigns,
+    private: private
+  }
   defstruct meta: %{},
             headers: [],
             body: nil,
             status: :ack,
-            assigns: %{}
+            assigns: %{},
+            private: %{}
 
   alias Conduit.Message
 
-  def put_status(message, status) do
-    %{message | status: status}
-  end
+  @doc """
+  Assigns a meta property to the message.
 
-  def get_meta(message, field) do
-    message.meta |> Map.get(field)
-  end
+  ## Examples
 
-  def put_meta(%Message{meta: meta} = message, key, value) do
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_meta(message, :content_type, "application/json")
+      iex> message.meta.content_type
+      "application/json"
+
+  """
+  @spec put_meta(Conduit.Message.t, atom, any) :: Conduit.Message.t
+  def put_meta(%Message{meta: meta} = message, key, value) when is_atom(key) do
     %{message | meta: Map.put(meta, key, value)}
   end
 
-  def put_header(%Message{headers: headers} = message, key, value) when is_list(value) do
-    %{message | headers: [{key, :array, value}]}
-  end
-  def put_header(%Message{headers: headers} = message, key, value) when is_binary(value) do
-    %{message | headers: [{key, :longstr, value}]}
-  end
-  def put_header(%Message{headers: headers} = message, key, value) when is_boolean(value) do
-    %{message | headers: [{key, :bool, value}]}
+  @doc """
+  Returns a header from the message specified by `key`.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{headers: [retries: 1]}
+      iex> Conduit.Message.get_header(message, :retries)
+      1
+
+  """
+  @spec get_header(Conduit.Message.t, atom) :: any
+  def get_header(%Message{headers: headers}, key) when is_atom(key) do
+    Keyword.get(headers, key)
   end
 
-  def headers(%Message{} = message) do
-    message.headers |> Enum.map(fn {key, _type, value} -> {key, value} end)
+  @doc """
+  Assigns a header for the message specified by `key`.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_header(message, :retries, 1)
+      iex> Conduit.Message.get_header(message, :retries)
+      1
+  """
+  @spec put_header(Conduit.Message.t, atom, any) :: Conduit.Message.t
+  def put_header(%Message{headers: headers} = message, key, value) when is_atom(key) do
+    %{message | headers: Keyword.put(headers, key, value)}
   end
 
-  def get_header(%Message{headers: headers} = message, key) do
-    headers
-    |> Enum.find(fn {k, _, _} -> k == key end)
-    |> elem(2)
+  @doc """
+  Assigns the content of the message.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_body(message, "hi")
+      iex> message.body
+      "hi"
+
+  """
+  @spec put_body(Conduit.Message.t, body) :: Conduit.Message.t
+  def put_body(%Message{} = message, body) do
+    %{message | body: body}
   end
 
-  def assign(%Message{assigns: assigns} = message, key, value) do
+  @doc """
+  Assigs the status of the message as acknowledged. This will be used
+  to signal to the message queue that processing the message was successful
+  and can be discarded.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.ack(message)
+      iex> message.status
+      :ack
+
+  """
+  @spec ack(Conduit.Message.t) :: Conduit.Message.t
+  def ack(message) do
+    %{message | status: :ack}
+  end
+
+  @doc """
+  Assigs the status of the message to a negative acknowledged. This will be used
+  to signal to the message queue that processing the message was not successful.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.nack(message)
+      iex> message.status
+      :nack
+
+  """
+  @spec nack(Conduit.Message.t) :: Conduit.Message.t
+  def nack(message) do
+    %{message | status: :nack}
+  end
+
+  @doc """
+  Assigns a named value to the message.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.assign(message, :user_id, 1)
+      iex> message.assigns.user_id
+      1
+
+  """
+  @spec assign(Conduit.Message.t, atom, any) :: Conduit.Message.t
+  def assign(%Message{assigns: assigns} = message, key, value) when is_atom(key) do
     %{message | assigns: Map.put(assigns, key, value)}
+  end
+
+  @doc """
+  Assigns a named value to the message. This is intended for libraries and framework use.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_private(message, :message_id, 1)
+      iex> message.private.message_id
+      1
+
+  """
+  @spec put_private(Conduit.Message.t, atom, any) :: Conduit.Message.t
+  def put_private(%Message{private: private} = message, key, value) when is_atom(key) do
+    %{message | private: Map.put(private, key, value)}
   end
 end

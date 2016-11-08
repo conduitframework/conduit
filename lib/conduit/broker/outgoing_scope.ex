@@ -75,7 +75,7 @@ defmodule Conduit.Broker.OutgoingScope do
       def publishers, do: @publishers_map
 
       def publish(name, message, opts \\ []) do
-        publishers[name].call(message)
+        publishers[name].call(message, opts)
       end
     end
   end

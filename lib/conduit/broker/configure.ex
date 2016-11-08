@@ -1,10 +1,7 @@
 defmodule Conduit.Broker.Configure do
-  defmacro __using__(opts) do
+  defmacro __using__(_opts) do
     quote do
-      @otp_app unquote(opts)[:otp_app]
-
-      Module.register_attribute(__MODULE__, :exchanges, accumulate: :true)
-      Module.register_attribute(__MODULE__, :queues, accumulate: :true)
+      Module.register_attribute(__MODULE__, :setup, accumulate: :true)
 
       import Conduit.Broker.Configure
 
@@ -14,23 +11,20 @@ defmodule Conduit.Broker.Configure do
 
   defmacro exchange(name, opts \\ []) do
     quote do
-      @exchanges {unquote(name), unquote(opts)}
+      @setup {:exchange, unquote(name), unquote(opts)}
     end
   end
 
   defmacro queue(name, opts \\ []) do
     quote do
-      @queues {unquote(name), unquote(opts)}
+      @setup {:queue, unquote(name), unquote(opts)}
     end
   end
 
   defmacro __before_compile__(_) do
     quote do
-      @ordered_exchanges @exchanges |> Enum.reverse
-      def exchanges, do: @ordered_exchanges
-
-      @ordered_queues @queues |> Enum.reverse
-      def queues, do: @ordered_queues
+      @ordered_setup @setup |> Enum.reverse
+      def setup, do: @ordered_setup
     end
   end
 end

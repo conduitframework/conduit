@@ -2,13 +2,13 @@ defmodule Conduit.Broker.DSLTest do
   use ExUnit.Case
 
   defmodule PassThrough do
-    use Conduit.Plug
+    use Conduit.Plug.Builder
 
     def call(message, _opts), do: message
   end
 
   defmodule MyApp.StuffSubscriber do
-    use Conduit.Plug
+    use Conduit.Plug.Builder
 
     def call(message, _opts), do: message
   end
@@ -43,15 +43,12 @@ defmodule Conduit.Broker.DSLTest do
     end
   end
 
-  describe ".exchanges" do
-    test "returns a list of all exchanges defined" do
-      assert Broker.exchanges == [{"amq.topic", []}]
-    end
-  end
-
-  describe ".queues" do
-    test "returns a list of all queues defined" do
-      assert Broker.queues == [{"my_app.created.stuff", [from: ["#.created.stuff"]]}]
+  describe ".setup" do
+    test "returns a list of everything to setup" do
+      assert Broker.setup == [
+        {:exchange, "amq.topic", []},
+        {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}
+      ]
     end
   end
 

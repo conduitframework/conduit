@@ -1,7 +1,7 @@
 defmodule Conduit.Broker.DSL do
   defmacro __using__(opts) do
     quote do
-      @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"
+      @otp_app unquote(opts)[:otp_app]
       @configure nil
 
       Module.register_attribute(__MODULE__, :pipelines, accumulate: :true)
@@ -84,11 +84,9 @@ defmodule Conduit.Broker.DSL do
   defmacro __before_compile__(_) do
     quote do
       if @configure do
-        def exchanges, do: @configure.exchanges
-        def queues, do: @configure.queues
+        def setup, do: @configure.setup
       else
-        def exchanges, do: []
-        def queues, do: []
+        def setup, do: []
       end
 
       def pipelines, do: @pipelines
