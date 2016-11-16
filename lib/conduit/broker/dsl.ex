@@ -1,4 +1,10 @@
 defmodule Conduit.Broker.DSL do
+  @moduledoc """
+  Provides macros for setting up a message broker, subscribing to queues,
+  publishing messages, and pipelines for processing messages.
+  """
+
+  @doc false
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app]
@@ -13,6 +19,9 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
+  @doc """
+  Defines configuration of a message queue.
+  """
   defmacro configure(do: block) do
     quote do
       defmodule Configure do
@@ -24,6 +33,9 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
+  @doc """
+  Defines a message pipeline.
+  """
   defmacro pipeline(name, do: block) do
     quote do
       module = Conduit.Broker.Scope.generate_module(__MODULE__, unquote(name), "_pipeline")
@@ -37,6 +49,9 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
+  @doc """
+  Defines a grouped of subscribers who share the same pipelines.
+  """
   defmacro incoming(namespace, do: block) do
     quote do
       Conduit.Broker.IncomingScope.start_scope(__MODULE__, unquote(namespace))
@@ -47,6 +62,9 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
+  @doc """
+  Defines a set of pipelines for the surrounding scope.
+  """
   defmacro pipe_through(pipelines) do
     pipelines = List.wrap(pipelines)
 
@@ -59,12 +77,18 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
-  defmacro sub(name, subscriber, opts \\ []) do
+  @doc """
+  Defines a subscriber.
+  """
+  defmacro subscribe(name, subscriber, opts \\ []) do
     quote do
       Conduit.Broker.IncomingScope.subscribe(__MODULE__, unquote(name), unquote(subscriber), unquote(opts))
     end
   end
 
+  @doc """
+  Defines a group of outgoing message publications that share a set of pipelines.
+  """
   defmacro outgoing(do: block) do
     quote do
       Conduit.Broker.OutgoingScope.start_scope(__MODULE__)
@@ -75,12 +99,16 @@ defmodule Conduit.Broker.DSL do
     end
   end
 
-  defmacro pub(name, opts \\ []) do
+  @doc """
+  Defines a publisher.
+  """
+  defmacro publish(name, opts \\ []) do
     quote do
       Conduit.Broker.OutgoingScope.publish(__MODULE__, unquote(name), unquote(opts))
     end
   end
 
+  @doc false
   defmacro __before_compile__(_) do
     quote do
       if @configure do

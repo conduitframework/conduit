@@ -1,4 +1,14 @@
 defmodule Conduit.Broker do
+  @moduledoc """
+  Defines a Conduit Broker.
+
+  The broker is the boundary between your application and a
+  message queue. It allows the setup of a message queue and
+  provides a DSL for handling incoming messages and outgoing
+  messages.
+  """
+
+  @doc false
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"

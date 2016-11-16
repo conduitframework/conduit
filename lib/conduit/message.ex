@@ -28,6 +28,8 @@ defmodule Conduit.Message do
     * `private` - shared library data as a map
   """
 
+  @type source :: binary
+  @type destination :: binary
   @type meta :: %{atom => any}
   @type headers :: Keyword.t
   @type body :: any
@@ -36,6 +38,8 @@ defmodule Conduit.Message do
   @type private :: %{atom => any}
 
   @type t :: %__MODULE__{
+    source: source,
+    destination: destination,
     meta: meta,
     headers: headers,
     body: body,
@@ -43,7 +47,9 @@ defmodule Conduit.Message do
     assigns: assigns,
     private: private
   }
-  defstruct meta: %{},
+  defstruct source: nil,
+            destination: nil,
+            meta: %{},
             headers: [],
             body: nil,
             status: :ack,
@@ -51,6 +57,38 @@ defmodule Conduit.Message do
             private: %{}
 
   alias Conduit.Message
+
+  @doc """
+  Assigns the source of the message.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_source(message, "my.queue")
+      iex> message.source
+      "my.queue"
+
+  """
+  @spec put_source(Conduit.Message.t, source) :: Conduit.Message.t
+  def put_source(%Message{} = message, source) do
+    %{message | source: source}
+  end
+
+  @doc """
+  Assigns the destination of the message.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_destination(message, "my.queue")
+      iex> message.destination
+      "my.queue"
+
+  """
+  @spec put_destination(Conduit.Message.t, destination) :: Conduit.Message.t
+  def put_destination(%Message{} = message, destination) do
+    %{message | destination: destination}
+  end
 
   @doc """
   Assigns a meta property to the message.
@@ -69,6 +107,23 @@ defmodule Conduit.Message do
   end
 
   @doc """
+  Assigns a meta property to the message if not already set.
+
+  ## Examples
+
+      iex> message = %Conduit.Message{}
+      iex> message = Conduit.Message.put_new_meta(message, :content_type, "application/json")
+      iex> message = Conduit.Message.put_new_meta(message, :content_type, "application/xml")
+      iex> message.meta.content_type
+      "application/json"
+
+  """
+  @spec put_new_meta(Conduit.Message.t, atom, any) :: Conduit.Message.t
+  def put_new_meta(%Message{meta: meta} = message, key, value) when is_atom(key) do
+    %{message | meta: Map.put_new(meta, key, value)}
+  end
+
+  @doc """
   Returns a header from the message specified by `key`.
 
   ## Examples
@@ -78,9 +133,12 @@ defmodule Conduit.Message do
       1
 
   """
-  @spec get_header(Conduit.Message.t, atom) :: any
-  def get_header(%Message{headers: headers}, key) when is_atom(key) do
-    Keyword.get(headers, key)
+  @spec get_header(Conduit.Message.t, atom | binary) :: any
+  def get_header(%Message{headers: headers}, key) when is_atom(key) or is_binary(key) do
+    Enum.find_value(headers, nil, fn
+      {^key, value} -> value
+      _ -> nil
+    end)
   end
 
   @doc """

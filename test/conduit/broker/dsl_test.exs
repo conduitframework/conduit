@@ -8,7 +8,7 @@ defmodule Conduit.Broker.DSLTest do
   end
 
   defmodule MyApp.StuffSubscriber do
-    use Conduit.Plug.Builder
+    use Conduit.Subscriber
 
     def call(message, _opts), do: message
   end
@@ -33,13 +33,13 @@ defmodule Conduit.Broker.DSLTest do
     incoming Conduit.Broker.DSLTest.MyApp do
       pipe_through :incoming
 
-      sub :stuff, StuffSubscriber, from: "my_app.created.stuff"
+      subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
     end
 
     outgoing do
       pipe_through :outgoing
 
-      pub :more_stuff, exchange: "amq.topic", to: "middle_out.created.more_stuff"
+      publish :more_stuff, exchange: "amq.topic", to: "middle_out.created.more_stuff"
     end
   end
 

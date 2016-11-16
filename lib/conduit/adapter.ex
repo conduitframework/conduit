@@ -1,9 +1,11 @@
 defmodule Conduit.Adapter do
-  # @type queue_declaration :: {String.t, Keyword.t}
-  # @type exchange_declaration :: {String.t, Keyword.t}
-  # @type subscriber :: {String.t, [Module.t], Module.t, Keyword.t}
-  # @type publisher :: {atom, [Module.t], Keyword.t}
+  @moduledoc """
+  Defines the behavior for an adapter.
+  """
 
-  # @callback configure([exchange_declaration], [queue_declaration]) :: :ok | {:error, term}
-  # @callback subscribe([subscribe_declaration]) :: Conduit.Message.t
+  @type setup :: [{atom, binary, Keyword.t}]
+  @type subscribers :: %{atom => {module, Keyword.t}}
+
+  @callback start_link(atom, setup, subscribers) :: pid
+  @callback publish(Conduit.Message.t, Keyword.t) :: {:ok, Conduit.Message.t} | {:error, binary}
 end

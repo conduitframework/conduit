@@ -17,7 +17,7 @@ defmodule Conduit.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :amqp]]
+    [applications: [:logger, :timex]]
   end
 
   # Dependencies can be Hex packages:
@@ -34,6 +34,8 @@ defmodule Conduit.Mixfile do
      {:connection, "~> 1.0"},
      {:poolboy, "~> 1.5"},
      {:ex_crypto, "~> 0.1.1"},
+     {:uuid, "~> 1.1"},
+     {:timex, "~> 3.0"},
      {:ex_doc, "~> 0.14", only: :dev}]
   end
 end

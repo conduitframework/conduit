@@ -67,10 +67,12 @@ defmodule Conduit.Adapter.AMQP do
     end
   end
 
-  def publish(exchange, routing_key, payload, options \\ []) do
+  def publish(message, opts \\ []) do
+    exchange = Keyword.get(opts, :exchange)
+
     case get_chan(0, @pool_size) do
       {:ok, chan} ->
-        Basic.publish(chan, exchange, routing_key, payload, options)
+        Basic.publish(chan, exchange, message.destination, message.body, opts)
       {:error, reason} ->
         {:error, reason}
     end

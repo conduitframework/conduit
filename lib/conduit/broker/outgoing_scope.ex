@@ -1,14 +1,21 @@
 defmodule Conduit.Broker.OutgoingScope do
+  @moduledoc false
   import Conduit.Broker.Scope
 
   defstruct pipelines: [], publishers: []
 
+  @doc """
+  Initializes outgoing scope for publishers.
+  """
   def init(broker) do
     Module.register_attribute(broker, :publisher_configs, accumulate: true)
     Module.register_attribute(broker, :publishers, accumulate: true)
     put_scope(broker, nil)
   end
 
+  @doc """
+  Starts a scope block.
+  """
   def start_scope(broker) do
     if get_scope(broker) do
       raise "outgoing cannot be nested under anything else"
@@ -17,10 +24,16 @@ defmodule Conduit.Broker.OutgoingScope do
     end
   end
 
+  @doc """
+  Sets the pipelines for the scope.
+  """
   def pipe_through(broker, pipelines) do
     put_scope(broker, %{get_scope(broker) | pipelines: pipelines})
   end
 
+  @doc """
+  Defines a publisher.
+  """
   def publish(broker, name, opts) do
     if scope = get_scope(broker) do
       sub = {name, opts}
@@ -30,6 +43,9 @@ defmodule Conduit.Broker.OutgoingScope do
     end
   end
 
+  @doc """
+  Ends a scope block.
+  """
   def end_scope(broker) do
     scope = get_scope(broker)
 
@@ -40,16 +56,22 @@ defmodule Conduit.Broker.OutgoingScope do
     put_scope(broker, nil)
   end
 
+  @doc """
+  Compiles the publishers.
+  """
   def compile(broker) do
     Module.get_attribute(broker, :publisher_configs)
     |> Enum.each(fn {name, pipeline_names, opts} ->
       module = generate_module(broker, name, "_outgoing")
       expanded_pipelines = expand_pipelines(broker, pipeline_names)
+      destination = Keyword.get(opts, :to, Atom.to_string(name))
 
       defmodule module do
         use Conduit.Plug.Builder
         @otp_app Module.get_attribute(broker, :otp_app)
         @broker broker
+
+        plug :put_destination, destination
 
         Enum.each(expanded_pipelines, fn pipeline ->
           plug pipeline
@@ -69,13 +91,18 @@ defmodule Conduit.Broker.OutgoingScope do
     end)
   end
 
+  @doc """
+  Defines publishing related methods for the broker.
+  """
   def methods do
     quote do
       @publishers_map Enum.into(@publishers, %{})
       def publishers, do: @publishers_map
 
       def publish(name, message, opts \\ []) do
-        publishers[name].call(message, opts)
+        {publisher, broker_opts} = publishers[name]
+
+        publisher.call(message, Keyword.merge(broker_opts, opts))
       end
     end
   end

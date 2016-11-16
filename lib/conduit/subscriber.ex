@@ -1,8 +1,12 @@
 defmodule Conduit.Subscriber do
-  defmacro __using__ do
+  @moduledoc """
+  Provides functions and macros for handling incoming messages
+  """
+
+  @doc false
+  defmacro __using__(_opts) do
     quote do
-      @behavior Conduit.Plug
-      import Conduit.Message
+      use Conduit.Plug.Builder
     end
   end
 end
