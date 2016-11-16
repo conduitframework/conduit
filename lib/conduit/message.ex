@@ -91,13 +91,29 @@ defmodule Conduit.Message do
   end
 
   @doc """
+  Gets a meta property from the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_meta(%Conduit.Message{}, :content_type, "application/json")
+      iex> get_meta(message, :content_type)
+      "application/json"
+
+  """
+  @spec get_meta(Conduit.Message.t, term) :: any
+  def get_meta(%Message{meta: meta}, key) do
+    get_in(meta, [key])
+  end
+
+  @doc """
   Assigns a meta property to the message.
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_meta(message, :content_type, "application/json")
-      iex> message.meta.content_type
+      iex> import Conduit.Message
+      iex> message = put_meta(%Conduit.Message{}, :content_type, "application/json")
+      iex> get_meta(message, :content_type)
       "application/json"
 
   """
@@ -111,10 +127,12 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_new_meta(message, :content_type, "application/json")
-      iex> message = Conduit.Message.put_new_meta(message, :content_type, "application/xml")
-      iex> message.meta.content_type
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_new_meta(:content_type, "application/json")
+      iex>   |> put_new_meta(:content_type, "application/xml")
+      iex> get_meta(message, :content_type)
       "application/json"
 
   """
@@ -128,7 +146,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{headers: [retries: 1]}
+      iex> import Conduit.Message
+      iex> message = put_header(%Conduit.Message{}, :retries, 1)
       iex> Conduit.Message.get_header(message, :retries)
       1
 
@@ -146,8 +165,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_header(message, :retries, 1)
+      iex> import Conduit.Message
+      iex> message = put_header(%Conduit.Message{}, :retries, 1)
       iex> Conduit.Message.get_header(message, :retries)
       1
   """
@@ -208,13 +227,29 @@ defmodule Conduit.Message do
   end
 
   @doc """
+  Retrieves a named value from the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = assign(%Conduit.Message{}, :user_id, 1)
+      iex> assigns(message, :user_id)
+      1
+
+  """
+  @spec assigns(Conduit.Message.t, term) :: Conduit.Message.t
+  def assigns(%Message{assigns: assigns}, key) do
+    get_in(assigns, [key])
+  end
+
+  @doc """
   Assigns a named value to the message.
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.assign(message, :user_id, 1)
-      iex> message.assigns.user_id
+      iex> import Conduit.Message
+      iex> message = assign(%Conduit.Message{}, :user_id, 1)
+      iex> assigns(message, :user_id)
       1
 
   """
@@ -224,13 +259,29 @@ defmodule Conduit.Message do
   end
 
   @doc """
+  Retrieves a named value from the message. This is intended for libraries and framework use.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = Conduit.Message.put_private(%Conduit.Message{}, :message_id, 1)
+      iex> get_private(message, :message_id)
+      1
+
+  """
+  @spec get_private(Conduit.Message.t, term) :: Conduit.Message.t
+  def get_private(%Message{private: private}, key) do
+    get_in(private, [key])
+  end
+
+  @doc """
   Assigns a named value to the message. This is intended for libraries and framework use.
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_private(message, :message_id, 1)
-      iex> message.private.message_id
+      iex> import Conduit.Message
+      iex> message = Conduit.Message.put_private(%Conduit.Message{}, :message_id, 1)
+      iex> get_private(message, :message_id)
       1
 
   """

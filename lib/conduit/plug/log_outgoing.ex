@@ -1,6 +1,18 @@
 defmodule Conduit.Plug.LogOutgoing do
   use Conduit.Plug.Builder
   require Logger
+  @moduledoc """
+  Logs an outgoing message and how long it takes to process it.
+
+  This is intended to be used in an outgoing pipeline.
+
+      plug Conduit.Plug.LogIncoming
+
+  The log level can be passed as an option. The default level is `:info`.
+
+      plug Conduit.Plug.LogIncoming, log: :debug
+
+  """
 
   def init(opts) do
     Keyword.get(opts, :log, :info)
