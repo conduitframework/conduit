@@ -6,6 +6,11 @@ defmodule Conduit.ContentType do
 
       config :conduit, Conduit.ContentType, [{"application/x-custom", MyApp.CustomContentType}]
 
+  Note that any new content types specified in this way will require a recompile of Conduit.
+
+      $ mix deps.clean conduit --build
+      $ mix deps.get
+
   Any custom content types should implement the Conduit.ContentType
   behaviour. For example:
 
