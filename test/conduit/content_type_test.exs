@@ -1,4 +1,4 @@
 defmodule Conduit.ContentTypeTest do
   use ExUnit.Case
-  doctest Conduit.Message
+  doctest Conduit.ContentType
 end

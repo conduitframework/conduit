@@ -9,7 +9,7 @@ defmodule Conduit.Plug.Parse do
     2. The content type specified on the message.
     3. The default content type `application/json`.
 
-  This plug should be used in an outgoing pipeline.
+  This plug should be used in an incoming pipeline.
 
       plug Conduit.Plug.Parse
       plug Conduit.Plug.Parse, content_type: "application/xml"

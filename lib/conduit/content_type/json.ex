@@ -27,7 +27,7 @@ defmodule Conduit.ContentType.JSON do
   end
 
   @doc """
-  Parses the message body to json and sets the content type.
+  Parses the message body from json and sets the content type.
 
   ## Examples
 

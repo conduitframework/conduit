@@ -12,23 +12,7 @@ defmodule Conduit.ContentType do
       $ mix deps.get
 
   Any custom content types should implement the Conduit.ContentType
-  behaviour. For example:
-
-      defmodule MyApp.CustomContentType do
-        use Conduit.ContentType
-
-        def format(message, _opts) do
-          message
-          |> put_body(term_to_binary(message.body))
-          |> put_meta(:content_type, "application/x-custom")
-        end
-
-        def parse(message, _opts) do
-          message
-          |> put_body(binary_to_term(message.body))
-          |> put_meta(:content_type, "application/x-custom")
-        end
-      end
+  behaviour. See `Conduit.ContentType.JSON` for an example.
 
   """
   @callback format(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
@@ -92,6 +76,6 @@ defmodule Conduit.ContentType do
   end
 
   defp content_type(content_type) do
-    raise "No encoder found for #{content_type}"
+    raise "No content type found for #{content_type}"
   end
 end
