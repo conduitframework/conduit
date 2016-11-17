@@ -1,4 +1,29 @@
 defmodule Conduit.Plug.Builder do
+  @moduledoc """
+  A module that can be used to build pipelines of plugs.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex>
+      iex> defmodule MyPipeline do
+      iex>   use Conduit.Plug.Builder
+      iex>
+      iex>   plug Conduit.Plug.Format
+      iex>   plug Conduit.Plug.Encode
+      iex> end
+      iex>
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(%{})
+      iex>   |> MyPipeline.call([])
+      iex> message.body
+      "{}"
+      iex> get_meta(message, :content_type)
+      "application/json"
+      iex> get_meta(message, :content_encoding)
+      "identity"
+  """
   @type plug :: module | atom
 
   @doc false
@@ -46,8 +71,8 @@ defmodule Conduit.Plug.Builder do
 
   ## Examples
 
-      plug Plug.Logger               # plug module
-      plug :foo, some_options: true  # plug function
+      plug Conduit.Plug.Format                  # plug module
+      plug :put_meta, content_encoding: "gzip"  # plug function
 
   """
   defmacro plug(plug, opts \\ []) do
@@ -72,9 +97,9 @@ defmodule Conduit.Plug.Builder do
 
   ## Examples
 
-      Plug.Builder.compile(env, [
-        {Plug.Logger, [], true}, # no guards, as added by the Plug.Builder.plug/2 macro
-        {Plug.Head, [], quote(do: a when is_binary(a))}
+      Conduit.Plug.Builder.compile(env, [
+        {Conduit.Plug.Format, [], true}, # no guards, as added by the Plug.Builder.plug/2 macro
+        {Conduit.Plug.Encode, [], quote(do: a when is_binary(a))}
       ], [])
 
   """
@@ -174,7 +199,7 @@ defmodule Conduit.Plug.Builder do
 
       quote do
         require Logger
-        # Matching, to make Dialyzer happy on code executing Plug.Builder.compile/3
+        # Matching, to make Dialyzer happy on code executing Conduit.Plug.Builder.compile/3
         _ = Logger.unquote(level)(unquote(message))
       end
     else
