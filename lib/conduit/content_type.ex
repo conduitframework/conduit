@@ -1,4 +1,31 @@
 defmodule Conduit.ContentType do
+  @moduledoc """
+  Formats and parses a message body based on the content type given.
+
+  Custom content types can be specified in your configuration.
+
+      config :conduit, Conduit.ContentType, [{"application/x-custom", MyApp.CustomContentType}]
+
+  Any custom content types should implement the Conduit.ContentType
+  behaviour. For example:
+
+      defmodule MyApp.CustomContentType do
+        use Conduit.ContentType
+
+        def format(message, _opts) do
+          message
+          |> put_body(term_to_binary(message.body))
+          |> put_meta(:content_type, "application/x-custom")
+        end
+
+        def parse(message, _opts) do
+          message
+          |> put_body(binary_to_term(message.body))
+          |> put_meta(:content_type, "application/x-custom")
+        end
+      end
+
+  """
   @callback format(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
   @callback parse(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
 
@@ -12,21 +39,54 @@ defmodule Conduit.ContentType do
     end
   end
 
+  @doc """
+  Formats the message body with the specified content type.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(%{})
+      iex>   |> Conduit.ContentType.format("application/json", [])
+      iex> message.body
+      "{}"
+      iex> get_meta(message, :content_type)
+      "application/json"
+
+  """
+  @spec format(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
   def format(message, type, opts) do
     content_type(type).format(message, opts)
   end
 
+  @doc """
+  Parses the message body with the specified content type.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.ContentType.parse("application/json", [])
+      iex> message.body
+      %{}
+      iex> get_meta(message, :content_type)
+      "application/json"
+
+  """
+  @spec parse(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
   def parse(message, type, opts) do
     content_type(type).parse(message, opts)
   end
 
+  @spec content_type(String.t) :: module
   for {type, content_type} <- Application.get_env(:conduit, Conduit.ContentType, []) ++ @default_content_types do
-    quote do
-      def content_type(unquote(type)), do: unquote(content_type)
-    end
+    defp content_type(unquote(type)), do: unquote(content_type)
   end
 
-  def content_type(content_type) do
+  defp content_type(content_type) do
     raise "No encoder found for #{content_type}"
   end
 end

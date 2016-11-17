@@ -17,6 +17,8 @@ defmodule Conduit.ContentType.JSON do
       iex> message.body
       "{}"
       iex> get_meta(message, :content_type)
+      "application/json"
+
   """
   def format(message, _opts) do
     message
@@ -24,9 +26,25 @@ defmodule Conduit.ContentType.JSON do
     |> put_meta(:content_type, "application/json")
   end
 
+  @doc """
+  Parses the message body to json and sets the content type.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.ContentType.JSON.parse([])
+      iex> message.body
+      %{}
+      iex> get_meta(message, :content_type)
+      "application/json"
+
+  """
   def parse(message, _opts) do
     message
-    |> put_body(Poison.decode!(message))
+    |> put_body(Poison.decode!(message.body))
     |> put_meta(:content_type, "application/json")
   end
 end
