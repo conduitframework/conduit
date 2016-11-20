@@ -63,8 +63,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_source(message, "my.queue")
+      iex> import Conduit.Message
+      iex> message = put_source(%Conduit.Message{}, "my.queue")
       iex> message.source
       "my.queue"
 
@@ -79,8 +79,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_destination(message, "my.queue")
+      iex> import Conduit.Message
+      iex> message = put_destination(%Conduit.Message{}, "my.queue")
       iex> message.destination
       "my.queue"
 
@@ -148,7 +148,7 @@ defmodule Conduit.Message do
 
       iex> import Conduit.Message
       iex> message = put_header(%Conduit.Message{}, :retries, 1)
-      iex> Conduit.Message.get_header(message, :retries)
+      iex> get_header(message, :retries)
       1
 
   """
@@ -167,7 +167,7 @@ defmodule Conduit.Message do
 
       iex> import Conduit.Message
       iex> message = put_header(%Conduit.Message{}, :retries, 1)
-      iex> Conduit.Message.get_header(message, :retries)
+      iex> get_header(message, :retries)
       1
   """
   @spec put_header(Conduit.Message.t, atom, any) :: Conduit.Message.t
@@ -180,8 +180,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.put_body(message, "hi")
+      iex> import Conduit.Message
+      iex> message = put_body(%Conduit.Message{}, "hi")
       iex> message.body
       "hi"
 
@@ -198,8 +198,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.ack(message)
+      iex> import Conduit.Message
+      iex> message = ack(%Conduit.Message{})
       iex> message.status
       :ack
 
@@ -215,8 +215,8 @@ defmodule Conduit.Message do
 
   ## Examples
 
-      iex> message = %Conduit.Message{}
-      iex> message = Conduit.Message.nack(message)
+      iex> import Conduit.Message
+      iex> message = nack(%Conduit.Message{})
       iex> message.status
       :nack
 
@@ -264,7 +264,7 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = Conduit.Message.put_private(%Conduit.Message{}, :message_id, 1)
+      iex> message = put_private(%Conduit.Message{}, :message_id, 1)
       iex> get_private(message, :message_id)
       1
 
@@ -280,7 +280,7 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = Conduit.Message.put_private(%Conduit.Message{}, :message_id, 1)
+      iex> message = put_private(%Conduit.Message{}, :message_id, 1)
       iex> get_private(message, :message_id)
       1
 
