@@ -73,9 +73,9 @@ defmodule Conduit.BrokerTest do
       Broker.start_link
 
       assert_received {:adapter, {
-        :my_app,
         [{:exchange, "amq.topic", []}, {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}],
-        %{stuff: {Conduit.BrokerTest.Broker.StuffIncoming, [from: "my_app.created.stuff"]}}
+        %{stuff: {Conduit.BrokerTest.Broker.StuffIncoming, [from: "my_app.created.stuff"]}},
+        [adapter: Conduit.BrokerTest.Adapter]
       }}
     end
   end

@@ -26,9 +26,9 @@ defmodule Conduit.Broker do
         adapter = Keyword.get(config, :adapter)
 
         children = [supervisor(adapter, [
-          @otp_app,
           setup,
-          subscribers
+          subscribers,
+          config
         ])]
 
         supervise(children, strategy: :one_for_one)
