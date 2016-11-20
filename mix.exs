@@ -16,7 +16,7 @@ defmodule Conduit.Mixfile do
 
      # Package
      description: "Message queue framework, with support for middleware and multiple adapters.",
-     ]
+     package: package]
   end
 
   # Configuration for the OTP application
