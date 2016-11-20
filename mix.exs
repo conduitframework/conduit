@@ -18,7 +18,7 @@ defmodule Conduit.Mixfile do
      description: "Message queue framework, with support for middleware and multiple adapters.",
      package: package,
 
-     aliases: ["publish": ["hex.publish", "hex.docs", &git_tag/1]]]
+     aliases: ["publish": ["hex.publish", &git_tag/1]]]
   end
 
   # Configuration for the OTP application
