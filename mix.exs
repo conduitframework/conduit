@@ -3,7 +3,7 @@ defmodule Conduit.Mixfile do
 
   def project do
     [app: :conduit,
-     version: "0.1.1",
+     version: "0.2.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
@@ -16,7 +16,9 @@ defmodule Conduit.Mixfile do
 
      # Package
      description: "Message queue framework, with support for middleware and multiple adapters.",
-     package: package]
+     package: package,
+
+     aliases: ["publish": ["hex.publish", "hex.docs", &git_tag/1]]]
   end
 
   # Configuration for the OTP application
@@ -50,5 +52,11 @@ defmodule Conduit.Mixfile do
      licenses: ["Apache 2.0"],
      links: %{"GitHub" => "https://github.com/conduitframework/conduit",
               "Docs" => "https://hexdocs.pm/conduit"}]
+  end
+
+  defp git_tag(_args) do
+    tag = "v" <> Mix.Project.config[:version]
+    System.cmd("git", ["tag", tag])
+    System.cmd("git", ["push", "origin", tag])
   end
 end
