@@ -3,10 +3,10 @@ defmodule Conduit.Adapter do
   Defines the behavior for an adapter.
   """
 
-  @type setup :: [{atom, binary, Keyword.t}]
+  @type topology :: [{atom, binary, Keyword.t}]
   @type subscribers :: %{atom => {module, Keyword.t}}
 
-  @callback start_link(setup, subscribers, Keyword.t) :: pid
+  @callback start_link(topology, subscribers, Keyword.t) :: pid
   @callback publish(Conduit.Message.t, Keyword.t) :: {:ok, Conduit.Message.t} | {:error, binary}
 
   defmacro __using__(_opts) do

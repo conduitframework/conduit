@@ -16,8 +16,8 @@ defmodule Conduit.BrokerTest do
   defmodule Adapter do
     use Supervisor
 
-    def start_link(otp_app, setup, subscribers) do
-      Supervisor.start_link(__MODULE__, {otp_app, setup, subscribers}, name: __MODULE__)
+    def start_link(topology, subscribers, opts) do
+      Supervisor.start_link(__MODULE__, {topology, subscribers, opts}, name: __MODULE__)
     end
 
     def init(opts) do
