@@ -26,7 +26,7 @@ defmodule Conduit.Broker do
         adapter = Keyword.get(config, :adapter)
 
         children = [supervisor(adapter, [
-          setup,
+          topology,
           subscribers,
           config
         ])]

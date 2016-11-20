@@ -4,7 +4,7 @@ defmodule Conduit.Broker.Configure do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      Module.register_attribute(__MODULE__, :setup, accumulate: :true)
+      Module.register_attribute(__MODULE__, :topology, accumulate: :true)
 
       import Conduit.Broker.Configure
 
@@ -17,7 +17,7 @@ defmodule Conduit.Broker.Configure do
   """
   defmacro exchange(name, opts \\ []) do
     quote do
-      @setup {:exchange, unquote(name), unquote(opts)}
+      @topology {:exchange, unquote(name), unquote(opts)}
     end
   end
 
@@ -26,15 +26,15 @@ defmodule Conduit.Broker.Configure do
   """
   defmacro queue(name, opts \\ []) do
     quote do
-      @setup {:queue, unquote(name), unquote(opts)}
+      @topology {:queue, unquote(name), unquote(opts)}
     end
   end
 
   @doc false
   defmacro __before_compile__(_) do
     quote do
-      @ordered_setup @setup |> Enum.reverse
-      def setup, do: @ordered_setup
+      @ordered_topology @topology |> Enum.reverse
+      def topology, do: @ordered_topology
     end
   end
 end

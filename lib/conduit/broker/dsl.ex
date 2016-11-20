@@ -112,9 +112,9 @@ defmodule Conduit.Broker.DSL do
   defmacro __before_compile__(_) do
     quote do
       if @configure do
-        def setup, do: @configure.setup
+        def topology, do: @configure.topology
       else
-        def setup, do: []
+        def topology, do: []
       end
 
       def pipelines, do: @pipelines
