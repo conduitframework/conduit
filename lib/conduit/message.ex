@@ -49,7 +49,7 @@ defmodule Conduit.Message do
   @type content_encoding :: String.t | nil
   @type created_by :: binary | nil
   @type created_at :: String.t | integer | nil
-  @type headers :: Keyword.t
+  @type headers :: %{String.t => any}
   @type body :: any
   @type status :: :ack | :nack
   @type assigns :: %{atom => any}
@@ -80,7 +80,7 @@ defmodule Conduit.Message do
             content_encoding: nil,
             created_by: nil,
             created_at: nil,
-            headers: [],
+            headers: %{},
             body: nil,
             status: :ack,
             assigns: %{},
@@ -278,17 +278,14 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_header(%Conduit.Message{}, :retries, 1)
-      iex> get_header(message, :retries)
+      iex> message = put_header(%Conduit.Message{}, "retries", 1)
+      iex> get_header(message, "retries")
       1
 
   """
-  @spec get_header(Conduit.Message.t, atom | binary) :: any
-  def get_header(%Message{headers: headers}, key) when is_atom(key) or is_binary(key) do
-    Enum.find_value(headers, nil, fn
-      {^key, value} -> value
-      _ -> nil
-    end)
+  @spec get_header(Conduit.Message.t, String.t) :: any
+  def get_header(%Message{headers: headers}, key) when is_binary(key) do
+    get_in(headers, [key])
   end
 
   @doc """
@@ -297,13 +294,29 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_header(%Conduit.Message{}, :retries, 1)
-      iex> get_header(message, :retries)
+      iex> message = put_header(%Conduit.Message{}, "retries", 1)
+      iex> get_header(message, "retries")
       1
   """
-  @spec put_header(Conduit.Message.t, atom, any) :: Conduit.Message.t
-  def put_header(%Message{headers: headers} = message, key, value) when is_atom(key) do
-    %{message | headers: Keyword.put(headers, key, value)}
+  @spec put_header(Conduit.Message.t, String.t, any) :: Conduit.Message.t
+  def put_header(%Message{headers: headers} = message, key, value) when is_binary(key) do
+    %{message | headers: put_in(headers, [key], value)}
+  end
+
+   @doc """
+  Assigns a header for the message specified by `key`.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_header(%Conduit.Message{}, "retries", 1)
+      iex> message = delete_header(message, "retries")
+      iex> get_header(message, "retries")
+      nil
+  """
+  @spec delete_header(Conduit.Message.t, String.t) :: Conduit.Message.t
+  def delete_header(%Message{headers: headers} = message, key) do
+    %{message | headers: Map.delete(headers, key)}
   end
 
   @doc """
