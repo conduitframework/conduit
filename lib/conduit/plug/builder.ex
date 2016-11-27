@@ -9,7 +9,7 @@ defmodule Conduit.Plug.Builder do
       iex> defmodule MyPipeline do
       iex>   use Conduit.Plug.Builder
       iex>
-      iex>   plug Conduit.Plug.Format
+      iex>   plug Conduit.Plug.Format, content_type: "application/json"
       iex>   plug Conduit.Plug.Encode
       iex> end
       iex>
@@ -19,9 +19,9 @@ defmodule Conduit.Plug.Builder do
       iex>   |> MyPipeline.call([])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_type)
+      iex> message.content_type
       "application/json"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "identity"
   """
   @type plug :: module | atom
@@ -72,7 +72,7 @@ defmodule Conduit.Plug.Builder do
   ## Examples
 
       plug Conduit.Plug.Format                  # plug module
-      plug :put_meta, content_encoding: "gzip"  # plug function
+      plug :put_content_encoding, "gzip"        # plug function
 
   """
   defmacro plug(plug, opts \\ []) do

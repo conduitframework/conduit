@@ -16,14 +16,14 @@ defmodule Conduit.Encoding.GZip do
       iex>   |> Conduit.Encoding.GZip.encode([])
       iex> message.body
       <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "gzip"
 
   """
   def encode(message, _opts) do
     message
     |> put_body(:zlib.gzip(message.body))
-    |> put_meta(:content_encoding, "gzip")
+    |> put_content_encoding("gzip")
   end
 
   @doc """
@@ -38,13 +38,13 @@ defmodule Conduit.Encoding.GZip do
       iex>   |> Conduit.Encoding.GZip.decode([])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "gzip"
 
   """
   def decode(message, _opts) do
     message
     |> put_body(:zlib.gunzip(message.body))
-    |> put_meta(:content_encoding, "gzip")
+    |> put_content_encoding("gzip")
   end
 end

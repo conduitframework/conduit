@@ -17,18 +17,18 @@ defmodule Conduit.Plug.CorrelationId do
       iex> require Logger
       iex> message = %Conduit.Message{}
       iex> message = Conduit.Plug.CorrelationId.call(message, [])
-      iex> message.meta.correlation_id == Logger.metadata[:correlation_id]
+      iex> message.correlation_id == Logger.metadata[:correlation_id]
       true
   """
   @spec call(Conduit.Message.t, any) :: Conduit.Message.t
   def call(message, _opts) do
     message
-    |> put_new_meta(:correlation_id, UUID.uuid4)
+    |> put_new_correlation_id(UUID.uuid4)
     |> put_logger_metadata
   end
 
   defp put_logger_metadata(message) do
-    Logger.metadata(correlation_id: message.meta.correlation_id)
+    Logger.metadata(correlation_id: message.correlation_id)
 
     message
   end

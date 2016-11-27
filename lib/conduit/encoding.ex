@@ -40,7 +40,7 @@ defmodule Conduit.Encoding do
       iex>   |> Conduit.Encoding.encode("gzip", [])
       iex> message.body
       <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "gzip"
 
   """
@@ -61,7 +61,7 @@ defmodule Conduit.Encoding do
       iex>   |> Conduit.Encoding.decode("gzip", [])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "gzip"
 
   """

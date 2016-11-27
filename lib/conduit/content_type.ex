@@ -18,7 +18,10 @@ defmodule Conduit.ContentType do
   @callback format(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
   @callback parse(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
 
-  @default_content_types [{"application/json", Conduit.ContentType.JSON}]
+  @default_content_types [
+    {"text/plain", Conduit.ContentType.Text},
+    {"application/json", Conduit.ContentType.JSON}
+  ]
 
   @doc false
   defmacro __using__(_opts) do
@@ -36,12 +39,12 @@ defmodule Conduit.ContentType do
       iex> import Conduit.Message
       iex> message =
       iex>   %Conduit.Message{}
-      iex>   |> put_body(%{})
-      iex>   |> Conduit.ContentType.format("application/json", [])
+      iex>   |> put_body("my message")
+      iex>   |> Conduit.ContentType.format("text/plain", [])
       iex> message.body
-      "{}"
-      iex> get_meta(message, :content_type)
-      "application/json"
+      "my message"
+      iex> message.content_type
+      "text/plain"
 
   """
   @spec format(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
@@ -61,7 +64,7 @@ defmodule Conduit.ContentType do
       iex>   |> Conduit.ContentType.parse("application/json", [])
       iex> message.body
       %{}
-      iex> get_meta(message, :content_type)
+      iex> message.content_type
       "application/json"
 
   """

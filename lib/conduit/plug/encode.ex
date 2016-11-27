@@ -29,14 +29,14 @@ defmodule Conduit.Plug.Encode do
       iex>   |> Conduit.Plug.Encode.call([])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "identity"
   """
   @default_content_encoding "identity"
   def call(message, opts) do
     content_encoding =
       Keyword.get(opts, :content_encoding)
-      || get_meta(message, :content_encoding)
+      || Map.get(message, :content_encoding)
       || @default_content_encoding
 
     Conduit.Encoding.encode(message, content_encoding, opts)

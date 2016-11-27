@@ -16,13 +16,13 @@ defmodule Conduit.Encoding.Identity do
       iex>   |> Conduit.Encoding.Identity.encode([])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "identity"
 
   """
   def encode(message, _opts) do
     message
-    |> put_meta(:content_encoding, "identity")
+    |> put_content_encoding("identity")
   end
 
   @doc """
@@ -37,12 +37,12 @@ defmodule Conduit.Encoding.Identity do
       iex>   |> Conduit.Encoding.Identity.decode([])
       iex> message.body
       "{}"
-      iex> get_meta(message, :content_encoding)
+      iex> message.content_encoding
       "identity"
 
   """
   def decode(message, _opts) do
     message
-    |> put_meta(:content_encoding, "identity")
+    |> put_content_encoding("identity")
   end
 end

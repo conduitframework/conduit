@@ -11,11 +11,23 @@ defmodule Conduit.Message do
   ## Public fields
 
   These fields are for you to use in your application. The values in
-  `meta`, `headers`, and `status` may have special meaning based on
-  the adapter you use. See your adapters documention to understand
-  how to use them correctly.
+  `user_id`, `correlation_id`, `message_id`, `content_type`,
+  `content_encoding`, `created_by`, `created_at`, `headers`, and
+  `status` may have special meaning based on the adapter you use.
+  See your adapters documention to understand how to use them correctly.
 
-    * `meta` - Information applicable to every message stored as a map.
+    * `source` - For incoming messages, this will be set to the queue the message was
+      consumed from.
+    * `destination` - For outgoing messages, this will be set to the destination queue (or
+      routing key) it is published to.
+    * `user_id` - An ID representing which user the message pertains to.
+    * `correlation_id` - An ID for a chain of messages, where the current message is one in
+      that chain.
+    * `message_id` - A unique ID for this message.
+    * `content_type` - The media type of the message body.
+    * `content_encoding` - The encoding of the message body.
+    * `created_by` - The name of the app that created the message.
+    * `created_at` - A timestamp or epoch representing when the message was created.
     * `headers` - Information applicable to a specific message stored as a keyword list.
     * `body` - The contents of the message.
     * `status` - The operation to perform on the message. This only applies to messages
@@ -28,9 +40,15 @@ defmodule Conduit.Message do
     * `private` - shared library data as a map
   """
 
-  @type source :: binary
-  @type destination :: binary
-  @type meta :: %{atom => any}
+  @type source :: binary | nil
+  @type destination :: binary | nil
+  @type user_id :: binary | integer | nil
+  @type correlation_id :: binary | integer | nil
+  @type message_id :: binary | integer | nil
+  @type content_type :: String.t | nil
+  @type content_encoding :: String.t | nil
+  @type created_by :: binary | nil
+  @type created_at :: String.t | integer | nil
   @type headers :: Keyword.t
   @type body :: any
   @type status :: :ack | :nack
@@ -40,7 +58,13 @@ defmodule Conduit.Message do
   @type t :: %__MODULE__{
     source: source,
     destination: destination,
-    meta: meta,
+    user_id: user_id,
+    correlation_id: correlation_id,
+    message_id: message_id,
+    content_type: content_type,
+    content_encoding: content_encoding,
+    created_by: created_by,
+    created_at: created_at,
     headers: headers,
     body: body,
     status: status,
@@ -49,7 +73,13 @@ defmodule Conduit.Message do
   }
   defstruct source: nil,
             destination: nil,
-            meta: %{},
+            user_id: nil,
+            correlation_id: nil,
+            message_id: nil,
+            content_type: nil,
+            content_encoding: nil,
+            created_by: nil,
+            created_at: nil,
             headers: [],
             body: nil,
             status: :ack,
@@ -91,54 +121,155 @@ defmodule Conduit.Message do
   end
 
   @doc """
-  Gets a meta property from the message.
+  Assigns a user_id to the message.
 
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_meta(%Conduit.Message{}, :content_type, "application/json")
-      iex> get_meta(message, :content_type)
-      "application/json"
+      iex> message = put_user_id(%Conduit.Message{}, 1)
+      iex> message.user_id
+      1
 
   """
-  @spec get_meta(Conduit.Message.t, term) :: any
-  def get_meta(%Message{meta: meta}, key) do
-    get_in(meta, [key])
+  @spec put_user_id(Conduit.Message.t, user_id) :: Conduit.Message.t
+  def put_user_id(%Message{} = message, user_id) do
+    %{message | user_id: user_id}
   end
 
   @doc """
-  Assigns a meta property to the message.
+  Assigns a correlation_id to the message.
 
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_meta(%Conduit.Message{}, :content_type, "application/json")
-      iex> get_meta(message, :content_type)
-      "application/json"
+      iex> message = put_correlation_id(%Conduit.Message{}, 1)
+      iex> message.correlation_id
+      1
 
   """
-  @spec put_meta(Conduit.Message.t, atom, any) :: Conduit.Message.t
-  def put_meta(%Message{meta: meta} = message, key, value) when is_atom(key) do
-    %{message | meta: Map.put(meta, key, value)}
+  @spec put_correlation_id(Conduit.Message.t, correlation_id) :: Conduit.Message.t
+  def put_correlation_id(%Message{} = message, correlation_id) do
+    %{message | correlation_id: correlation_id}
   end
 
   @doc """
-  Assigns a meta property to the message if not already set.
+  Assigns a correlation_id to the message when one isn't set already.
 
   ## Examples
 
       iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_new_meta(:content_type, "application/json")
-      iex>   |> put_new_meta(:content_type, "application/xml")
-      iex> get_meta(message, :content_type)
-      "application/json"
+      iex> message = put_new_correlation_id(%Conduit.Message{}, 1)
+      iex> message = put_new_correlation_id(message, 2)
+      iex> message.correlation_id
+      1
 
   """
-  @spec put_new_meta(Conduit.Message.t, atom, any) :: Conduit.Message.t
-  def put_new_meta(%Message{meta: meta} = message, key, value) when is_atom(key) do
-    %{message | meta: Map.put_new(meta, key, value)}
+  @spec put_new_correlation_id(Conduit.Message.t, correlation_id) :: Conduit.Message.t
+  def put_new_correlation_id(%Message{correlation_id: nil} = message, correlation_id) do
+    %{message | correlation_id: correlation_id}
+  end
+  def put_new_correlation_id(%Message{} = message, _) do
+    message
+  end
+
+  @doc """
+  Assigns a message_id to the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_message_id(%Conduit.Message{}, 1)
+      iex> message.message_id
+      1
+
+  """
+  @spec put_message_id(Conduit.Message.t, message_id) :: Conduit.Message.t
+  def put_message_id(%Message{} = message, message_id) do
+    %{message | message_id: message_id}
+  end
+
+  @doc """
+  Assigns a message_id to the message when one isn't set already.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_new_message_id(%Conduit.Message{}, 1)
+      iex> message = put_new_message_id(message, 2)
+      iex> message.message_id
+      1
+
+  """
+  @spec put_new_message_id(Conduit.Message.t, message_id) :: Conduit.Message.t
+  def put_new_message_id(%Message{message_id: nil} = message, message_id) do
+    %{message | message_id: message_id}
+  end
+  def put_new_message_id(%Message{} = message, _) do
+    message
+  end
+
+  @doc """
+  Assigns a content_type to the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_content_type(%Conduit.Message{}, 1)
+      iex> message.content_type
+      1
+
+  """
+  @spec put_content_type(Conduit.Message.t, content_type) :: Conduit.Message.t
+  def put_content_type(%Message{} = message, content_type) do
+    %{message | content_type: content_type}
+  end
+
+  @doc """
+  Assigns a content_encoding to the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_content_encoding(%Conduit.Message{}, 1)
+      iex> message.content_encoding
+      1
+
+  """
+  @spec put_content_encoding(Conduit.Message.t, content_encoding) :: Conduit.Message.t
+  def put_content_encoding(%Message{} = message, content_encoding) do
+    %{message | content_encoding: content_encoding}
+  end
+
+  @doc """
+  Assigns a created_by to the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_created_by(%Conduit.Message{}, 1)
+      iex> message.created_by
+      1
+
+  """
+  @spec put_created_by(Conduit.Message.t, created_by) :: Conduit.Message.t
+  def put_created_by(%Message{} = message, created_by) do
+    %{message | created_by: created_by}
+  end
+
+  @doc """
+  Assigns a created_at to the message.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message = put_created_at(%Conduit.Message{}, 1)
+      iex> message.created_at
+      1
+
+  """
+  @spec put_created_at(Conduit.Message.t, created_at) :: Conduit.Message.t
+  def put_created_at(%Message{} = message, created_at) do
+    %{message | created_at: created_at}
   end
 
   @doc """
