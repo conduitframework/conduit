@@ -304,7 +304,7 @@ defmodule Conduit.Message do
   end
 
    @doc """
-  Assigns a header for the message specified by `key`.
+  Deletes a header from the message specified by `key`.
 
   ## Examples
 
