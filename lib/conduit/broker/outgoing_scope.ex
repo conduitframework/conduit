@@ -77,14 +77,18 @@ defmodule Conduit.Broker.OutgoingScope do
           plug pipeline
         end)
 
-        plug :publish, opts
-
-        defp publish(message, opts) do
+        defp call(message, _next, opts) do
           adapter =
             Application.get_env(@otp_app, @broker)
             |> Keyword.get(:adapter)
 
           adapter.publish(message, opts)
+        end
+
+        defp put_destination(message, next, destination) do
+          message
+          |> put_destination(destination)
+          |> next.()
         end
       end
       Module.put_attribute(broker, :publishers, {name, {module, opts}})

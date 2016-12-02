@@ -18,7 +18,7 @@ defmodule Conduit.Plug.LogIncoming do
     Keyword.get(opts, :log, :info)
   end
 
-  def call(message, level) do
+  def call(message, next, level) do
     start = System.monotonic_time()
 
     try do
@@ -26,7 +26,7 @@ defmodule Conduit.Plug.LogIncoming do
         ["Processing message from ", message.source]
       end)
 
-      super(message, level)
+      next.call(message)
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()

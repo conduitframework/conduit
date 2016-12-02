@@ -17,13 +17,13 @@ defmodule Conduit.Plug.CreatedBy do
 
   ## Examples
 
-      iex> message = Conduit.Plug.CreatedBy.call(%Conduit.Message{}, "myapp")
+      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, "myapp")
       iex> message.created_by
       "myapp"
   """
-  @spec call(Conduit.Message.t, binary | atom) :: Conduit.Message.t
-  def call(message, created_by) do
+  def call(message, next, created_by) do
     message
     |> put_created_by(created_by)
+    |> next.()
   end
 end

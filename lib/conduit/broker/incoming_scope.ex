@@ -77,6 +77,12 @@ defmodule Conduit.Broker.IncomingScope do
         end)
 
         plug subscriber
+
+        defp put_source(message, next, source) do
+          message
+          |> put_source(source)
+          |> next.()
+        end
       end
       Module.put_attribute(module, :subscribers, {name, {mod, opts}})
     end)

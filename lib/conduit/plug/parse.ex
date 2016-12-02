@@ -11,33 +11,35 @@ defmodule Conduit.Plug.Parse do
 
   This plug should be used in an incoming pipeline.
 
+  ## Examples
+
       plug Conduit.Plug.Parse
       plug Conduit.Plug.Parse, content_type: "application/json"
-
-  """
-
-  @doc """
-  Formats the message body based on the content type.
-
-  ## Examples
 
       iex> import Conduit.Message
       iex> message =
       iex>   %Conduit.Message{}
       iex>   |> put_body("{}")
-      iex>   |> Conduit.Plug.Parse.call(content_type: "application/json")
+      iex>   |> Conduit.Plug.Parse.run(content_type: "application/json")
       iex> message.body
       %{}
       iex> message.content_type
       "application/json"
+
+  """
+
+  @doc """
+  Formats the message body based on the content type.
   """
   @default_content_type "text/plain"
-  def call(message, opts) do
+  def call(message, next, opts) do
     content_type =
       Keyword.get(opts, :content_type)
       || Map.get(message, :content_type)
       || @default_content_type
 
-    Conduit.ContentType.parse(message, content_type, opts)
+    message
+    |> Conduit.ContentType.parse(content_type, opts)
+    |> next.()
   end
 end

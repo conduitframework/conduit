@@ -10,7 +10,7 @@ defmodule Conduit.Broker.DSLTest do
   defmodule MyApp.StuffSubscriber do
     use Conduit.Subscriber
 
-    def call(message, _opts), do: message
+    def process(message, _opts), do: message
   end
 
   defmodule Broker do
@@ -39,7 +39,7 @@ defmodule Conduit.Broker.DSLTest do
     outgoing do
       pipe_through :outgoing
 
-      publish :more_stuff, exchange: "amq.topic", to: "middle_out.created.more_stuff"
+      publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
     end
   end
 
@@ -74,7 +74,7 @@ defmodule Conduit.Broker.DSLTest do
       assert Broker.publishers == %{
         more_stuff: {
           Broker.MoreStuffOutgoing,
-          [exchange: "amq.topic", to: "middle_out.created.more_stuff"]
+          [exchange: "amq.topic", to: "my_app.created.more_stuff"]
         }
       }
     end

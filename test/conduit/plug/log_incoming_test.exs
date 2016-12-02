@@ -11,12 +11,12 @@ defmodule Conduit.Plug.LogIncomingTest do
     end
   end
 
-  describe ".call" do
+  describe ".run" do
     test "it logs the message being processed and how long it took" do
       message = %Message{source: "my.queue"}
 
       log = capture_log(fn ->
-        LogIncoming.call(message, :info)
+        LogIncoming.run(message, :info)
       end)
 
       assert log =~ "Processing message from my.queue"

@@ -10,7 +10,7 @@ defmodule Conduit.BrokerTest do
   defmodule MyApp.StuffSubscriber do
     use Conduit.Subscriber
 
-    def call(message, _opts), do: message
+    def process(message, _opts), do: message
   end
 
   defmodule Adapter do
@@ -61,7 +61,7 @@ defmodule Conduit.BrokerTest do
     outgoing do
       pipe_through :outgoing
 
-      publish :more_stuff, exchange: "amq.topic", to: "middle_out.created.more_stuff"
+      publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
     end
   end
 
@@ -87,7 +87,7 @@ defmodule Conduit.BrokerTest do
 
       Broker.publish(:more_stuff, %Conduit.Message{})
 
-      assert_received {:publish, %Conduit.Message{}, [exchange: "amq.topic", to: "middle_out.created.more_stuff"]}
+      assert_received {:publish, %Conduit.Message{}, [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
     end
   end
 end

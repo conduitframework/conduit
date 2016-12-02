@@ -25,19 +25,21 @@ defmodule Conduit.Plug.Format do
       iex> message =
       iex>   %Conduit.Message{}
       iex>   |> put_body(%{})
-      iex>   |> Conduit.Plug.Format.call(content_type: "application/json")
+      iex>   |> Conduit.Plug.Format.run(content_type: "application/json")
       iex> message.body
       "{}"
       iex> message.content_type
       "application/json"
   """
   @default_content_type "text/plain"
-  def call(message, opts) do
+  def call(message, next, opts) do
     content_type =
       Keyword.get(opts, :content_type)
       || Map.get(message, :content_type)
       || @default_content_type
 
-    Conduit.ContentType.format(message, content_type, opts)
+    message
+    |> Conduit.ContentType.format(content_type, opts)
+    |> next.()
   end
 end

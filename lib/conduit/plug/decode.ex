@@ -26,19 +26,21 @@ defmodule Conduit.Plug.Decode do
       iex> message =
       iex>   %Conduit.Message{}
       iex>   |> put_body("{}")
-      iex>   |> Conduit.Plug.Decode.call([])
+      iex>   |> Conduit.Plug.Decode.run
       iex> message.body
       "{}"
       iex> message.content_encoding
       "identity"
   """
   @default_content_encoding "identity"
-  def call(message, opts) do
+  def call(message, next, opts) do
     content_encoding =
       Keyword.get(opts, :content_encoding)
       || Map.get(message, :content_encoding)
       || @default_content_encoding
 
-    Conduit.Encoding.decode(message, content_encoding, opts)
+    message
+    |> Conduit.Encoding.decode(content_encoding, opts)
+    |> next.()
   end
 end

@@ -10,9 +10,19 @@ defmodule Conduit.Plug.CreatedAt do
   `:unix_epoch` may also be passed, which will
   set the timestamp to seconds since the UNIX epoch.
 
+  ## Examples
+
       plug Conduit.Plug.CreatedAt
       plug Conduit.Plug.CreatedAt, format: "{YYYY}-{M}-{D}"
       plug Conduit.Plug.CreatedAt, format: :unix_epoch
+
+      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, "{ISO:Extended:Z}")
+      iex> # e.g. "2016-11-16T03:00:24.575904Z"
+      iex> {:ok, %DateTime{}} = Timex.parse(message.created_at, "{ISO:Extended:Z}")
+      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, :unix_epoch)
+      iex> # e.g. 1479265596
+      iex> is_integer(message.created_at)
+      true
 
   """
 
@@ -22,21 +32,11 @@ defmodule Conduit.Plug.CreatedAt do
 
   @doc """
   Assigns a ISO8601 timestamp to the message.
-
-  ## Examples
-
-      iex> message = Conduit.Plug.CreatedAt.call(%Conduit.Message{}, "{ISO:Extended:Z}")
-      iex> # e.g. "2016-11-16T03:00:24.575904Z"
-      iex> {:ok, %DateTime{}} = Timex.parse(message.created_at, "{ISO:Extended:Z}")
-      iex> message = Conduit.Plug.CreatedAt.call(%Conduit.Message{}, :unix_epoch)
-      iex> # e.g. 1479265596
-      iex> is_integer(message.created_at)
-      true
   """
-  @spec call(Conduit.Message.t, binary | atom) :: Conduit.Message.t
-  def call(message, format) do
+  def call(message, next, format) do
     message
     |> put_created_at(created_at(format))
+    |> next.()
   end
 
   defp created_at(:unix_epoch), do: Timex.to_unix(Timex.now)

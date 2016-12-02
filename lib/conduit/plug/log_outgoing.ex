@@ -18,7 +18,7 @@ defmodule Conduit.Plug.LogOutgoing do
     Keyword.get(opts, :log, :info)
   end
 
-  def call(message, level) do
+  def call(message, next, level) do
     start = System.monotonic_time()
 
     try do
@@ -26,7 +26,7 @@ defmodule Conduit.Plug.LogOutgoing do
         ["Sending message to ", message.destination]
       end)
 
-      super(message, level)
+      next.(message)
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
