@@ -11,15 +11,10 @@ defmodule Conduit.Plug.Format do
 
   This plug should be used in an outgoing pipeline.
 
+  ## Examples
+
       plug Conduit.Plug.Format
       plug Conduit.Plug.Format, content_type: "application/json"
-
-  """
-
-  @doc """
-  Formats the message body based on the content type.
-
-  ## Examples
 
       iex> import Conduit.Message
       iex> message =
@@ -30,6 +25,11 @@ defmodule Conduit.Plug.Format do
       "{}"
       iex> message.content_type
       "application/json"
+
+  """
+
+  @doc """
+  Formats the message body based on the content type.
   """
   @default_content_type "text/plain"
   def call(message, next, opts) do

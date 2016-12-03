@@ -54,8 +54,6 @@ defmodule Conduit.Message do
   @type status :: :ack | :nack
   @type assigns :: %{atom => any}
   @type private :: %{atom => any}
-  @type before_nack :: [(t -> t)]
-  @type before_ack :: [(t -> t)]
 
   @type t :: %__MODULE__{
     source: source,
@@ -71,10 +69,7 @@ defmodule Conduit.Message do
     body: body,
     status: status,
     assigns: assigns,
-    private: private,
-    before_nack: before_nack,
-    before_ack: before_ack,
-    halted: boolean
+    private: private
   }
   defstruct source: nil,
             destination: nil,
@@ -89,10 +84,7 @@ defmodule Conduit.Message do
             body: nil,
             status: :ack,
             assigns: %{},
-            private: %{},
-            before_ack: [],
-            before_nack: [],
-            halted: false
+            private: %{}
 
   alias Conduit.Message
 
@@ -384,11 +376,7 @@ defmodule Conduit.Message do
   """
   @spec nack(Conduit.Message.t) :: Conduit.Message.t
   def nack(message) do
-    message = %{message | status: :nack, halted: true}
-
-    run_callbacks(message)
-
-    message
+    %{message | status: :nack}
   end
 
   @doc """
@@ -453,45 +441,5 @@ defmodule Conduit.Message do
   @spec put_private(Conduit.Message.t, atom, any) :: Conduit.Message.t
   def put_private(%Message{private: private} = message, key, value) when is_atom(key) do
     %{message | private: Map.put(private, key, value)}
-  end
-
-  @doc """
-  Registers a callback to be called before nack is sent to the message queue.
-
-  ## Examples
-
-      import Conduit.Message
-      message = register_before_nack(%Conduit.Message{}, fn message -> message end)
-
-  """
-  @spec register_before_nack(Conduit.Message.t, (t -> t)) :: Conduit.Message.t
-  def register_before_nack(%Message{before_nack: before_nack} = message, fun) when is_function(fun) do
-    %{message | before_nack: [fun | before_nack]}
-  end
-
-  @doc """
-  Registers a callback to be called before ack is sent to the message queue.
-
-  ## Examples
-
-      import Conduit.Message
-      message = register_before_ack(%Conduit.Message{}, fn message -> message end)
-
-
-  """
-  @spec register_before_ack(Conduit.Message.t, (t -> t)) :: Conduit.Message.t
-  def register_before_ack(%Message{before_ack: before_ack} = message, fun) when is_function(fun) do
-    %{message | before_ack: [fun | before_ack]}
-  end
-
-  @doc false
-  @spec run_callbacks(Conduit.Message.t) :: Conduit.Message.t
-  @spec run_callbacks(Conduit.Message.t, Conduit.Plug.opts) :: Conduit.Message.t
-  def run_callbacks(%Message{} = message), do: run_callbacks(message, [])
-  def run_callbacks(%Message{status: :nack, before_nack: before_nack} = message, _opts) do
-    Enum.reduce(before_nack, message, fn fun, mess -> fun.(mess) end)
-  end
-  def run_callbacks(%Message{status: :ack, before_ack: before_ack} = message, _opts) do
-    Enum.reduce(before_ack, message, fn fun, mess -> fun.(mess) end)
   end
 end

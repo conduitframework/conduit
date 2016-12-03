@@ -9,12 +9,14 @@ defmodule Conduit.Plug.DeadLetter do
     * `broker` - The broker to publish the message with.
     * `publish_to` - The place to publish the message.
 
-      plug Conduit.Plug.DeadLetter, broker: MyApp.Broker, publish_to: :error
-
   In order for this to work, you must also define an outgoing publish with the same
   name as the `publish_to` option in your broker.
 
       publish :error, to: "my_app.error"
+
+  ## Examples
+
+      plug Conduit.Plug.DeadLetter, broker: MyApp.Broker, publish_to: :error
 
   """
 
@@ -30,15 +32,16 @@ defmodule Conduit.Plug.DeadLetter do
   dead letter destination.
   """
   def call(message, next, opts) do
-    try do
-      message
-      |> register_before_nack(&publish_dead_letter(&1, opts))
-      |> next.()
-    catch kind, reason ->
-      publish_dead_letter(message, opts)
+    message = next.(message)
 
-      reraise kind, reason, System.stacktrace
+    case message.status do
+      :nack -> publish_dead_letter(message, opts)
+      :ack -> message
     end
+  rescue error ->
+    publish_dead_letter(message, opts)
+
+    reraise error, System.stacktrace
   end
 
   @spec publish_dead_letter(Conduit.Message.t, Keyword.t) :: Conduit.Message.t

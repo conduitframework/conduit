@@ -4,20 +4,20 @@ defmodule Conduit.Plug.CorrelationId do
   Assigns a UUID for the correlation ID of the message if one isn't present and always assigns
   it to the logger metadata.
 
+  ## Examples
+
       plug Conduit.Plug.CorrelationId
+
+      iex> require Logger
+      iex> message = Conduit.Plug.CorrelationId.run(%Conduit.Message{})
+      iex> message.correlation_id == Logger.metadata[:correlation_id]
+      true
 
   """
 
   @doc """
   Assigns a UUID for the correlation ID of the message if one isn't present and always assigns
   it to the logger metadata.
-
-  ## Examples
-
-      iex> require Logger
-      iex> message = Conduit.Plug.CorrelationId.run(%Conduit.Message{})
-      iex> message.correlation_id == Logger.metadata[:correlation_id]
-      true
   """
   def call(message, next, _opts) do
     message

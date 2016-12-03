@@ -14,6 +14,12 @@ defmodule Conduit.Subscriber do
       def call(message, next, opts) do
         process(message, opts)
       end
+
+      def process(message, _opts) do
+        message
+      end
+
+      defoverridable [process: 2]
     end
   end
 end

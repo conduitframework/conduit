@@ -6,10 +6,9 @@ defmodule Conduit.Plug.LogOutgoing do
 
   This is intended to be used in an outgoing pipeline.
 
+  ## Examples
+
       plug Conduit.Plug.LogIncoming
-
-  The log level can be passed as an option. The default level is `:info`.
-
       plug Conduit.Plug.LogIncoming, log: :debug
 
   """

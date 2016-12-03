@@ -77,7 +77,7 @@ defmodule Conduit.Broker.OutgoingScope do
           plug pipeline
         end)
 
-        defp call(message, _next, opts) do
+        def call(message, _next, opts) do
           adapter =
             Application.get_env(@otp_app, @broker)
             |> Keyword.get(:adapter)
@@ -106,7 +106,7 @@ defmodule Conduit.Broker.OutgoingScope do
       def publish(name, message, opts \\ []) do
         {publisher, broker_opts} = publishers[name]
 
-        publisher.call(message, Keyword.merge(broker_opts, opts))
+        publisher.run(message, Keyword.merge(broker_opts, opts))
       end
     end
   end

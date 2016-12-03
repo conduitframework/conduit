@@ -12,15 +12,10 @@ defmodule Conduit.Plug.Decode do
   This plug should be used in an incoming pipeline. Generally before
   a `Conduit.Plug.Parse` plug.
 
+  ## Examples
+
       plug Conduit.Plug.Decode
       plug Conduit.Plug.Decode, content_encoding: "gzip"
-
-  """
-
-  @doc """
-  Formats the message body based on the content encoding.
-
-  ## Examples
 
       iex> import Conduit.Message
       iex> message =
@@ -31,6 +26,11 @@ defmodule Conduit.Plug.Decode do
       "{}"
       iex> message.content_encoding
       "identity"
+
+  """
+
+  @doc """
+  Formats the message body based on the content encoding.
   """
   @default_content_encoding "identity"
   def call(message, next, opts) do

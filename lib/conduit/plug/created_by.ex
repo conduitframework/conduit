@@ -3,7 +3,13 @@ defmodule Conduit.Plug.CreatedBy do
   @moduledoc """
   Assigns name of app to created_by of the message.
 
+  ## Examples
+
       plug Conduit.Plug.CreatedBy, app: "myapp"
+
+      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, "myapp")
+      iex> message.created_by
+      "myapp"
 
   """
 
@@ -14,12 +20,6 @@ defmodule Conduit.Plug.CreatedBy do
 
   @doc """
   Assigns created_by.
-
-  ## Examples
-
-      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, "myapp")
-      iex> message.created_by
-      "myapp"
   """
   def call(message, next, created_by) do
     message

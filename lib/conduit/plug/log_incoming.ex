@@ -6,10 +6,9 @@ defmodule Conduit.Plug.LogIncoming do
 
   This is intended to be used in an incoming pipeline or subscriber.
 
+  ## Examples
+
       plug Conduit.Plug.LogIncoming
-
-  The log level can be passed as an option. The default level is `:info`.
-
       plug Conduit.Plug.LogIncoming, log: :debug
 
   """
@@ -26,7 +25,7 @@ defmodule Conduit.Plug.LogIncoming do
         ["Processing message from ", message.source]
       end)
 
-      next.call(message)
+      next.(message)
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()

@@ -12,33 +12,35 @@ defmodule Conduit.Plug.Encode do
   This plug should be used in an outgoing pipeline. Generally after
   a `Conduit.Plug.Format` plug.
 
+  ## Examples
+
       plug Conduit.Plug.Encode
       plug Conduit.Plug.Encode, content_encoding: "gzip"
-
-  """
-
-  @doc """
-  Encodes the message body based on the content encoding.
-
-  ## Examples
 
       iex> import Conduit.Message
       iex> message =
       iex>   %Conduit.Message{}
       iex>   |> put_body("{}")
-      iex>   |> Conduit.Plug.Encode.call([])
+      iex>   |> Conduit.Plug.Encode.run
       iex> message.body
       "{}"
       iex> message.content_encoding
       "identity"
+
+  """
+
+  @doc """
+  Encodes the message body based on the content encoding.
   """
   @default_content_encoding "identity"
-  def call(message, opts) do
+  def call(message, next, opts) do
     content_encoding =
       Keyword.get(opts, :content_encoding)
       || Map.get(message, :content_encoding)
       || @default_content_encoding
 
-    Conduit.Encoding.encode(message, content_encoding, opts)
+    message
+    |> Conduit.Encoding.encode(content_encoding, opts)
+    |> next.()
   end
 end
