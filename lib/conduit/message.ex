@@ -40,15 +40,15 @@ defmodule Conduit.Message do
     * `private` - shared library data as a map
   """
 
-  @type source :: binary | nil
+  @type source :: binary | fun | nil
   @type destination :: binary | fun | nil
-  @type user_id :: binary | integer | nil
-  @type correlation_id :: binary | integer | nil
-  @type message_id :: binary | integer | nil
-  @type content_type :: String.t | nil
-  @type content_encoding :: String.t | nil
-  @type created_by :: binary | nil
-  @type created_at :: String.t | integer | nil
+  @type user_id :: binary | integer | fun | nil
+  @type correlation_id :: binary | integer | fun | nil
+  @type message_id :: binary | integer | fun | nil
+  @type content_type :: String.t | fun | nil
+  @type content_encoding :: String.t | fun | nil
+  @type created_by :: binary | fun | nil
+  @type created_at :: String.t | integer | fun | nil
   @type headers :: %{String.t => any}
   @type body :: any
   @type status :: :ack | :nack
@@ -94,12 +94,23 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_source(%Conduit.Message{}, "my.queue")
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_source("my.queue")
+      iex>   |> put_header("routing_key", "my.routing_key")
       iex> message.source
       "my.queue"
+      iex> message = put_source(message, fn mess ->
+      iex>   get_header(mess, "routing_key")
+      iex> end)
+      iex> message.source
+      "my.routing_key"
 
   """
   @spec put_source(Conduit.Message.t, source) :: Conduit.Message.t
+  def put_source(%Message{} = message, source) when is_function(source) do
+    put_source(message, source.(message))
+  end
   def put_source(%Message{} = message, source) do
     %{message | source: source}
   end
@@ -116,7 +127,7 @@ defmodule Conduit.Message do
       iex>   |> put_destination("my.queue")
       iex> message.destination
       "my.queue"
-      iex> message = put_destination(message, fn message -> message.source <> ".error" end)
+      iex> message = put_destination(message, fn mess -> mess.source <> ".error" end)
       iex> message.destination
       "over.there.error"
 
@@ -138,9 +149,15 @@ defmodule Conduit.Message do
       iex> message = put_user_id(%Conduit.Message{}, 1)
       iex> message.user_id
       1
+      iex> message = put_user_id(message, fn _mess -> 2 end)
+      iex> message.user_id
+      2
 
   """
   @spec put_user_id(Conduit.Message.t, user_id) :: Conduit.Message.t
+  def put_user_id(%Message{} = message, user_id) when is_function(user_id) do
+    put_user_id(message, user_id.(message))
+  end
   def put_user_id(%Message{} = message, user_id) do
     %{message | user_id: user_id}
   end
@@ -154,9 +171,15 @@ defmodule Conduit.Message do
       iex> message = put_correlation_id(%Conduit.Message{}, 1)
       iex> message.correlation_id
       1
+      iex> message = put_correlation_id(message, fn _mess -> 2 end)
+      iex> message.correlation_id
+      2
 
   """
   @spec put_correlation_id(Conduit.Message.t, correlation_id) :: Conduit.Message.t
+  def put_correlation_id(%Message{} = message, correlation_id) when is_function(correlation_id) do
+    put_correlation_id(message, correlation_id.(message))
+  end
   def put_correlation_id(%Message{} = message, correlation_id) do
     %{message | correlation_id: correlation_id}
   end
@@ -171,11 +194,15 @@ defmodule Conduit.Message do
       iex> message = put_new_correlation_id(message, 2)
       iex> message.correlation_id
       1
+      iex> message = put_new_correlation_id(%Conduit.Message{}, fn _mess -> 1 end)
+      iex> message = put_new_correlation_id(message, fn _mess -> 2 end)
+      iex> message.correlation_id
+      1
 
   """
   @spec put_new_correlation_id(Conduit.Message.t, correlation_id) :: Conduit.Message.t
   def put_new_correlation_id(%Message{correlation_id: nil} = message, correlation_id) do
-    %{message | correlation_id: correlation_id}
+    put_correlation_id(message, correlation_id)
   end
   def put_new_correlation_id(%Message{} = message, _) do
     message
@@ -190,9 +217,14 @@ defmodule Conduit.Message do
       iex> message = put_message_id(%Conduit.Message{}, 1)
       iex> message.message_id
       1
-
+      iex> message = put_message_id(%Conduit.Message{}, fn _mess -> 1 end)
+      iex> message.message_id
+      1
   """
   @spec put_message_id(Conduit.Message.t, message_id) :: Conduit.Message.t
+  def put_message_id(%Message{} = message, message_id) when is_function(message_id) do
+    put_message_id(message, message_id.(message))
+  end
   def put_message_id(%Message{} = message, message_id) do
     %{message | message_id: message_id}
   end
@@ -207,11 +239,15 @@ defmodule Conduit.Message do
       iex> message = put_new_message_id(message, 2)
       iex> message.message_id
       1
+      iex> message = put_new_message_id(%Conduit.Message{}, fn _mess -> 1 end)
+      iex> message = put_new_message_id(message, fn _mess -> 2 end)
+      iex> message.message_id
+      1
 
   """
   @spec put_new_message_id(Conduit.Message.t, message_id) :: Conduit.Message.t
   def put_new_message_id(%Message{message_id: nil} = message, message_id) do
-    %{message | message_id: message_id}
+    put_message_id(message, message_id)
   end
   def put_new_message_id(%Message{} = message, _) do
     message
@@ -223,12 +259,18 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_content_type(%Conduit.Message{}, 1)
+      iex> message = put_content_type(%Conduit.Message{}, "application/json")
       iex> message.content_type
-      1
+      "application/json"
+      iex> message = put_content_type(%Conduit.Message{}, fn _mess -> "application/json" end)
+      iex> message.content_type
+      "application/json"
 
   """
   @spec put_content_type(Conduit.Message.t, content_type) :: Conduit.Message.t
+  def put_content_type(%Message{} = message, content_type) when is_function(content_type) do
+    put_content_type(message, content_type.(message))
+  end
   def put_content_type(%Message{} = message, content_type) do
     %{message | content_type: content_type}
   end
@@ -239,12 +281,18 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_content_encoding(%Conduit.Message{}, 1)
+      iex> message = put_content_encoding(%Conduit.Message{}, "gzip")
       iex> message.content_encoding
-      1
+      "gzip"
+      iex> message = put_content_encoding(%Conduit.Message{}, fn _mess -> "gzip" end)
+      iex> message.content_encoding
+      "gzip"
 
   """
   @spec put_content_encoding(Conduit.Message.t, content_encoding) :: Conduit.Message.t
+  def put_content_encoding(%Message{} = message, content_encoding) when is_function(content_encoding) do
+    put_content_encoding(message, content_encoding.(message))
+  end
   def put_content_encoding(%Message{} = message, content_encoding) do
     %{message | content_encoding: content_encoding}
   end
@@ -255,12 +303,18 @@ defmodule Conduit.Message do
   ## Examples
 
       iex> import Conduit.Message
-      iex> message = put_created_by(%Conduit.Message{}, 1)
+      iex> message = put_created_by(%Conduit.Message{}, "my_app")
       iex> message.created_by
-      1
+      "my_app"
+      iex> message = put_created_by(%Conduit.Message{}, fn _mess ->"my_app" end)
+      iex> message.created_by
+      "my_app"
 
   """
   @spec put_created_by(Conduit.Message.t, created_by) :: Conduit.Message.t
+  def put_created_by(%Message{} = message, created_by) when is_function(created_by) do
+    put_created_by(message, created_by.(message))
+  end
   def put_created_by(%Message{} = message, created_by) do
     %{message | created_by: created_by}
   end
@@ -274,9 +328,15 @@ defmodule Conduit.Message do
       iex> message = put_created_at(%Conduit.Message{}, 1)
       iex> message.created_at
       1
+      iex> message = put_created_at(%Conduit.Message{}, fn _mess -> 1 end)
+      iex> message.created_at
+      1
 
   """
   @spec put_created_at(Conduit.Message.t, created_at) :: Conduit.Message.t
+  def put_created_at(%Message{} = message, created_at) when is_function(created_at) do
+    put_created_at(message, created_at.(message))
+  end
   def put_created_at(%Message{} = message, created_at) do
     %{message | created_at: created_at}
   end
@@ -306,8 +366,15 @@ defmodule Conduit.Message do
       iex> message = put_header(%Conduit.Message{}, "retries", 1)
       iex> get_header(message, "retries")
       1
+      iex> message = put_header(message, "retries", fn mess -> get_header(mess, "retries") + 1 end)
+      iex> get_header(message, "retries")
+      2
+
   """
   @spec put_header(Conduit.Message.t, String.t, any) :: Conduit.Message.t
+  def put_header(%Message{} = message, key, value) when is_function(value) and is_binary(key) do
+    put_header(message, key, value.(message))
+  end
   def put_header(%Message{headers: headers} = message, key, value) when is_binary(key) do
     %{message | headers: put_in(headers, [key], value)}
   end
@@ -337,9 +404,15 @@ defmodule Conduit.Message do
       iex> message = put_body(%Conduit.Message{}, "hi")
       iex> message.body
       "hi"
+      iex> message = put_body(message, fn _mess -> "bye" end)
+      iex> message.body
+      "bye"
 
   """
   @spec put_body(Conduit.Message.t, body) :: Conduit.Message.t
+  def put_body(%Message{} = message, body) when is_function(body) do
+    put_body(message, body.(message))
+  end
   def put_body(%Message{} = message, body) do
     %{message | body: body}
   end

@@ -51,6 +51,6 @@ defmodule Conduit.Plug.DeadLetter do
 
     broker.publish(publish_to, message, opts)
 
-    ack(message)
+    message
   end
 end

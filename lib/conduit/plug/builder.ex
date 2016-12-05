@@ -100,6 +100,11 @@ defmodule Conduit.Plug.Builder do
 
   defp quote_module_plug(plug, next, opts) do
     if Code.ensure_compiled?(plug) do
+      opts =
+        opts
+        |> plug.init
+        |> Macro.escape
+
       quote do
         unquote(plug).__build__(unquote(next), unquote(opts))
       end

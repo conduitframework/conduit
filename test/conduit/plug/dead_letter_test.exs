@@ -18,7 +18,7 @@ defmodule Conduit.Plug.DeadLetterTest do
     end
 
     test "it publishes the message to the dead letter destination and acks the message" do
-      assert %Conduit.Message{status: :ack} = NackedDeadLetter.run(%Conduit.Message{})
+      assert %Conduit.Message{status: :nack} = NackedDeadLetter.run(%Conduit.Message{})
 
       assert_received {:publish, :error, %Conduit.Message{}, broker: Broker, publish_to: :error}
     end
@@ -37,6 +37,21 @@ defmodule Conduit.Plug.DeadLetterTest do
         ErroredDeadLetter.run(%Conduit.Message{})
       end)
       assert_received {:publish, :error, %Conduit.Message{}, broker: Broker, publish_to: :error}
+    end
+  end
+
+  describe "when the message is successful" do
+    defmodule AckDeadLetter do
+      use Conduit.Subscriber
+      plug Conduit.Plug.DeadLetter, broker: Broker, publish_to: :error
+
+      def process(message, _opts), do: message
+    end
+
+    test "it does not send a dead letter" do
+      assert %Conduit.Message{status: :ack} = AckDeadLetter.run(%Conduit.Message{})
+
+      refute_received {:publish, _, %Conduit.Message{}, _}
     end
   end
 end
