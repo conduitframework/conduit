@@ -1,13 +1,22 @@
+machine:
+  environment:
+    PATH: "$HOME/.asdf/bin:$HOME/.asdf/shims:$PATH"
+
 dependencies:
+  cache_directories:
+  pre:
+    - if ! asdf | grep version; then git clone https://github.com/HashNuke/asdf.git ~/.asdf; fi
+    - asdf plugin-add erlang https://github.com/HashNuke/asdf-erlang.git
+    - asdf plugin-add elixir https://github.com/HashNuke/asdf-elixir.git
+    - erlang_version=$(awk '/erlang/ { print $2 }' .tool-versions) && asdf install erlang ${erlang_version}
+    - elixir_version=$(awk '/elixir/ { print $2 }' .tool-versions) && asdf install elixir ${elixir_version}
+    - mix local.rebar --force
+    - yes | mix deps.get
   cache_directories:
     - deps
     - _build
-  pre:
-    - wget http://packages.erlang-solutions.com/erlang-solutions_1.0_all.deb && sudo dpkg -i erlang-solutions_1.0_all.deb
-    - sudo apt-get update
-    - sudo apt-get install elixir
-    - yes | mix deps.get
-    - mix local.rebar
+    - ~/.asdf
+
 test:
   override:
     - mix coveralls.circle
