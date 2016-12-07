@@ -2,7 +2,7 @@ defmodule Conduit.Plug do
   @moduledoc """
   Defines the plug behavior
   """
-  @type opts :: tuple | atom | integer | float | [opts]
+  @type opts :: tuple | atom | integer | float | [opts] | map | fun
   @type next :: (Conduit.Message.t -> Conduit.Message.t)
 
   @callback init(opts) :: opts

@@ -18,6 +18,12 @@ defmodule Conduit.Mixfile do
      description: "Message queue framework, with support for middleware and multiple adapters.",
      package: package,
 
+     dialyzer: [flags: ["-Werror_handling", "-Wrace_conditions"]],
+
+     # Coveralls
+     test_coverage: [tool: ExCoveralls],
+     preferred_cli_env: ["coveralls": :test, "coveralls.circle": :test],
+
      aliases: ["publish": ["hex.publish", &git_tag/1]]]
   end
 
@@ -25,7 +31,7 @@ defmodule Conduit.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :timex]]
+    [applications: [:logger, :timex, :poison, :uuid]]
   end
 
   # Dependencies can be Hex packages:
@@ -41,7 +47,9 @@ defmodule Conduit.Mixfile do
     [{:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
      {:ex_doc, "~> 0.14", only: :dev},
-     {:poison, "~> 3.0"}]
+     {:poison, "~> 3.0"},
+     {:dialyxir, "~> 0.4", only: [:dev]},
+     {:excoveralls, "~> 0.5", only: :test}]
   end
 
   defp package do

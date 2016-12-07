@@ -26,10 +26,13 @@ defmodule Conduit.Plug.LogIncoming do
       end)
 
       next.(message)
+    rescue error ->
+      Logger.log(:error, Exception.format(:error, error))
+      reraise error, System.stacktrace
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
-        diff = System.convert_time_unit(stop - start, :native, :micro_seconds)
+        diff = System.convert_time_unit(stop - start, :native, :microseconds)
 
         ["Processed message from ", message.source, " in ", formatted_diff(diff)]
       end)

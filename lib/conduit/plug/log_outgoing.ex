@@ -26,10 +26,13 @@ defmodule Conduit.Plug.LogOutgoing do
       end)
 
       next.(message)
+    rescue error ->
+      Logger.log(:error, Exception.format(:error, error))
+      reraise error, System.stacktrace
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
-        diff = System.convert_time_unit(stop - start, :native, :micro_seconds)
+        diff = System.convert_time_unit(stop - start, :native, :microseconds)
 
         ["Sent message to ", message.destination, " in ", formatted_diff(diff)]
       end)
