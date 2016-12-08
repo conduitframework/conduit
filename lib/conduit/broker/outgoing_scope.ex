@@ -18,7 +18,7 @@ defmodule Conduit.Broker.OutgoingScope do
   """
   def start_scope(broker) do
     if get_scope(broker) do
-      raise "outgoing cannot be nested under anything else"
+      raise Conduit.BrokerDefinitionError, "outgoing cannot be nested under anything else"
     else
       put_scope(broker, %__MODULE__{})
     end
@@ -39,7 +39,7 @@ defmodule Conduit.Broker.OutgoingScope do
       sub = {name, opts}
       put_scope(broker, %{scope | publishers: [sub | scope.publishers]})
     else
-      raise "publish can only be called under an incoming block"
+      raise Conduit.BrokerDefinitionError, "publish can only be called under an outgoing block"
     end
   end
 

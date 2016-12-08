@@ -23,6 +23,10 @@ defmodule Conduit.ContentType do
     {"application/json", Conduit.ContentType.JSON}
   ]
 
+  defmodule UnknownContentType do
+    defexception [:message]
+  end
+
   @doc false
   defmacro __using__(_opts) do
     quote do
@@ -79,6 +83,6 @@ defmodule Conduit.ContentType do
   end
 
   defp content_type(content_type) do
-    raise "No content type found for #{content_type}"
+    raise Conduit.UnknownContentTypeError, "Unknown content type #{inspect content_type}"
   end
 end

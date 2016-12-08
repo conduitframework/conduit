@@ -76,6 +76,6 @@ defmodule Conduit.Encoding do
   end
 
   defp content_encoding(content_encoding) do
-    raise "No encoding found for #{content_encoding}"
+    raise Conduit.UnknownEncodingError, "Unknown encoding #{inspect content_encoding}"
   end
 end

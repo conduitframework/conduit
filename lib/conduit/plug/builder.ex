@@ -56,12 +56,12 @@ defmodule Conduit.Plug.Builder do
 
     quote do
       def run(message, opts \\ []) do
+        opts = init(opts)
+
         __build__(&(&1), opts).(message)
       end
 
       def __build__(next, opts) do
-        opts = init(opts)
-
         unquote(pipeline)
       end
     end
@@ -111,7 +111,7 @@ defmodule Conduit.Plug.Builder do
         unquote(plug).__build__(unquote(next), unquote(opts))
       end
     else
-      raise "Couldn't find module #{plug}"
+      raise Conduit.UnknownPlugError, "Couldn't find module #{inspect plug}"
     end
   end
 

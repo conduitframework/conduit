@@ -28,4 +28,15 @@ defmodule Conduit.Plug.BuilderTest do
       assert message.body == 3
     end
   end
+
+  @error_message "Couldn't find module MissingPlug"
+  test "raises error when module plug can't be found" do
+    assert_raise Conduit.UnknownPlugError, @error_message, fn ->
+      defmodule FailPlug do
+        use Conduit.Plug.Builder
+
+        plug MissingPlug
+      end
+    end
+  end
 end

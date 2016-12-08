@@ -18,7 +18,7 @@ defmodule Conduit.Broker.IncomingScope do
   """
   def start_scope(module, namespace) do
     if get_scope(module) do
-      raise "incoming cannot be nested under anything else"
+      raise Conduit.BrokerDefinitionError, "incoming cannot be nested under anything else"
     else
       put_scope(module, %__MODULE__{namespace: namespace})
     end
@@ -53,7 +53,7 @@ defmodule Conduit.Broker.IncomingScope do
       sub = {name, subscriber, opts}
       put_scope(module, %{scope | subscribers: [sub | scope.subscribers]})
     else
-      raise "subscribe can only be called under an incoming block"
+      raise Conduit.BrokerDefinitionError, "subscribe can only be called under an incoming block"
     end
   end
 

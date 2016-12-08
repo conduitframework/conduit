@@ -22,5 +22,27 @@ defmodule Conduit.Plug.LogIncomingTest do
       assert log =~ "Processing message from my.queue"
       assert log =~ ~r/Processed message from my\.queue in \d+(ms|µs)/
     end
+
+    defmodule ErrorPlug do
+      use Conduit.Plug.Builder
+      plug Conduit.Plug.LogIncoming, log: :info
+
+      def call(_, _, _) do
+        raise "error"
+      end
+    end
+    test "it logs error messages from exceptions" do
+      message = %Message{source: "my.queue"}
+
+      log = capture_log(fn ->
+        assert_raise RuntimeError, "error", fn ->
+          ErrorPlug.run(message)
+        end
+      end)
+
+      assert log =~ "Processing message from my.queue"
+      assert log =~ "** (RuntimeError) error"
+      assert log =~ ~r/Processed message from my\.queue in \d+(ms|µs)/
+    end
   end
 end

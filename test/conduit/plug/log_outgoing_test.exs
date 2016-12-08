@@ -22,5 +22,27 @@ defmodule Conduit.Plug.LogOutgoingTest do
       assert log =~ "Sending message to my.queue"
       assert log =~ ~r/Sent message to my\.queue in \d+(ms|µs)/
     end
+
+    defmodule ErrorPlug do
+      use Conduit.Plug.Builder
+      plug Conduit.Plug.LogOutgoing, log: :info
+
+      def call(_, _, _) do
+        raise "error"
+      end
+    end
+    test "it logs error messages from exceptions" do
+      message = %Message{destination: "my.queue"}
+
+      log = capture_log fn ->
+        assert_raise RuntimeError, "error", fn ->
+          ErrorPlug.run(message)
+        end
+      end
+
+      assert log =~ "Sending message to my.queue"
+      assert log =~ "** (RuntimeError) error"
+      assert log =~ ~r/Sent message to my\.queue in \d+(ms|µs)/
+    end
   end
 end

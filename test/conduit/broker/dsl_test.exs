@@ -79,4 +79,54 @@ defmodule Conduit.Broker.DSLTest do
       }
     end
   end
+
+  @error_message "outgoing cannot be nested under anything else"
+  test "raises error when outgoing is nested" do
+    assert_raise Conduit.BrokerDefinitionError, @error_message, fn ->
+      defmodule NestedOutgoingBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        outgoing do
+          outgoing do
+          end
+        end
+      end
+    end
+  end
+
+  @error_message "publish can only be called under an outgoing block"
+  test "raises error when publish is called outside outgoing" do
+    assert_raise Conduit.BrokerDefinitionError, @error_message, fn ->
+      defmodule NestedOutgoingBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+      end
+    end
+  end
+
+  @error_message "incoming cannot be nested under anything else"
+  test "raises error when incoming is nested" do
+    assert_raise Conduit.BrokerDefinitionError, @error_message, fn ->
+      defmodule NestedOutgoingBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        incoming Conduit.Broker.DSLTest.MyApp do
+          incoming Conduit.Broker.DSLTest.MyApp do
+          end
+        end
+      end
+    end
+  end
+
+  @error_message "subscribe can only be called under an incoming block"
+  test "raises error when subscribe is called outside incoming" do
+    assert_raise Conduit.BrokerDefinitionError, @error_message, fn ->
+      defmodule NestedOutgoingBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
+      end
+    end
+  end
 end
