@@ -60,6 +60,8 @@ defmodule Conduit.Plug.Builder do
       end
 
       def __build__(next, opts) do
+        opts = init(opts)
+
         unquote(pipeline)
       end
     end

@@ -7,7 +7,7 @@ defmodule Conduit.Plug.CreatedBy do
 
       plug Conduit.Plug.CreatedBy, app: "myapp"
 
-      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, "myapp")
+      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, app: "myapp")
       iex> message.created_by
       "myapp"
 

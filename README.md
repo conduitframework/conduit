@@ -57,7 +57,7 @@ defmodule MyApp.Broker do
 
   pipeline :out_tracking do
     plug Conduit.Plug.CorrelationId
-    plug Conduit.Plug.CreatedBy
+    plug Conduit.Plug.CreatedBy, app: "my_app"
     plug Conduit.Plug.CreatedAt
     plug Conduit.Plug.LogOutgoing
   end

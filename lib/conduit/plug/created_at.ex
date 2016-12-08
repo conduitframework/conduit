@@ -16,10 +16,10 @@ defmodule Conduit.Plug.CreatedAt do
       plug Conduit.Plug.CreatedAt, format: "{YYYY}-{M}-{D}"
       plug Conduit.Plug.CreatedAt, format: :unix_epoch
 
-      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, "{ISO:Extended:Z}")
+      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, format: "{ISO:Extended:Z}")
       iex> # e.g. "2016-11-16T03:00:24.575904Z"
       iex> {:ok, %DateTime{}} = Timex.parse(message.created_at, "{ISO:Extended:Z}")
-      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, :unix_epoch)
+      iex> message = Conduit.Plug.CreatedAt.run(%Conduit.Message{}, format: :unix_epoch)
       iex> # e.g. 1479265596
       iex> is_integer(message.created_at)
       true

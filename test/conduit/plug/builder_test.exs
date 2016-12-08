@@ -23,7 +23,7 @@ defmodule Conduit.Plug.BuilderTest do
       message =
         %Message{}
         |> put_body(1)
-        |> Adder.run(2)
+        |> Adder.run(by: 2)
 
       assert message.body == 3
     end

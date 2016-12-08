@@ -16,7 +16,7 @@ defmodule Conduit.Plug.LogOutgoingTest do
       message = %Message{destination: "my.queue"}
 
       log = capture_log(fn ->
-        LogOutgoing.run(message, :info)
+        LogOutgoing.run(message, log: :info)
       end)
 
       assert log =~ "Sending message to my.queue"
