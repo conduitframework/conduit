@@ -11,6 +11,11 @@ dependencies:
     - asdf install
     - mix local.rebar --force
     - yes | mix deps.get
+  override:
+    - mix compile
+    - MIX_ENV=test mix compile
+    - MIX_ENV=prod mix compile
+    - mix dialyzer --halt-exit-status
   cache_directories:
     - deps
     - _build
@@ -19,5 +24,3 @@ dependencies:
 test:
   override:
     - mix coveralls.circle
-    - mix dialyzer --halt-exit-status
-    - MIX_ENV=prod mix compile
