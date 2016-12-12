@@ -10,7 +10,7 @@ The package can be installed as:
 
     ```elixir
     def deps do
-      [{:conduit, "~> 0.5.0"}]
+      [{:conduit, "~> 0.6.0"}]
     end
     ```
 
