@@ -39,7 +39,9 @@ defmodule Conduit.Plug.DeadLetter do
       :ack -> message
     end
   rescue error ->
-    publish_dead_letter(message, opts)
+    message
+    |> put_header("exception", Exception.format(:error, error))
+    |> publish_dead_letter(opts)
 
     reraise error, System.stacktrace
   end

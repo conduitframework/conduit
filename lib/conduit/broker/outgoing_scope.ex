@@ -84,12 +84,6 @@ defmodule Conduit.Broker.OutgoingScope do
 
           adapter.publish(message, opts)
         end
-
-        defp put_destination(message, next, destination) do
-          message
-          |> put_destination(destination)
-          |> next.()
-        end
       end
       Module.put_attribute(broker, :publishers, {name, {module, opts}})
     end)

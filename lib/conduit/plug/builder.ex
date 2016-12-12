@@ -31,6 +31,7 @@ defmodule Conduit.Plug.Builder do
     quote do
       @behaviour Conduit.Plug
       import Conduit.Message
+      import Conduit.Plug.MessageActions
       import Conduit.Plug.Builder, only: [plug: 1, plug: 2]
       alias Conduit.Message
 

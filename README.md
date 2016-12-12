@@ -10,7 +10,7 @@ The package can be installed as:
 
     ```elixir
     def deps do
-      [{:conduit, "~> 0.1.0"}]
+      [{:conduit, "~> 0.5.0"}]
     end
     ```
 
@@ -21,6 +21,10 @@ The package can be installed as:
       [applications: [:conduit]]
     end
     ```
+
+## Getting Started
+
+
 
 ## Creating a Broker
 

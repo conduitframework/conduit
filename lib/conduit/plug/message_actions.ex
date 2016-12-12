@@ -4,23 +4,23 @@ defmodule Conduit.Plug.MessageActions do
   """
 
   @doc """
-  Proxies to `Conduit.Message.put_header/3` and calls the next plug.
+  Proxies to `Conduit.Message.put_header/3` for each key/value and calls the next plug.
 
   Options should be a `Map`.
 
   ## Examples
 
       import Conduit.Plug.MessageActions
-      plug :put_header, %{"transfer_encoding" => "gzip"}
+      plug :put_headers, %{"transfer_encoding" => "gzip"}
 
       iex> import Conduit.Plug.MessageActions
-      iex> message = put_header(%Conduit.Message{}, &(&1), %{"transfer_encoding" => "gzip"})
+      iex> message = put_headers(%Conduit.Message{}, &(&1), %{"transfer_encoding" => "gzip"})
       iex> Conduit.Message.get_header(message, "transfer_encoding")
       "gzip"
 
   """
-  @spec put_header(Conduit.Message.t, Conduit.Plug.next, Conduit.Message.headers) :: Conduit.Message.t
-  def put_header(message, next, opts) when is_function(next) do
+  @spec put_headers(Conduit.Message.t, Conduit.Plug.next, Conduit.Message.headers) :: Conduit.Message.t
+  def put_headers(message, next, opts) when is_function(next) do
     Enum.reduce(opts, message, fn {key, value}, mess ->
       Conduit.Message.put_header(mess, key, value)
     end)
@@ -28,49 +28,25 @@ defmodule Conduit.Plug.MessageActions do
   end
 
   @doc """
-  Proxies to `Conduit.Message.assign/3` and calls the next plug.
+  Proxies to `Conduit.Message.put_assigns/3` for each key/value and calls the next plug.
 
   Options should be a `Keyword` list.
 
   ## Examples
 
       import Conduit.Plug.MessageActions
-      plug :assign, one: 1, two: 2
+      plug :put_assigns, one: 1, two: 2
 
       iex> import Conduit.Plug.MessageActions
-      iex> message = assign(%Conduit.Message{}, &(&1), one: 1)
+      iex> message = put_assigns(%Conduit.Message{}, &(&1), one: 1)
       iex> Conduit.Message.assigns(message, :one)
       1
 
   """
-  @spec assign(Conduit.Message.t, Conduit.Plug.next, Keyword.t) :: Conduit.Message.t
-  def assign(message, next, opts) when is_function(next) do
+  @spec put_assigns(Conduit.Message.t, Conduit.Plug.next, Keyword.t) :: Conduit.Message.t
+  def put_assigns(message, next, opts) when is_function(next) do
     Enum.reduce(opts, message, fn {key, value}, mess ->
       Conduit.Message.assign(mess, key, value)
-    end)
-    |> next.()
-  end
-
-  @doc """
-  Proxies to `Conduit.Message.put_private/3` and calls the next plug.
-
-  Options should be a `Keyword` list.
-
-  ## Examples
-
-      import Conduit.Plug.MessageActions
-      plug :put_private, one: 1, two: 2
-
-      iex> import Conduit.Plug.MessageActions
-      iex> message = put_private(%Conduit.Message{}, &(&1), one: 1)
-      iex> Conduit.Message.get_private(message, :one)
-      1
-
-  """
-  @spec put_private(Conduit.Message.t, Conduit.Plug.next, Keyword.t) :: Conduit.Message.t
-  def put_private(message, next, opts) when is_function(next) do
-    Enum.reduce(opts, message, fn {key, value}, mess ->
-      Conduit.Message.put_private(mess, key, value)
     end)
     |> next.()
   end
