@@ -24,9 +24,50 @@ The package can be installed as:
 
 ## Getting Started
 
+Somewhere in your application you should define a broker. Typically under `lib/my_app/broker.ex` or
+`web/broker.ex` if you're using Phoenix.
+
+```elixir
+defmodule MyApp.Broker do
+  use Conduit.Broker, otp_app: :my_app
+end
+```
+
+Next, you'll want to supervise `MyApp.Broker` in your applications supervisor.
+
+```elixir
+# lib/my_app.ex
+defmodule MyApp do
+  use Application
+
+  def start(_type, _args) do
+    import Supervisor.Spec
+
+    children = [
+      # ...
+      supervisor(MyApp.Broker, [])
+    ]
+
+    Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
+  end
+end
+```
+
+## Setting Up an Adapter
+
+Next you'll want to find the adapter that matches the message
+queue (MQ) you're using. Currently, there is only an adapter
+for MQ's with support for AMQP 0-9-1. More protocols and MQ's will be supported in the future.
+
+  * AMQP 0-9-1 - [ConduitAMQP](https://github.com/conduitframework/conduit_amqp)
+  * STOMP - TODO
+  * SQS - TODO
+  * Beanstalkd - TODO
+  * Kafka - TODO
+  * ZeroMQ - TODO
 
 
-## Creating a Broker
+## Example Broker
 
 The Broker is responsible for describing how to setup your
 message queue routing, defining subscribers, publishers, and

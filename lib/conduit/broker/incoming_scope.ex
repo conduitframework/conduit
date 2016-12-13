@@ -68,6 +68,7 @@ defmodule Conduit.Broker.IncomingScope do
       source = Keyword.get(opts, :from, Atom.to_string(name))
 
       defmodule mod do
+        @moduledoc false
         use Conduit.Plug.Builder
 
         plug :put_source, source

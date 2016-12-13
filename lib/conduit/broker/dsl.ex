@@ -25,6 +25,7 @@ defmodule Conduit.Broker.DSL do
   defmacro configure(do: block) do
     quote do
       defmodule Configure do
+        @moduledoc false
         use Conduit.Broker.Configure
 
         unquote(block)
@@ -42,6 +43,7 @@ defmodule Conduit.Broker.DSL do
       @pipelines {unquote(name), module}
 
       defmodule module do
+        @moduledoc false
         use Conduit.Plug.Builder
 
         unquote(block)

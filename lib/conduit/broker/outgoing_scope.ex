@@ -67,6 +67,7 @@ defmodule Conduit.Broker.OutgoingScope do
       destination = Keyword.get(opts, :to, Atom.to_string(name))
 
       defmodule module do
+        @moduledoc false
         use Conduit.Plug.Builder
         @otp_app Module.get_attribute(broker, :otp_app)
         @broker broker

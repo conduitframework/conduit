@@ -1,6 +1,9 @@
 defmodule Conduit.Plug.Builder do
   @moduledoc """
-  A module that can be used to build pipelines of plugs.
+  A module that can be used to build plugs.
+
+  You can also use plugs within your custom plug. The plugs
+  will be run before `call/3`.
 
   ## Examples
 
