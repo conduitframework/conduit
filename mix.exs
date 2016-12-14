@@ -3,16 +3,17 @@ defmodule Conduit.Mixfile do
 
   def project do
     [app: :conduit,
-     version: "0.6.0",
+     version: "0.6.1",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps(),
+     deps: deps,
 
      # Docs
      name: "Conduit",
      source_url: "https://github.com/conduitframework/conduit",
      homepage_url: "https://hexdocs.pm/conduit",
+     docs: docs,
 
      # Package
      description: "Message queue framework, with support for middleware and multiple adapters.",
@@ -60,6 +61,13 @@ defmodule Conduit.Mixfile do
      licenses: ["Apache 2.0"],
      links: %{"GitHub" => "https://github.com/conduitframework/conduit",
               "Docs" => "https://hexdocs.pm/conduit"}]
+  end
+
+  defp docs do
+    [main: "readme",
+     project: "Conduit",
+     extra_section: "Guides",
+     extras: ["README.md"]]
   end
 
   defp git_tag(_args) do
