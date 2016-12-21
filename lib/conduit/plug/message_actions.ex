@@ -4,6 +4,50 @@ defmodule Conduit.Plug.MessageActions do
   """
 
   @doc """
+  Calls the next plug and then proxies to `Conduit.Message.ack/1`.
+
+  Options are ignored.
+
+  ## Examples
+
+      import Conduit.Plug.MessageActions
+      plug :ack
+
+      iex> import Conduit.Plug.MessageActions
+      iex> message = ack(%Conduit.Message{}, &Conduit.Message.nack/1, [])
+      iex> message.status
+      :ack
+
+  """
+  @spec ack(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
+  def ack(message, next, _opts) do
+    next.(message)
+    |> Conduit.Message.ack
+  end
+
+  @doc """
+  Calls the next plug and then proxies to `Conduit.Message.nack/1`.
+
+  Options are ignored.
+
+  ## Examples
+
+      import Conduit.Plug.MessageActions
+      plug :nack
+
+      iex> import Conduit.Plug.MessageActions
+      iex> message = nack(%Conduit.Message{}, &Conduit.Message.ack/1, [])
+      iex> message.status
+      :nack
+
+  """
+  @spec nack(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
+  def nack(message, next, _opts) do
+    next.(message)
+    |> Conduit.Message.nack
+  end
+
+  @doc """
   Proxies to `Conduit.Message.put_header/3` for each key/value and calls the next plug.
 
   Options should be a `Map`.
@@ -74,7 +118,7 @@ defmodule Conduit.Plug.MessageActions do
 
     @doc false
     defmacro __before_compile__(_env) do
-      actions_with_options = for {action, value} <- @actions_with_options do
+      for {action, value} <- @actions_with_options do
         field =
           action
           |> to_string
@@ -105,34 +149,6 @@ defmodule Conduit.Plug.MessageActions do
           end
         end
       end
-
-      status_actions = for action <- @status_actions do
-        quote do
-          @doc """
-          Proxies to `Conduit.Message.#{unquote(action)}/1` and calls the next plug.
-
-          Options are ignored.
-
-          ## Examples
-
-              import Conduit.Plug.MessageActions
-              plug :#{unquote(action)}
-
-              iex> import Conduit.Plug.MessageActions
-              iex> message = #{unquote(action)}(%Conduit.Message{}, &(&1), [])
-              iex> message.status
-              #{inspect(unquote(action))}
-
-          """
-          @spec unquote(action)(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
-          def unquote(action)(message, next, _opts) do
-            apply(Conduit.Message, unquote(action), [message])
-            |> next.()
-          end
-        end
-      end
-
-      actions_with_options ++ status_actions
     end
   end
 end
