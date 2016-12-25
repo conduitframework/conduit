@@ -17,7 +17,7 @@ defmodule Conduit.BrokerTest do
     use Supervisor
 
     def start_link(topology, subscribers, opts) do
-      Supervisor.start_link(__MODULE__, {topology, subscribers, opts}, name: __MODULE__)
+      Supervisor.start_link(__MODULE__, [topology, subscribers, opts], name: __MODULE__)
     end
 
     def init(opts) do
@@ -72,11 +72,11 @@ defmodule Conduit.BrokerTest do
 
       Broker.start_link
 
-      assert_received {:adapter, {
+      assert_received {:adapter, [
         [{:exchange, "amq.topic", []}, {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}],
         %{stuff: {Conduit.BrokerTest.Broker.StuffIncoming, [from: "my_app.created.stuff"]}},
         [adapter: Conduit.BrokerTest.Adapter]
-      }}
+      ]}
     end
   end
 
