@@ -4,8 +4,6 @@ defmodule Conduit.Plug.BuilderTest do
   import Conduit.Message
   doctest Conduit.Plug.Builder
 
-  @identity &(&1)
-
   defmodule Adder do
     use Conduit.Plug.Builder
 
@@ -18,14 +16,74 @@ defmodule Conduit.Plug.BuilderTest do
     end
   end
 
-  describe "a plug that only defines call" do
+  defmodule Multiplier do
+    use Conduit.Plug.Builder
+
+    def call(message, next, [by: amount]) do
+      message
+      |> put_body(message.body * amount)
+      |> next.()
+    end
+  end
+
+  defmodule BodyChanger do
+    use Conduit.Plug.Builder
+
+    def call(message, next, fun) do
+      message
+      |> put_body(fun.(message.body))
+      |> next.()
+    end
+  end
+
+  describe "a plug that defines init and call" do
+    defmodule PlusOne do
+      use Conduit.Plug.Builder
+
+      plug Adder, by: 1
+    end
+
+    test "it is called as part of a pipeline" do
+      message =
+        %Message{}
+        |> put_body(1)
+        |> PlusOne.run
+
+      assert message.body == 2
+    end
+  end
+
+  describe "a plug that only defines and call" do
+    defmodule TimesTwo do
+      use Conduit.Plug.Builder
+
+      plug Multiplier, by: 2
+    end
+
     test "it is called as part of the plugs pipeline" do
       message =
         %Message{}
         |> put_body(1)
-        |> Adder.run(by: 2)
+        |> TimesTwo.run
 
-      assert message.body == 3
+      assert message.body == 2
+    end
+  end
+
+  describe "a plug that accepts a function" do
+    defmodule DivideTwo do
+      use Conduit.Plug.Builder
+
+      plug BodyChanger, fn body -> body / 2 end
+    end
+
+    test "it is called as part of the plugs pipeline" do
+      message =
+        %Message{}
+        |> put_body(4)
+        |> DivideTwo.run
+
+      assert message.body == 2
     end
   end
 

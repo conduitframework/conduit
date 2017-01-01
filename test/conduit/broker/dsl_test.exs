@@ -3,8 +3,6 @@ defmodule Conduit.Broker.DSLTest do
 
   defmodule PassThrough do
     use Conduit.Plug.Builder
-
-    def call(message, _opts), do: message
   end
 
   defmodule MyApp.StuffSubscriber do

@@ -1,35 +1,22 @@
 defmodule Conduit.BrokerTest do
   use ExUnit.Case
+  use Conduit.Test, shared: true
 
   defmodule PassThrough do
     use Conduit.Plug.Builder
 
-    def call(message, _opts), do: message
+    def call(message, next, _opts) do
+      send(self, {:pass_through, message})
+
+      next.(message)
+    end
   end
 
   defmodule MyApp.StuffSubscriber do
     use Conduit.Subscriber
 
-    def process(message, _opts), do: message
-  end
-
-  defmodule Adapter do
-    use Supervisor
-
-    def start_link(topology, subscribers, opts) do
-      Supervisor.start_link(__MODULE__, [topology, subscribers, opts], name: __MODULE__)
-    end
-
-    def init(opts) do
-      import Supervisor.Spec
-
-      send(Conduit.BrokerTest, {:adapter, opts})
-
-      supervise([], strategy: :one_for_one)
-    end
-
-    def publish(message, opts) do
-      send(Conduit.BrokerTest, {:publish, message, opts})
+    def process(message, _opts) do
+      send(self, {:subscriber, message})
 
       message
     end
@@ -68,14 +55,15 @@ defmodule Conduit.BrokerTest do
   describe ".start_link" do
     test "it starts the adapter and passes the setup and subscribers" do
       Process.register(self, __MODULE__)
-      Application.put_env(:my_app, Broker, adapter: Adapter)
+      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
       Broker.start_link
 
       assert_received {:adapter, [
+        Conduit.BrokerTest.Broker,
         [{:exchange, "amq.topic", []}, {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}],
-        %{stuff: {Conduit.BrokerTest.Broker.StuffIncoming, [from: "my_app.created.stuff"]}},
-        [adapter: Conduit.BrokerTest.Adapter]
+        %{stuff: [from: "my_app.created.stuff"]},
+        [adapter: Conduit.TestAdapter]
       ]}
     end
   end
@@ -83,11 +71,21 @@ defmodule Conduit.BrokerTest do
   describe ".publish" do
     test "it delegates to the adapter after passing through the pipeline" do
       Process.register(self, __MODULE__)
-      Application.put_env(:my_app, Broker, adapter: Adapter)
+      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
       Broker.publish(:more_stuff, %Conduit.Message{})
 
-      assert_received {:publish, %Conduit.Message{}, [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
+      assert_received {:pass_through, %Conduit.Message{}}
+      assert_message_published %Conduit.Message{}, [exchange: "amq.topic", to: "my_app.created.more_stuff"]
+    end
+  end
+
+  describe ".receives" do
+    test "it calls the subscriber and it's pipeline" do
+      Broker.receives(:stuff, %Conduit.Message{})
+
+      assert_received {:pass_through, %Conduit.Message{}}
+      assert_received {:subscriber, %Conduit.Message{}}
     end
   end
 end

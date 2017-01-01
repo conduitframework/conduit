@@ -81,20 +81,20 @@ defmodule Conduit.Plug.Builder do
       plug :put_content_encoding, "gzip"        # plug function
 
   """
-  defmacro plug(plug, opts \\ []) do
+  defmacro plug(plug, opts \\ [])
+  defmacro plug(plug, {:fn, _, _} = fun) do
+    quote do
+      @plugs {unquote(plug), unquote(Macro.escape(fun))}
+    end
+  end
+  defmacro plug(plug, opts) do
     quote do
       @plugs {unquote(plug), unquote(opts)}
     end
   end
 
   defp compile(plugs, last) do
-    Enum.reduce(plugs, last, fn plug, next ->
-      quoted_plug = quote_plug(plug, next)
-
-      quote do
-        unquote(quoted_plug)
-      end
-    end)
+    Enum.reduce(plugs, last, &quote_plug/2)
   end
 
   defp quote_plug({plug, opts}, next) do
@@ -109,7 +109,7 @@ defmodule Conduit.Plug.Builder do
       opts =
         opts
         |> plug.init
-        |> Macro.escape
+        |> escape_opts
 
       quote do
         unquote(plug).__build__(unquote(next), unquote(opts))
@@ -119,11 +119,15 @@ defmodule Conduit.Plug.Builder do
     end
   end
 
-  def quote_fun_plug(plug, next, opts) do
+  defp quote_fun_plug(plug, next, opts) do
     quote do
       fn message ->
-        unquote(plug)(message, unquote(next), unquote(opts))
+        unquote(plug)(message, unquote(next), unquote(escape_opts(opts)))
       end
     end
   end
+
+  defp escape_opts({:fn, _, _} = fun), do: fun
+  defp escape_opts({:opts, [], Conduit.Plug.Builder} = opts), do: opts
+  defp escape_opts(opts), do: Macro.escape(opts)
 end

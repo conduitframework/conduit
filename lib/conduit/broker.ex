@@ -8,7 +8,10 @@ defmodule Conduit.Broker do
   messages.
   """
 
-  @doc false
+  @doc """
+  Sets the broker up as a `Supervisor` and includes the
+  `Conduit.Broker.DSL`.
+  """
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"
@@ -25,9 +28,17 @@ defmodule Conduit.Broker do
         config = Application.get_env(@otp_app, __MODULE__)
         adapter = Keyword.get(config, :adapter)
 
+        subs =
+          subscribers
+          |> Enum.map(fn {name, {_, opts}} ->
+            {name, opts}
+          end)
+          |> Enum.into(%{})
+
         children = [supervisor(adapter, [
+          __MODULE__,
           topology,
-          subscribers,
+          subs,
           config
         ])]
 
