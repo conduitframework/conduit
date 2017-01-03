@@ -87,6 +87,23 @@ defmodule Conduit.Plug.BuilderTest do
     end
   end
 
+  describe "a plug that accepts a short hand function" do
+    defmodule SubtractTwo do
+      use Conduit.Plug.Builder
+
+      plug BodyChanger, &(&1 - 2)
+    end
+
+    test "it is called as part of the plugs pipeline" do
+      message =
+        %Message{}
+        |> put_body(4)
+        |> SubtractTwo.run
+
+      assert message.body == 2
+    end
+  end
+
   @error_message "Couldn't find module MissingPlug"
   test "raises error when module plug can't be found" do
     assert_raise Conduit.UnknownPlugError, @error_message, fn ->

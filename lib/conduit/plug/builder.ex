@@ -82,6 +82,11 @@ defmodule Conduit.Plug.Builder do
 
   """
   defmacro plug(plug, opts \\ [])
+  defmacro plug(plug, {:&, _, _} = fun) do
+    quote do
+      @plugs {unquote(plug), unquote(Macro.escape(fun))}
+    end
+  end
   defmacro plug(plug, {:fn, _, _} = fun) do
     quote do
       @plugs {unquote(plug), unquote(Macro.escape(fun))}
@@ -128,6 +133,7 @@ defmodule Conduit.Plug.Builder do
   end
 
   defp escape_opts({:fn, _, _} = fun), do: fun
+  defp escape_opts({:&, _, _} = fun), do: fun
   defp escape_opts({:opts, [], Conduit.Plug.Builder} = opts), do: opts
   defp escape_opts(opts), do: Macro.escape(opts)
 end
