@@ -26,7 +26,7 @@ defmodule Conduit.Plug.RetryTest do
       plug Conduit.Plug.Retry, attempts: 2, delay: 2
 
       def process(message, _opts) do
-        send(self, {:process, message})
+        send(self(), {:process, message})
         raise "failure"
       end
     end
@@ -54,10 +54,10 @@ defmodule Conduit.Plug.RetryTest do
 
       def process(message, _opts) do
         if get_header(message, "retries") do
-          send(self, {:process, :success, message})
+          send(self(), {:process, :success, message})
           message
         else
-          send(self, {:process, :failure, message})
+          send(self(), {:process, :failure, message})
           raise "failure"
         end
       end
@@ -83,7 +83,7 @@ defmodule Conduit.Plug.RetryTest do
       plug Conduit.Plug.Retry, attempts: 2, delay: 2
 
       def process(message, _opts) do
-        send(self, {:process, message})
+        send(self(), {:process, message})
         nack(message)
       end
     end
@@ -108,7 +108,7 @@ defmodule Conduit.Plug.RetryTest do
       plug Conduit.Plug.Retry, attempts: 2, delay: 2
 
       def process(message, _opts) do
-        send(self, {:process, message})
+        send(self(), {:process, message})
         message
       end
     end

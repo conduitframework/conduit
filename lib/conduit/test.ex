@@ -44,7 +44,7 @@ defmodule Conduit.Test do
                tests.
           """
         else
-          Application.put_env(:conduit, :shared_test_process, self)
+          Application.put_env(:conduit, :shared_test_process, self())
         end
 
         :ok

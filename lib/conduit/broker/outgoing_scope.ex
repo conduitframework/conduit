@@ -99,7 +99,7 @@ defmodule Conduit.Broker.OutgoingScope do
       def publishers, do: @publishers_map
 
       def publish(name, message, opts \\ []) do
-        {publisher, broker_opts} = publishers[name]
+        {publisher, broker_opts} = publishers()[name]
 
         publisher.run(message, Keyword.merge(broker_opts, opts))
       end

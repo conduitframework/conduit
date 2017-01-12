@@ -20,7 +20,9 @@ defmodule Conduit.Encoding do
 
   @default_content_encodings [{"gzip", Conduit.Encoding.GZip}, {"identity", Conduit.Encoding.Identity}]
 
-  @doc false
+  @doc """
+  Defines as implementing the `Conduit.Encoding` behavior and imports `Conduit.Message`.
+  """
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.Encoding

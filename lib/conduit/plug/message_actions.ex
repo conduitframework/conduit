@@ -114,8 +114,6 @@ defmodule Conduit.Plug.MessageActions do
       put_body: "REDACTED"
     ]
 
-    @status_actions [:ack, :nack]
-
     @doc false
     defmacro __before_compile__(_env) do
       for {action, value} <- @actions_with_options do

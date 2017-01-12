@@ -23,11 +23,9 @@ defmodule Conduit.ContentType do
     {"application/json", Conduit.ContentType.JSON}
   ]
 
-  defmodule UnknownContentType do
-    defexception [:message]
-  end
-
-  @doc false
+  @doc """
+  Defines as implementing the `Conduit.ContentType` behavior and imports `Conduit.Message`.
+  """
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.ContentType

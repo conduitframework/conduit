@@ -92,7 +92,7 @@ defmodule Conduit.Broker.IncomingScope do
       def subscribers, do: @subscribers_map
 
       def receives(name, message) do
-        {subscriber, opts} = subscribers[name]
+        {subscriber, opts} = subscribers()[name]
 
         subscriber.run(message, opts)
       end

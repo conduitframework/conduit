@@ -10,6 +10,9 @@ defmodule Conduit.Adapter do
   @callback start_link(broker, topology, subscribers, Keyword.t) :: GenServer.on_start
   @callback publish(Conduit.Message.t, Keyword.t) :: {:ok, Conduit.Message.t} | {:error, binary}
 
+  @doc """
+  Defines the `use`ing module as implementing the `Conduit.Adapter` behavior.
+  """
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.Adapter

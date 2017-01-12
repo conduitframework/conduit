@@ -3,7 +3,7 @@ defmodule Conduit.Plug.DeadLetterTest do
 
   defmodule Broker do
     def publish(name, message, opts) do
-      send(self, {:publish, name, message, opts})
+      send(self(), {:publish, name, message, opts})
     end
   end
 

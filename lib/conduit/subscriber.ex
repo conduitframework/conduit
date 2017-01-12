@@ -5,7 +5,9 @@ defmodule Conduit.Subscriber do
 
   @callback process(Conduit.Message.t, Conduit.Plug.opts) :: Conduit.Message.t
 
-  @doc false
+  @doc """
+  Defines default implementations for the `Conduit.Plug` and `Conduit.Subscriber` behavior
+  """
   defmacro __using__(_opts) do
     quote do
       use Conduit.Plug.Builder

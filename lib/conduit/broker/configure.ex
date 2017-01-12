@@ -1,5 +1,25 @@
 defmodule Conduit.Broker.Configure do
-  @moduledoc false
+  @moduledoc """
+  Provides macros to define the messaage queue topology.
+
+  Within your broker, you can configure the topology of
+  your message queue. Not every macro or options will apply
+  to all message queues.
+
+  ## Examples
+
+      defmodule MyApp.Broker do
+        use Conduit.Broker, otp_app: :my_app
+
+        configure do
+          exchange "my.topic"
+
+          queue "my.queue", from: ["every.where"], exchange: "my.topic"
+          queue "your.queue", from: ["else.where"], exchange: "my.topic"
+        end
+      end
+
+  """
 
   @doc false
   defmacro __using__(_opts) do

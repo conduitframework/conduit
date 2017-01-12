@@ -26,10 +26,10 @@ defmodule Conduit.Broker do
         import Supervisor.Spec
 
         config = Application.get_env(@otp_app, __MODULE__)
-        adapter = Keyword.get(config, :adapter)
+        adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
 
         subs =
-          subscribers
+          subscribers()
           |> Enum.map(fn {name, {_, opts}} ->
             {name, opts}
           end)
@@ -37,7 +37,7 @@ defmodule Conduit.Broker do
 
         children = [supervisor(adapter, [
           __MODULE__,
-          topology,
+          topology(),
           subs,
           config
         ])]

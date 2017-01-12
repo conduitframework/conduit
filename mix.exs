@@ -7,17 +7,17 @@ defmodule Conduit.Mixfile do
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
-     deps: deps,
+     deps: deps(),
 
      # Docs
      name: "Conduit",
      source_url: "https://github.com/conduitframework/conduit",
      homepage_url: "https://hexdocs.pm/conduit",
-     docs: docs,
+     docs: docs(),
 
      # Package
      description: "Message queue framework, with support for middleware and multiple adapters.",
-     package: package,
+     package: package(),
 
      dialyzer: [flags: ["-Werror_handling", "-Wrace_conditions"]],
 

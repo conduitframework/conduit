@@ -59,13 +59,26 @@ Next you'll want to find the adapter that matches the message
 queue (MQ) you're using. Currently, there is only an adapter
 for MQ's with support for AMQP 0-9-1. More protocols and MQ's will be supported in the future.
 
-  * AMQP 0-9-1 - [ConduitAMQP](https://github.com/conduitframework/conduit_amqp)
+  * AMQP 0-9-1 - [ConduitAMQP](https://github.com/conduitframework/conduit_amqp#configuring-the-adapter)
   * STOMP - TODO
   * SQS - TODO
   * Beanstalkd - TODO
   * Kafka - TODO
   * ZeroMQ - TODO
 
+## Configuring the Broker Topology
+
+MQ's have queues which need to be setup and may involve other
+concepts as well, including exchanges and bindings. Conduit
+attemps to stay out of the way when you need to define these
+things because each MQ has a different opinion on what you need.
+
+Because of that, you'll need to looks at the specific adapter
+for what options are available.
+
+  * AMQP 0-9-1 - [Exchanges](https://github.com/conduitframework/conduit_amqp#configuring-exchanges) & [Queues](https://github.com/conduitframework/conduit_amqp#configuring-queues)
+
+## Testing
 
 ## Example Broker
 

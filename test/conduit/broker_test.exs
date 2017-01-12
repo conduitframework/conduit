@@ -6,7 +6,7 @@ defmodule Conduit.BrokerTest do
     use Conduit.Plug.Builder
 
     def call(message, next, _opts) do
-      send(self, {:pass_through, message})
+      send(self(), {:pass_through, message})
 
       next.(message)
     end
@@ -16,7 +16,7 @@ defmodule Conduit.BrokerTest do
     use Conduit.Subscriber
 
     def process(message, _opts) do
-      send(self, {:subscriber, message})
+      send(self(), {:subscriber, message})
 
       message
     end
@@ -54,7 +54,7 @@ defmodule Conduit.BrokerTest do
 
   describe ".start_link" do
     test "it starts the adapter and passes the setup and subscribers" do
-      Process.register(self, __MODULE__)
+      Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
       Broker.start_link
@@ -70,7 +70,7 @@ defmodule Conduit.BrokerTest do
 
   describe ".publish" do
     test "it delegates to the adapter after passing through the pipeline" do
-      Process.register(self, __MODULE__)
+      Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
       Broker.publish(:more_stuff, %Conduit.Message{})
