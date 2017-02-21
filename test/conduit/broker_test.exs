@@ -76,7 +76,7 @@ defmodule Conduit.BrokerTest do
       Broker.publish(:more_stuff, %Conduit.Message{})
 
       assert_received {:pass_through, %Conduit.Message{}}
-      assert_message_published %Conduit.Message{}, [exchange: "amq.topic", to: "my_app.created.more_stuff"]
+      assert_received {:publish, %Conduit.Message{}, [adapter: Conduit.TestAdapter], [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
     end
   end
 

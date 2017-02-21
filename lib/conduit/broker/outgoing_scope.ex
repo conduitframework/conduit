@@ -79,11 +79,10 @@ defmodule Conduit.Broker.OutgoingScope do
         end)
 
         def call(message, _next, opts) do
-          adapter =
-            Application.get_env(@otp_app, @broker)
-            |> Keyword.get(:adapter)
+          config = Application.get_env(@otp_app, @broker)
+          adapter = Keyword.get(config, :adapter)
 
-          adapter.publish(message, opts)
+          adapter.publish(message, config, opts)
         end
       end
       Module.put_attribute(broker, :publishers, {name, {module, opts}})

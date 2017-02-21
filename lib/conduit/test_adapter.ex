@@ -26,9 +26,9 @@ defmodule Conduit.TestAdapter do
   Sends a publish message to the current process or the shared_test_process
   if that is configured.
   """
-  def publish(message, opts) do
+  def publish(message, config, opts) do
     process = Application.get_env(:conduit, :shared_test_process, self())
-    send(process, {:publish, message, opts})
+    send(process, {:publish, message, config, opts})
 
     message
   end
