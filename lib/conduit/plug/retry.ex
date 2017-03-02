@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.Retry do
   use Conduit.Plug.Builder
+  require Logger
   @moduledoc """
   Retries messages that were nacked or raised an exception.
 
@@ -39,14 +40,14 @@ defmodule Conduit.Plug.Retry do
     message = next.(message)
 
     case message.status do
-      :nack -> retry(message, next, retries, nil, opts)
+      :nack -> retry(message, next, retries, :nack, opts)
       :ack -> message
     end
   rescue error ->
     retry(message, next, retries, error, opts)
   end
 
-  defp retry(message, _, retries, nil, %{attempts: attempts})
+  defp retry(message, _, retries, :nack, %{attempts: attempts})
   when retries >= attempts - 1 do
     nack(message)
   end
@@ -54,15 +55,26 @@ defmodule Conduit.Plug.Retry do
   when retries >= attempts - 1 do
     reraise error, System.stacktrace
   end
-  defp retry(message, next, retries, _, opts) do
+  defp retry(message, next, retries, error, opts) do
     delay = opts.delay * :math.pow(opts.backoff_factor, retries)
     jitter = :rand.uniform * delay * opts.jitter
+    wait_time = round(delay + jitter)
 
-    Process.sleep(round(delay + jitter))
+    log_error(error, wait_time)
+
+    Process.sleep(wait_time)
 
     message
     |> put_header("retries", retries + 1)
     |> ack
     |> attempt(next, retries + 1, opts)
+  end
+
+  defp log_error(:nack, wait_time) do
+    Logger.warn("Message will be retried in #{wait_time}ms because it was nacked")
+  end
+  defp log_error(error, wait_time) do
+    formatted_error = Exception.format(:error, error)
+    Logger.warn(["Message will be retried in #{wait_time}ms because an exception was raised\n", formatted_error])
   end
 end
