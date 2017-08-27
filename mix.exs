@@ -59,7 +59,7 @@ defmodule Conduit.Mixfile do
      name: :conduit,
      files: ["lib", "mix.exs", "README*", "LICENSE*"],
      maintainers: ["Allen Madsen"],
-     licenses: ["Apache 2.0"],
+     licenses: ["MIT"],
      links: %{"GitHub" => "https://github.com/conduitframework/conduit",
               "Docs" => "https://hexdocs.pm/conduit"}]
   end
