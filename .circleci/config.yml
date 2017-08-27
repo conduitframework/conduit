@@ -1,0 +1,62 @@
+version: 2
+jobs:
+  build:
+    working_directory: ~/app
+    docker:
+      - image: circleci/elixir:1.5.1
+    steps:
+      - checkout
+
+      - run: cp mix.lock mix.lock.frozen
+      - run: mix local.hex --force
+      - run: mix local.rebar --force
+
+      - restore_cache:
+          keys:
+            - v1-deps-{{checksum "mix.lock.frozen"}}
+            - v1-deps-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
+            - v1-deps-develop
+      - run: mix deps.get
+      - save_cache:
+          key: v1-deps-{{checksum "mix.lock.frozen"}}
+          paths:
+            - deps
+      - save_cache:
+          key: v1-deps-{{.Branch}}-{{.BuildNum}}
+          paths:
+            - deps
+      - save_cache:
+          key: v1-deps-{{.Branch}}
+          paths:
+            - deps
+
+      - restore_cache:
+          keys:
+            - v1-build-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
+            - v1-build-{{checksum "mix.lock.frozen"}}
+            - v1-build-develop
+      - run: mix compile
+      - run: MIX_ENV=test mix compile
+      - run: MIX_ENV=prod mix compile
+      - save_cache:
+          key: v1-build-{{checksum "mix.lock.frozen"}}
+          paths:
+            - _build
+      - save_cache:
+          key: v1-build-{{.Branch}}-{{.BuildNum}}
+          paths:
+            - _build
+      - save_cache:
+          key: v1-build-{{.Branch}}
+          paths:
+            - _build
+
+      - run: mix coveralls.circle
+      - run: mix credo --strict
+
+      - store_test_results:
+          path: _build/test/lib/conduit/
+
+      - run: mix docs
+      - store_artifacts:
+          path: doc
