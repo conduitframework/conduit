@@ -1,6 +1,7 @@
 defmodule Conduit.Plug.RetryTest do
   use ExUnit.Case
   import Conduit.Message
+  import ExUnit.CaptureLog
 
   describe ".init" do
     test "it merges passed opts and returns a map" do
@@ -32,18 +33,20 @@ defmodule Conduit.Plug.RetryTest do
     end
 
     test "it retries and after failing reraises the error" do
-      assert_raise(RuntimeError, "failure", fn ->
-        ErroredRetry.run(%Conduit.Message{})
+      capture_log(fn ->
+        assert_raise(RuntimeError, "failure", fn ->
+          ErroredRetry.run(%Conduit.Message{})
+        end)
+
+        assert_received({:process, first_message})
+        assert_received({:process, second_message})
+
+        assert get_header(first_message, "retries") == nil
+        assert get_header(second_message, "retries") == 1
+
+        assert first_message.status == :ack
+        assert second_message.status == :ack
       end)
-
-      assert_received({:process, first_message})
-      assert_received({:process, second_message})
-
-      assert get_header(first_message, "retries") == nil
-      assert get_header(second_message, "retries") == 1
-
-      assert first_message.status == :ack
-      assert second_message.status == :ack
     end
   end
 
@@ -64,16 +67,18 @@ defmodule Conduit.Plug.RetryTest do
     end
 
     test "it retries and succeeds" do
-      assert %Conduit.Message{status: :ack} = PartiallyErroredRetry.run(%Conduit.Message{})
+      capture_log(fn ->
+        assert %Conduit.Message{status: :ack} = PartiallyErroredRetry.run(%Conduit.Message{})
 
-      assert_received({:process, :failure, first_message})
-      assert_received({:process, :success, second_message})
+        assert_received({:process, :failure, first_message})
+        assert_received({:process, :success, second_message})
 
-      assert get_header(first_message, "retries") == nil
-      assert get_header(second_message, "retries") == 1
+        assert get_header(first_message, "retries") == nil
+        assert get_header(second_message, "retries") == 1
 
-      assert first_message.status == :ack
-      assert second_message.status == :ack
+        assert first_message.status == :ack
+        assert second_message.status == :ack
+      end)
     end
   end
 
@@ -89,16 +94,18 @@ defmodule Conduit.Plug.RetryTest do
     end
 
     test "it retries and eventually returns the nacked message" do
-      assert %Conduit.Message{status: :nack} = NackedRetry.run(%Conduit.Message{})
+      capture_log(fn ->
+        assert %Conduit.Message{status: :nack} = NackedRetry.run(%Conduit.Message{})
 
-      assert_received({:process, first_message})
-      assert_received({:process, second_message})
+        assert_received({:process, first_message})
+        assert_received({:process, second_message})
 
-      assert get_header(first_message, "retries") == nil
-      assert get_header(second_message, "retries") == 1
+        assert get_header(first_message, "retries") == nil
+        assert get_header(second_message, "retries") == 1
 
-      assert first_message.status == :ack
-      assert second_message.status == :ack
+        assert first_message.status == :ack
+        assert second_message.status == :ack
+      end)
     end
   end
 

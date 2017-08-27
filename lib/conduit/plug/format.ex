@@ -28,6 +28,8 @@ defmodule Conduit.Plug.Format do
 
   """
 
+  alias Conduit.ContentType
+
   @doc """
   Formats the message body based on the content type.
   """
@@ -39,7 +41,7 @@ defmodule Conduit.Plug.Format do
       || @default_content_type
 
     message
-    |> Conduit.ContentType.format(content_type, opts)
+    |> ContentType.format(content_type, opts)
     |> next.()
   end
 end

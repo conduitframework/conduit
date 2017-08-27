@@ -29,6 +29,8 @@ defmodule Conduit.Plug.Decode do
 
   """
 
+  alias Conduit.Encoding
+
   @doc """
   Formats the message body based on the content encoding.
   """
@@ -40,7 +42,7 @@ defmodule Conduit.Plug.Decode do
       || @default_content_encoding
 
     message
-    |> Conduit.Encoding.decode(content_encoding, opts)
+    |> Encoding.decode(content_encoding, opts)
     |> next.()
   end
 end

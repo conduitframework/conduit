@@ -21,8 +21,9 @@ defmodule Conduit.Plug.DeadLetter do
   """
 
   def init(opts) do
-    Keyword.fetch!(opts, :publish_to)
-    Keyword.fetch!(opts, :broker)
+    # Fail if opts are missing
+    _ = Keyword.fetch!(opts, :publish_to)
+    _ = Keyword.fetch!(opts, :broker)
 
     opts
   end

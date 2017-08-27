@@ -26,7 +26,9 @@ defmodule Conduit.Broker do
         import Supervisor.Spec
 
         config = Application.get_env(@otp_app, __MODULE__)
-        adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
+        adapter =
+          Keyword.get(config, :adapter)
+          || raise Conduit.AdapterNotConfiguredError
 
         subs =
           subscribers()

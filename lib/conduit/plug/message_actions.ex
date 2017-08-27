@@ -2,6 +2,7 @@ defmodule Conduit.Plug.MessageActions do
   @moduledoc """
   Provides `Conduit.Message` methods as plugs.
   """
+  alias Conduit.{Message, Plug}
 
   @doc """
   Calls the next plug and then proxies to `Conduit.Message.ack/1`.
@@ -19,10 +20,11 @@ defmodule Conduit.Plug.MessageActions do
       :ack
 
   """
-  @spec ack(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
+  @spec ack(Message.t, Plug.next, Plug.opts) :: Message.t
   def ack(message, next, _opts) do
-    next.(message)
-    |> Conduit.Message.ack
+    message
+    |> next.()
+    |> Message.ack
   end
 
   @doc """
@@ -41,10 +43,11 @@ defmodule Conduit.Plug.MessageActions do
       :nack
 
   """
-  @spec nack(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
+  @spec nack(Message.t, Plug.next, Plug.opts) :: Message.t
   def nack(message, next, _opts) do
-    next.(message)
-    |> Conduit.Message.nack
+    message
+    |> next.()
+    |> Message.nack
   end
 
   @doc """
@@ -63,10 +66,11 @@ defmodule Conduit.Plug.MessageActions do
       "gzip"
 
   """
-  @spec put_headers(Conduit.Message.t, Conduit.Plug.next, Conduit.Message.headers) :: Conduit.Message.t
+  @spec put_headers(Message.t, Plug.next, Message.headers) :: Message.t
   def put_headers(message, next, opts) when is_function(next) do
-    Enum.reduce(opts, message, fn {key, value}, mess ->
-      Conduit.Message.put_header(mess, key, value)
+    opts
+    |> Enum.reduce(message, fn {key, value}, mess ->
+      Message.put_header(mess, key, value)
     end)
     |> next.()
   end
@@ -87,22 +91,25 @@ defmodule Conduit.Plug.MessageActions do
       1
 
   """
-  @spec put_assigns(Conduit.Message.t, Conduit.Plug.next, Keyword.t) :: Conduit.Message.t
+  @spec put_assigns(Message.t, Plug.next, Keyword.t) :: Message.t
   def put_assigns(message, next, opts) when is_function(next) do
-    Enum.reduce(opts, message, fn {key, value}, mess ->
-      Conduit.Message.assign(mess, key, value)
+    opts
+    |> Enum.reduce(message, fn {key, value}, mess ->
+      Message.assign(mess, key, value)
     end)
     |> next.()
   end
 
-  @before_compile Conduit.Plug.MessageActions.Generator
+  @before_compile __MODULE__.Generator
 
   defmodule Generator do
     @moduledoc false
 
     @actions_with_options [
       put_source: "my.queue",
+      put_new_source: "my.queue",
       put_destination: "my.queue",
+      put_new_destination: "my.queue",
       put_user_id: 1,
       put_correlation_id: 1,
       put_new_correlation_id: 1,
@@ -140,9 +147,10 @@ defmodule Conduit.Plug.MessageActions do
               #{inspect(unquote(value))}
 
           """
-          @spec unquote(action)(Conduit.Message.t, Conduit.Plug.next, Conduit.Plug.opts) :: Conduit.Message.t
+          @spec unquote(action)(Message.t, Plug.next, Plug.opts) :: Message.t
           def unquote(action)(message, next, opts) do
-            apply(Conduit.Message, unquote(action), [message, opts])
+            Message
+            |> apply(unquote(action), [message, opts])
             |> next.()
           end
         end

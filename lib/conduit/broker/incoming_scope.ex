@@ -31,8 +31,10 @@ defmodule Conduit.Broker.IncomingScope do
     scope = get_scope(module)
 
     Enum.each(scope.subscribers, fn {name, subscriber, opts} ->
+      subscriber_name = Module.concat(scope.namespace, subscriber)
+
       Module.put_attribute(module, :subscriber_configs,
-        {name, Module.concat(scope.namespace, subscriber), scope.pipelines, opts})
+        {name, subscriber_name, scope.pipelines, opts})
     end)
 
     put_scope(module, nil)
@@ -61,7 +63,8 @@ defmodule Conduit.Broker.IncomingScope do
   Compiles the subscribers.
   """
   def compile(module) do
-    Module.get_attribute(module, :subscriber_configs)
+    module
+    |> Module.get_attribute(:subscriber_configs)
     |> Enum.each(fn {name, subscriber, pipeline_names, opts} ->
       mod = generate_module(module, name, "_incoming")
       expanded_pipelines = expand_pipelines(module, pipeline_names)

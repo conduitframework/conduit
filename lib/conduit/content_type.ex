@@ -76,7 +76,8 @@ defmodule Conduit.ContentType do
   end
 
   @spec content_type(String.t) :: module
-  for {type, content_type} <- Application.get_env(:conduit, Conduit.ContentType, []) ++ @default_content_types do
+  config_content_types = Application.get_env(:conduit, Conduit.ContentType, [])
+  for {type, content_type} <- config_content_types ++ @default_content_types do
     defp content_type(unquote(type)), do: unquote(content_type)
   end
 

@@ -14,7 +14,8 @@ defmodule Conduit.Plug.CreatedBy do
   """
 
   def init(opts) do
-    Keyword.fetch!(opts, :app)
+    opts
+    |> Keyword.fetch!(:app)
     |> to_string
   end
 

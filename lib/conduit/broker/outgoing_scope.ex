@@ -50,7 +50,8 @@ defmodule Conduit.Broker.OutgoingScope do
     scope = get_scope(broker)
 
     Enum.each(scope.publishers, fn {name, opts} ->
-      Module.put_attribute(broker, :publisher_configs, {name, scope.pipelines, opts})
+      Module.put_attribute(broker, :publisher_configs,
+        {name, scope.pipelines, opts})
     end)
 
     put_scope(broker, nil)
@@ -60,7 +61,8 @@ defmodule Conduit.Broker.OutgoingScope do
   Compiles the publishers.
   """
   def compile(broker) do
-    Module.get_attribute(broker, :publisher_configs)
+    broker
+    |> Module.get_attribute(:publisher_configs)
     |> Enum.each(fn {name, pipeline_names, opts} ->
       module = generate_module(broker, name, "_outgoing")
       expanded_pipelines = expand_pipelines(broker, pipeline_names)
@@ -72,7 +74,7 @@ defmodule Conduit.Broker.OutgoingScope do
         @otp_app Module.get_attribute(broker, :otp_app)
         @broker broker
 
-        plug :put_destination, destination
+        plug :put_new_destination, destination
 
         Enum.each(expanded_pipelines, fn pipeline ->
           plug pipeline

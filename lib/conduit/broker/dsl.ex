@@ -4,6 +4,8 @@ defmodule Conduit.Broker.DSL do
   publishing messages, and pipelines for processing messages.
   """
 
+  alias Conduit.Broker.{DSL, Scope, IncomingScope, OutgoingScope}
+
   @doc false
   defmacro __using__(opts) do
     quote do
@@ -11,10 +13,10 @@ defmodule Conduit.Broker.DSL do
       @configure nil
 
       Module.register_attribute(__MODULE__, :pipelines, accumulate: :true)
-      import Conduit.Broker.DSL
+      import DSL
 
-      Conduit.Broker.IncomingScope.init(__MODULE__)
-      Conduit.Broker.OutgoingScope.init(__MODULE__)
+      IncomingScope.init(__MODULE__)
+      OutgoingScope.init(__MODULE__)
       @before_compile unquote(__MODULE__)
     end
   end
@@ -39,7 +41,7 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro pipeline(name, do: block) do
     quote do
-      module = Conduit.Broker.Scope.generate_module(__MODULE__, unquote(name), "_pipeline")
+      module = Scope.generate_module(__MODULE__, unquote(name), "_pipeline")
       @pipelines {unquote(name), module}
 
       defmodule module do
@@ -56,11 +58,11 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro incoming(namespace, do: block) do
     quote do
-      Conduit.Broker.IncomingScope.start_scope(__MODULE__, unquote(namespace))
+      IncomingScope.start_scope(__MODULE__, unquote(namespace))
 
       unquote(block)
 
-      Conduit.Broker.IncomingScope.end_scope(__MODULE__)
+      IncomingScope.end_scope(__MODULE__)
     end
   end
 
@@ -84,7 +86,8 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro subscribe(name, subscriber, opts \\ []) do
     quote do
-      Conduit.Broker.IncomingScope.subscribe(__MODULE__, unquote(name), unquote(subscriber), unquote(opts))
+      IncomingScope.subscribe(__MODULE__,
+        unquote(name), unquote(subscriber), unquote(opts))
     end
   end
 
@@ -93,11 +96,11 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro outgoing(do: block) do
     quote do
-      Conduit.Broker.OutgoingScope.start_scope(__MODULE__)
+      OutgoingScope.start_scope(__MODULE__)
 
       unquote(block)
 
-      Conduit.Broker.OutgoingScope.end_scope(__MODULE__)
+      OutgoingScope.end_scope(__MODULE__)
     end
   end
 
@@ -106,7 +109,7 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro publish(name, opts \\ []) do
     quote do
-      Conduit.Broker.OutgoingScope.publish(__MODULE__, unquote(name), unquote(opts))
+      OutgoingScope.publish(__MODULE__, unquote(name), unquote(opts))
     end
   end
 
@@ -121,11 +124,11 @@ defmodule Conduit.Broker.DSL do
 
       def pipelines, do: @pipelines
 
-      Conduit.Broker.IncomingScope.compile(__MODULE__)
-      Conduit.Broker.OutgoingScope.compile(__MODULE__)
+      IncomingScope.compile(__MODULE__)
+      OutgoingScope.compile(__MODULE__)
 
-      unquote(Conduit.Broker.IncomingScope.methods)
-      unquote(Conduit.Broker.OutgoingScope.methods)
+      unquote(IncomingScope.methods)
+      unquote(OutgoingScope.methods)
     end
   end
 end

@@ -142,7 +142,9 @@ defmodule Conduit.Test do
 
   """
   defmacro assert_message_publish(message, timeout \\ 100) when is_integer(timeout) do
-    quote do: assert_receive {:publish, unquote(message), _, _}, unquote(timeout)
+    quote do
+      assert_receive {:publish, unquote(message), _, _}, unquote(timeout)
+    end
   end
 
   @doc """
@@ -158,6 +160,8 @@ defmodule Conduit.Test do
 
   """
   defmacro refute_message_publish(message, timeout \\ 100) when is_integer(timeout) do
-    quote do: refute_receive {:publish, unquote(message), _, _}, unquote(timeout)
+    quote do
+      refute_receive {:publish, unquote(message), _, _}, unquote(timeout)
+    end
   end
 end

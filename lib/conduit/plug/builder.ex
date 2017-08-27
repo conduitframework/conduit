@@ -103,7 +103,7 @@ defmodule Conduit.Plug.Builder do
   end
 
   defp quote_plug({plug, opts}, next) do
-    case Atom.to_char_list(plug) do
+    case Atom.to_charlist(plug) do
       ~c"Elixir." ++ _ -> quote_module_plug(plug, next, opts)
       _                -> quote_fun_plug(plug, next, opts)
     end

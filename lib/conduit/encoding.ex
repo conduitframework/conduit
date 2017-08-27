@@ -18,7 +18,10 @@ defmodule Conduit.Encoding do
   @callback encode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
   @callback decode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
 
-  @default_content_encodings [{"gzip", Conduit.Encoding.GZip}, {"identity", Conduit.Encoding.Identity}]
+  @default_content_encodings [
+    {"gzip", Conduit.Encoding.GZip},
+    {"identity", Conduit.Encoding.Identity}
+  ]
 
   @doc """
   Defines as implementing the `Conduit.Encoding` behavior and imports `Conduit.Message`.
@@ -73,7 +76,9 @@ defmodule Conduit.Encoding do
   end
 
   @spec content_encoding(String.t) :: module
-  for {encoding, content_encoding} <- Application.get_env(:conduit, Conduit.Encoding, []) ++ @default_content_encodings do
+  config_content_encodings = Application.get_env(:conduit, Conduit.Encoding, [])
+  encodings = config_content_encodings ++ @default_content_encodings
+  for {encoding, content_encoding} <- encodings do
     defp content_encoding(unquote(encoding)), do: unquote(content_encoding)
   end
 
