@@ -47,7 +47,7 @@ defmodule Conduit.Mixfile do
   defp deps do
     [{:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
-     {:poison, "~> 2.0"},
+     {:poison, "~> 2.2 or ~> 3.0"},
      {:ex_doc, "~> 0.14", only: :dev},
      {:dialyxir, "~> 0.4", only: :dev},
      {:excoveralls, "~> 0.5", only: :test},
