@@ -1,6 +1,7 @@
 defmodule Mix.Tasks.Conduit.Gen.Broker do
   use Mix.Task
   import Mix.Generator
+  import Mix.Shell.IO
 
   @doc """
 
@@ -53,6 +54,24 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
 
     broker_file = Path.join([assigns[:path], "broker.ex"])
     create_file(broker_file, broker_template(assigns))
+    info """
+
+    Make sure to add the following to your config.exs:
+
+        config :#{assigns[:app]}, #{assigns[:module]},
+          url: "amqp://guest:guest@localhost:6782"
+
+    Also, add your broker to the supervision hierarchy in your #{assigns[:app]}.ex:
+
+        def start(_type, _args) do
+          children = [
+            # ...
+            supervisor(#{assigns[:module]}, [])
+          ]
+
+          supervise(children, strategy: :one_for_one)
+        end
+    """
   end
 
   embed_template :broker, """

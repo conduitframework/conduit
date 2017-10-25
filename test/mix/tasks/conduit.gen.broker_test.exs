@@ -19,21 +19,51 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
       end
     end
 
-    test "creates broker in specified directory" do
+    test "prints broker being created and info about other files to update" do
       assert capture_io(fn ->
         GenBroker.run(["tmp/my_app1"])
       end) == """
       \e[32m* creating \e[0mtmp/my_app1\e[0m
       \e[32m* creating \e[0mtmp/my_app1/broker.ex\e[0m
-      """
 
-      assert File.exists?("tmp/my_app1/broker.ex")
-      assert File.read!("tmp/my_app1/broker.ex") == """
-      defmodule MyApp1.Broker do
-        use Conduit.Broker, otp_app: :my_app1
+      Make sure to add the following to your config.exs:
+
+          config :my_app1, MyApp1.Broker,
+            url: "amqp://guest:guest@localhost:6782"
+
+      Also, add your broker to the supervision hierarchy in your my_app1.ex:
+
+          def start(_type, _args) do
+            children = [
+              # ...
+              supervisor(MyApp1.Broker, [])
+            ]
+
+            supervise(children, strategy: :one_for_one)
+          end
+
+      """
+    end
+
+    test "creates broker in specified directory" do
+      capture_io fn ->
+        GenBroker.run(["tmp/my_app2"])
+      end
+
+      assert File.exists?("tmp/my_app2/broker.ex")
+    end
+
+    test "generates the broker with the expected content with no customization" do
+      capture_io fn ->
+        GenBroker.run(["tmp/my_app3"])
+      end
+
+      assert File.read!("tmp/my_app3/broker.ex") == """
+      defmodule MyApp3.Broker do
+        use Conduit.Broker, otp_app: :my_app3
 
         configure do
-          # queue "my_app1.queue"
+          # queue "my_app3.queue"
         end
 
         # pipeline :in_tracking do
@@ -42,7 +72,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         # end
 
         # pipeline :error_handling do
-        #   plug Conduit.Plug.DeadLetter, broker: MyApp1.Broker, publish_to: :error
+        #   plug Conduit.Plug.DeadLetter, broker: MyApp3.Broker, publish_to: :error
         #   plug Conduit.Plug.Retry, attempts: 5
         # end
 
@@ -51,13 +81,13 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         #   plug Conduit.Plug.Parse, content_type: "application/json"
         # end
 
-        incoming MyApp1 do
-          # subscribe :my_subscription, MySubscriber, from: "my_app1.queue"
+        incoming MyApp3 do
+          # subscribe :my_subscription, MySubscriber, from: "my_app3.queue"
         end
 
         # pipeline :out_tracking do
         #   plug Conduit.Plug.CorrelationId
-        #   plug Conduit.Plug.CreatedBy, app: "my_app1"
+        #   plug Conduit.Plug.CreatedBy, app: "my_app3"
         #   plug Conduit.Plug.CreatedAt
         #   plug Conduit.Plug.LogOutgoing
         # end
@@ -74,7 +104,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         outgoing do
           # pipe_through [:out_tracking, :serialize]
 
-          # publish :my_event, to: "my_app1.my_event"
+          # publish :my_event, to: "my_app3.my_event"
         end
 
         # outgoing do
