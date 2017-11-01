@@ -5,6 +5,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
   setup do
     File.rm_rf("tmp")
+
     on_exit(fn ->
       File.rm_rf("tmp")
     end)
@@ -19,24 +20,29 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
       end
     end
 
-    test "prints broker being created and info about other files to update" do
+    test "prints broker being created and info about other files to update for ConduitAMQP" do
       assert capture_io(fn ->
-        GenBroker.run(["tmp/my_app1"])
+        GenBroker.run(["tmp/conduit_queue"])
       end) == """
-      \e[32m* creating \e[0mtmp/my_app1\e[0m
-      \e[32m* creating \e[0mtmp/my_app1/broker.ex\e[0m
+      \e[32m* creating \e[0mtmp/conduit_queue\e[0m
+      \e[32m* creating \e[0mtmp/conduit_queue/broker.ex\e[0m
+
+      Add conduit_amqp to your dependencies in mix.exs:
+
+          {:conduit_amqp, "~> 0.4"}
 
       Make sure to add the following to your config.exs:
 
-          config :my_app1, MyApp1.Broker,
+          config :conduit, ConduitQueue.Broker,
+            adapter: ConduitAMQP,
             url: "amqp://guest:guest@localhost:6782"
 
-      Also, add your broker to the supervision hierarchy in your my_app1.ex:
+      Also, add your broker to the supervision hierarchy in your conduit.ex:
 
           def start(_type, _args) do
             children = [
               # ...
-              supervisor(MyApp1.Broker, [])
+              supervisor(ConduitQueue.Broker, [])
             ]
 
             supervise(children, strategy: :one_for_one)
@@ -45,25 +51,68 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
       """
     end
 
-    test "creates broker in specified directory" do
-      capture_io fn ->
-        GenBroker.run(["tmp/my_app2"])
-      end
+    test "prints broker being created and info about other files to update for ConduitSQS" do
+      assert capture_io(fn ->
+        GenBroker.run(["--adapter", "sqs"])
+      end) == """
+      \e[32m* creating \e[0mtmp/conduit_queue\e[0m
+      \e[32m* creating \e[0mtmp/conduit_queue/broker.ex\e[0m
 
-      assert File.exists?("tmp/my_app2/broker.ex")
+      Add conduit_sqs to your dependencies in mix.exs:
+
+          {:conduit_sqs, "~> 0.1"}
+
+      Make sure to add the following to your config.exs:
+
+          config :conduit, ConduitQueue.Broker,
+            adapter: ConduitSQS,
+            access_key_id: [{:system, "AWS_ACCESS_KEY_ID"}, :instance_role],
+            secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
+
+      Also, add your broker to the supervision hierarchy in your conduit.ex:
+
+          def start(_type, _args) do
+            children = [
+              # ...
+              supervisor(ConduitQueue.Broker, [])
+            ]
+
+            supervise(children, strategy: :one_for_one)
+          end
+
+      """
     end
 
-    test "generates the broker with the expected content with no customization" do
+    test "creates broker in expected directory" do
       capture_io fn ->
-        GenBroker.run(["tmp/my_app3"])
+        GenBroker.run([])
       end
 
-      assert File.read!("tmp/my_app3/broker.ex") == """
-      defmodule MyApp3.Broker do
-        use Conduit.Broker, otp_app: :my_app3
+      assert File.exists?("tmp/conduit_queue/broker.ex")
+    end
+
+    test "creates broker in expected directory based on module name" do
+      capture_io fn ->
+        GenBroker.run(["--module", "MyApp.Broker"])
+      end
+
+      assert File.exists?("tmp/my_app/broker.ex")
+
+      contents = File.read!("tmp/my_app/broker.ex")
+      assert contents =~ "defmodule MyApp.Broker do"
+    end
+
+    test "generates the broker with the expected content for amqp" do
+      capture_io fn ->
+        GenBroker.run([])
+      end
+
+      assert File.read!("tmp/conduit_queue/broker.ex") == """
+      defmodule ConduitQueue.Broker do
+        use Conduit.Broker, otp_app: :conduit
 
         configure do
-          # queue "my_app3.queue"
+          # queue "conduit.queue"
         end
 
         # pipeline :in_tracking do
@@ -72,7 +121,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         # end
 
         # pipeline :error_handling do
-        #   plug Conduit.Plug.DeadLetter, broker: MyApp3.Broker, publish_to: :error
+        #   plug Conduit.Plug.DeadLetter, broker: ConduitQueue.Broker, publish_to: :error
         #   plug Conduit.Plug.Retry, attempts: 5
         # end
 
@@ -81,13 +130,13 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         #   plug Conduit.Plug.Parse, content_type: "application/json"
         # end
 
-        incoming MyApp3 do
-          # subscribe :my_subscription, MySubscriber, from: "my_app3.queue"
+        incoming ConduitQueue do
+          # subscribe :my_subscription, MySubscriber, from: "conduit.queue"
         end
 
         # pipeline :out_tracking do
         #   plug Conduit.Plug.CorrelationId
-        #   plug Conduit.Plug.CreatedBy, app: "my_app3"
+        #   plug Conduit.Plug.CreatedBy, app: "conduit"
         #   plug Conduit.Plug.CreatedAt
         #   plug Conduit.Plug.LogOutgoing
         # end
@@ -104,7 +153,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         outgoing do
           # pipe_through [:out_tracking, :serialize]
 
-          # publish :my_event, to: "my_app3.my_event"
+          # publish :my_event, to: "conduit.my_event"
         end
 
         # outgoing do
@@ -112,6 +161,72 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
         #   publish :error, exchange: "amq.topic"
         # end
+
+      end
+      """
+    end
+
+    test "generates the broker with the expected content for sqs" do
+      capture_io fn ->
+        GenBroker.run(["--adapter", "sqs"])
+      end
+
+      assert File.read!("tmp/conduit_queue/broker.ex") == """
+      defmodule ConduitQueue.Broker do
+        use Conduit.Broker, otp_app: :conduit
+
+        configure do
+          # queue "conduit-queue"
+          # queue "conduit-queue-error"
+        end
+
+        # pipeline :in_tracking do
+        #   plug Conduit.Plug.CorrelationId
+        #   plug Conduit.Plug.LogIncoming
+        # end
+
+        # pipeline :error_handling do
+        #   plug Conduit.Plug.DeadLetter, broker: ConduitQueue.Broker, publish_to: :error
+        #   plug Conduit.Plug.Retry, attempts: 5
+        # end
+
+        # pipeline :deserialize do
+        #   plug Conduit.Plug.Decode, content_encoding: "gzip"
+        #   plug Conduit.Plug.Parse, content_type: "application/json"
+        # end
+
+        incoming ConduitQueue do
+          # subscribe :my_subscription, MySubscriber, from: "conduit-queue"
+        end
+
+        # pipeline :out_tracking do
+        #   plug Conduit.Plug.CorrelationId
+        #   plug Conduit.Plug.CreatedBy, app: "conduit"
+        #   plug Conduit.Plug.CreatedAt
+        #   plug Conduit.Plug.LogOutgoing
+        # end
+
+        # pipeline :serialize do
+        #   plug Conduit.Plug.Format, content_type: "application/json"
+        #   plug Conduit.Plug.Encode, content_encoding: "gzip"
+        # end
+
+        # pipeline :error_destination do
+        #   plug :put_destination, &(&1.source <> "-error")
+        # end
+
+        outgoing do
+          # pipe_through [:out_tracking, :serialize]
+
+          # publish :my_event, to: "conduit-my-event"
+        end
+
+        # outgoing do
+        #   pipe_through [:error_destination, :out_tracking, :serialize]
+
+        #   publish :error
+        # end
+
       end
       """
     end
