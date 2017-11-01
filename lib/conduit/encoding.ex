@@ -44,7 +44,7 @@ defmodule Conduit.Encoding do
       iex>   |> put_body("{}")
       iex>   |> Conduit.Encoding.encode("gzip", [])
       iex> message.body
-      <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
+      <<31, 139, 8, 0, 0, 0, 0, 0, 0, 19, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
       iex> message.content_encoding
       "gzip"
 
@@ -62,7 +62,7 @@ defmodule Conduit.Encoding do
       iex> import Conduit.Message
       iex> message =
       iex>   %Conduit.Message{}
-      iex>   |> put_body(<<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>)
+      iex>   |> put_body(<<31, 139, 8, 0, 0, 0, 0, 0, 0, 19, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>)
       iex>   |> Conduit.Encoding.decode("gzip", [])
       iex> message.body
       "{}"
