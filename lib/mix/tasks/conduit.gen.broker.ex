@@ -3,12 +3,28 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
   import Mix.Generator
   import Mix.Shell.IO
 
-  @doc """
-  mix conduit.gen.broker [--adapter ADAPTER] [--module MODULE]
+  @shortdoc "Generates a broker for sending and receiving messages"
+  @moduledoc """
+  Generates a broker for sending and receiving messages.
+
+      mix conduit.gen.broker [--adapter ADAPTER] [--module BROKER_MODULE]
+
+  ## Command line options
+    * `--adapter` - The adapter that the broker will be configured to use.
+                    Supported options are `sqs` and `amqp`.
+    * `--module`  - The name of the broker module. The namespace determines the
+                    location that the file is generated in.
+
+  The generated files will contain:
+
+    * a broker in lib/my_app_queue/
+
   """
+
+  @doc false
   def run(args) do
     {switches, _} =
-      OptionParser.parse!(args, strict: [app: :string, module: :string, adapter: :string])
+      OptionParser.parse!(args, strict: [module: :string, adapter: :string])
 
     app = get_app()
     module = get_module(switches[:module], app)
@@ -54,7 +70,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
   defp base_path() do
     :conduit
     |> Application.get_env(Mix.Tasks.Conduit.Gen.Broker)
-    |> Keyword.get(:base_path, "lib")
+    |> Keyword.get(:lib_path, "lib")
   end
 
   defp get_file(module) do

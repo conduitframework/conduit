@@ -1,5 +1,5 @@
 defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
-  use ExUnit.Case, async: true
+  use ExUnit.Case
   import ExUnit.CaptureIO
   alias Mix.Tasks.Conduit.Gen.Broker, as: GenBroker
 
@@ -22,10 +22,10 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
     test "prints broker being created and info about other files to update for ConduitAMQP" do
       assert capture_io(fn ->
-        GenBroker.run(["tmp/conduit_queue"])
+        GenBroker.run(["tmp/lib/conduit_queue"])
       end) == """
-      \e[32m* creating \e[0mtmp/conduit_queue\e[0m
-      \e[32m* creating \e[0mtmp/conduit_queue/broker.ex\e[0m
+      \e[32m* creating \e[0mtmp/lib/conduit_queue\e[0m
+      \e[32m* creating \e[0mtmp/lib/conduit_queue/broker.ex\e[0m
 
       Add conduit_amqp to your dependencies in mix.exs:
 
@@ -55,8 +55,8 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
       assert capture_io(fn ->
         GenBroker.run(["--adapter", "sqs"])
       end) == """
-      \e[32m* creating \e[0mtmp/conduit_queue\e[0m
-      \e[32m* creating \e[0mtmp/conduit_queue/broker.ex\e[0m
+      \e[32m* creating \e[0mtmp/lib/conduit_queue\e[0m
+      \e[32m* creating \e[0mtmp/lib/conduit_queue/broker.ex\e[0m
 
       Add conduit_sqs to your dependencies in mix.exs:
 
@@ -88,7 +88,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         GenBroker.run([])
       end
 
-      assert File.exists?("tmp/conduit_queue/broker.ex")
+      assert File.exists?("tmp/lib/conduit_queue/broker.ex")
     end
 
     test "creates broker in expected directory based on module name" do
@@ -96,9 +96,9 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         GenBroker.run(["--module", "MyApp.Broker"])
       end
 
-      assert File.exists?("tmp/my_app/broker.ex")
+      assert File.exists?("tmp/lib/my_app/broker.ex")
 
-      contents = File.read!("tmp/my_app/broker.ex")
+      contents = File.read!("tmp/lib/my_app/broker.ex")
       assert contents =~ "defmodule MyApp.Broker do"
     end
 
@@ -107,7 +107,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         GenBroker.run([])
       end
 
-      assert File.read!("tmp/conduit_queue/broker.ex") == """
+      assert File.read!("tmp/lib/conduit_queue/broker.ex") == """
       defmodule ConduitQueue.Broker do
         use Conduit.Broker, otp_app: :conduit
 
@@ -171,7 +171,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
         GenBroker.run(["--adapter", "sqs"])
       end
 
-      assert File.read!("tmp/conduit_queue/broker.ex") == """
+      assert File.read!("tmp/lib/conduit_queue/broker.ex") == """
       defmodule ConduitQueue.Broker do
         use Conduit.Broker, otp_app: :conduit
 

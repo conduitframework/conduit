@@ -31,5 +31,17 @@ use Mix.Config
 
 if Mix.env == :test do
   config :conduit, Mix.Tasks.Conduit.Gen.Broker,
-    base_path: "tmp"
+    lib_path: "tmp/lib",
+    test_path: "tmp/test"
+
+  config :conduit, ConduitQueue.Broker,
+    adapter: ConduitAMQP
+
+  config :conduit, MyApp.Broker,
+    adapter: ConduitAMQP
+
+  config :conduit, Sqs.Broker,
+    adapter: ConduitSQS
+
+  config :conduit, NoAdapter.Broker, []
 end
