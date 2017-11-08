@@ -9,6 +9,8 @@
 
 A message queue framework, with support for middleware and multiple adapters.
 
+Check out [this slide deck](http://slides.com/blatyo/deck-12#/) for more info.
+
 ## Installation
 
 The package can be installed as:
@@ -17,11 +19,12 @@ The package can be installed as:
 
     ```elixir
     def deps do
-      [{:conduit, "~> 0.7.0"}]
+      [{:conduit, "~> 0.8"}]
     end
     ```
 
-  2. Ensure `conduit` is started before your application:
+  2. If you are explicitly stating which applications to start, ensure `conduit`
+     is started before your application:
 
     ```elixir
     def application do
@@ -31,47 +34,25 @@ The package can be installed as:
 
 ## Getting Started
 
-Somewhere in your application you should define a broker. Typically under `lib/my_app/broker.ex` or
-`web/broker.ex` if you're using Phoenix.
+Once conduit is added to your project, you can generate a broker. For example:
 
-```elixir
-defmodule MyApp.Broker do
-  use Conduit.Broker, otp_app: :my_app
-end
+``` bash
+mix conduit.gen.broker
 ```
 
-Next, you'll want to supervise `MyApp.Broker` in your applications supervisor.
+The Broker is responsible for describing how to setup your
+message queue routing, defining subscribers, publishers, and
+pipelines for subscribers and publishers.
 
-```elixir
-# lib/my_app.ex
-defmodule MyApp do
-  use Application
+See `mix help conduit.gen.broker` for all the options that are available. For
+example, specifying the adapter to use.
 
-  def start(_type, _args) do
-    import Supervisor.Spec
+## Officially Supported Adapters
 
-    children = [
-      # ...
-      supervisor(MyApp.Broker, [])
-    ]
+  * AMQP 0-9-1 - [ConduitAMQP](https://hexdocs.pm/conduit_amqp/readme.html#configuring-the-adapter)
+  * SQS - [ConduitSQS](https://hexdocs.pm/conduit_sqs/readme.html#configuring-the-adapter)
 
-    Supervisor.start_link(children, strategy: :one_for_one, name: MyApp.Supervisor)
-  end
-end
-```
-
-## Setting Up an Adapter
-
-Next you'll want to find the adapter that matches the message
-queue (MQ) you're using. Currently, there is only an adapter
-for MQ's with support for AMQP 0-9-1. More protocols and MQ's will be supported in the future.
-
-  * AMQP 0-9-1 - [ConduitAMQP](https://github.com/conduitframework/conduit_amqp#configuring-the-adapter)
-  * STOMP - TODO
-  * SQS - TODO
-  * Beanstalkd - TODO
-  * Kafka - TODO
-  * ZeroMQ - TODO
+In the future more adapters will be supported.
 
 ## Configuring the Broker Topology
 
@@ -83,76 +64,31 @@ things because each MQ has a different opinion on what you need.
 Because of that, you'll need to looks at the specific adapter
 for what options are available.
 
-  * AMQP 0-9-1 - [Exchanges](https://github.com/conduitframework/conduit_amqp#configuring-exchanges) & [Queues](https://github.com/conduitframework/conduit_amqp#configuring-queues)
+  * AMQP 0-9-1 - [Exchanges](https://hexdocs.pm/conduit_amqp/readme.html#configuring-exchanges) & [Queues](https://hexdocs.pm/conduit_amqp/readme.html#configuring-queues)
+  * SQS - [Queues](https://hexdocs.pm/conduit_sqs/readme.html#configuring-queues)
 
-## Testing
+## Configuring a Subscriber
 
-## Example Broker
+A subscriber is responsible for processing messages from a message queue.
+Typically, you'll have one subscriber per queue. You can generate a subscriber
+by doing:
 
-The Broker is responsible for describing how to setup your
-message queue routing, defining subscribers, publishers, and
-pipelines for subscribers and publishers. Here is an example
-Broker that sets up it's queue, exchange, and defines a
-subscribers and publishers.
-
-```elixir
-defmodule MyApp.Broker do
-  use Conduit.Broker, otp_app: :my_app
-
-  configure do
-    exchange "amq.topic"
-
-    queue "my_app.created.user", from: ["#.created.user"]
-  end
-
-  pipeline :in_tracking do
-    plug Conduit.Plug.CorrelationId
-    plug Conduit.Plug.LogIncoming
-  end
-
-  pipeline :error_handling do
-    plug Conduit.Plug.DeadLetter, broker: MyApp.Broker, publish_to: :error
-    plug Conduit.Plug.Retry, attempts: 5
-  end
-
-  pipeline :deserialize do
-    plug Conduit.Plug.Decode, content_encoding: "gzip"
-    plug Conduit.Plug.Parse, content_type: "application/json"
-  end
-
-  pipeline :out_tracking do
-    plug Conduit.Plug.CorrelationId
-    plug Conduit.Plug.CreatedBy, app: "my_app"
-    plug Conduit.Plug.CreatedAt
-    plug Conduit.Plug.LogOutgoing
-  end
-
-  pipeline :serialize do
-    plug Conduit.Plug.Format, content_type: "application/json"
-    plug Conduit.Plug.Encode, content_encoding: "gzip"
-  end
-
-  pipeline :error_destination do
-    plug :put_destination, &(&1.source <> ".error")
-  end
-
-  incoming MyApp do
-    pipe_through [:in_tracking, :error_handling, :deserialize]
-
-    subscribe :welcome_email, WelcomeEmailSubscriber, from: "my_app.created.user"
-    subscribe :setup_billing, BillingSubscriber, from: "my_app.created.user"
-  end
-
-  outgoing do
-    pipe_through [:out_tracking, :serialize]
-
-    publish :user_created, to: "my_app.created.user", exchange: "amq.topic"
-  end
-
-  outgoing do
-    pipe_through [:error_destination, :out_tracking, :serialize]
-
-    publish :error, exchange: "amq.topic"
-  end
-end
+``` bash
+mix conduit.gen.subscriber user_created
 ```
+
+See `mix help conduit.gen.subscriber` for all the options that are available.
+
+You can find more information about configuring your subscriber in the adapter
+specific docs here:
+
+  * AMQP 0-9-1 - TODO: Write docs for this
+  * SQS - [Subscribers](https://hexdocs.pm/conduit_sqs/readme.html#configuring-a-subscriber)
+
+## Configuring a Publisher
+
+A publisher is responsible for sending messages. You can find more information
+abount configuring publishers in the adapter specific docs here:
+
+  * AMQP 0-9-1 - TODO: Write docs for this
+  * SQS - [Publishers](https://hexdocs.pm/conduit_sqs/readme.html#configuring-a-publisher)
