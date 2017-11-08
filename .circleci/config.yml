@@ -52,7 +52,7 @@ jobs:
             - _build
 
       - run: mix coveralls.circle
-      - run: mix credo --strict
+      - run: mix credo
 
       - store_test_results:
           path: _build/test/lib/conduit/
