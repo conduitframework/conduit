@@ -43,8 +43,8 @@ defmodule Conduit.Encoding do
       iex>   %Conduit.Message{}
       iex>   |> put_body("{}")
       iex>   |> Conduit.Encoding.encode("gzip", [])
-      iex> message.body
-      <<31, 139, 8, 0, 0, 0, 0, 0, 0, 19, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
+      iex> :zlib.gunzip(message.body)
+      "{}"
       iex> message.content_encoding
       "gzip"
 
