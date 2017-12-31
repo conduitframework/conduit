@@ -40,8 +40,9 @@ defmodule Conduit.Encoding do
 
   ## Examples
 
-      iex> Conduit.Encoding.encode("{}", "gzip", [])
-      <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
+      iex> body = Conduit.Encoding.encode("{}", "gzip", [])
+      iex> :zlib.gunzip(body)
+      "{}"
 
   """
   @spec encode(body, String.t, Keyword.t) :: body

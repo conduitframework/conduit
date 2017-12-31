@@ -9,8 +9,9 @@ defmodule Conduit.Encoding.GZip do
 
   ## Examples
 
-      iex> Conduit.Encoding.GZip.encode("{}", [])
-      <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
+      iex> body = Conduit.Encoding.GZip.encode("{}", [])
+      iex> :zlib.gunzip(body)
+      "{}"
 
   """
   def encode(body, _opts) do

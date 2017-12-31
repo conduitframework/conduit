@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/app
     docker:
-      - image: circleci/elixir:1.5.1
+      - image: circleci/elixir:1.5.2
     steps:
       - checkout
 
@@ -52,7 +52,7 @@ jobs:
             - _build
 
       - run: mix coveralls.circle
-      - run: mix credo --strict
+      - run: mix credo
 
       - store_test_results:
           path: _build/test/lib/conduit/
