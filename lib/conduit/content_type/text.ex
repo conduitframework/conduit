@@ -5,44 +5,28 @@ defmodule Conduit.ContentType.Text do
   """
 
   @doc """
-  Formats the message body to json and sets the content type.
+  Formats the message body to text.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body("my message")
-      iex>   |> Conduit.ContentType.Text.format([])
-      iex> message.body
+      iex> Conduit.ContentType.Text.format("my message", [])
       "my message"
-      iex> message.content_type
-      "text/plain"
 
   """
-  def format(message, _opts) do
-    message
-    |> put_content_type("text/plain")
+  def format(body, _opts) do
+    to_string(body)
   end
 
   @doc """
-  Parses the message body from json and sets the content type.
+  Parses the body from text.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body("my message")
-      iex>   |> Conduit.ContentType.Text.parse([])
-      iex> message.body
+      iex> Conduit.ContentType.Text.parse("my message", [])
       "my message"
-      iex> message.content_type
-      "text/plain"
 
   """
-  def parse(message, _opts) do
-    message
-    |> put_content_type("text/plain")
+  def parse(body, _opts) do
+    body
   end
 end

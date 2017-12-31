@@ -1,50 +1,32 @@
 defmodule Conduit.ContentType.JSON do
   use Conduit.ContentType
   @moduledoc """
-  Handles converting a message body to and from JSON.
+  Handles converting to and from JSON.
   """
 
   @doc """
-  Formats the message body to json and sets the content type.
+  Formats the body to json.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body(%{})
-      iex>   |> Conduit.ContentType.JSON.format([])
-      iex> message.body
+      iex> Conduit.ContentType.JSON.format(%{}, [])
       "{}"
-      iex> message.content_type
-      "application/json"
 
   """
-  def format(message, _opts) do
-    message
-    |> put_body(Poison.encode!(message.body))
-    |> put_content_type("application/json")
+  def format(body, opts) do
+    Poison.encode!(body, opts)
   end
 
   @doc """
-  Parses the message body from json and sets the content type.
+  Parses the body from json.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body("{}")
-      iex>   |> Conduit.ContentType.JSON.parse([])
-      iex> message.body
+      iex> Conduit.ContentType.JSON.parse("{}", [])
       %{}
-      iex> message.content_type
-      "application/json"
 
   """
-  def parse(message, _opts) do
-    message
-    |> put_body(Poison.decode!(message.body))
-    |> put_content_type("application/json")
+  def parse(body, opts) do
+    Poison.decode!(body, opts)
   end
 end

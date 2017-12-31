@@ -9,12 +9,16 @@ defmodule Conduit.Plug.Format do
     2. The content type specified on the message.
     3. The default content type `text/plain`.
 
+  The location of the content type can be changed from `content_type`
+  to a header with the `:header` option.
+
   This plug should be used in an outgoing pipeline.
 
   ## Examples
 
       plug Conduit.Plug.Format
       plug Conduit.Plug.Format, content_type: "application/json"
+      plug Conduit.Plug.Format, header: "Content-Type"
 
       iex> import Conduit.Message
       iex> message =
@@ -24,6 +28,16 @@ defmodule Conduit.Plug.Format do
       iex> message.body
       "{}"
       iex> message.content_type
+      "application/json"
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(%{})
+      iex>   |> Conduit.Plug.Format.run(content_type: "application/json", header: "content_type")
+      iex> message.body
+      "{}"
+      iex> get_header(message, "content_type")
       "application/json"
 
   """
@@ -41,7 +55,15 @@ defmodule Conduit.Plug.Format do
       || @default_content_type
 
     message
-    |> ContentType.format(content_type, opts)
+    |> put_body(ContentType.format(message.body, content_type, opts))
+    |> put_content_type_at(Keyword.get(opts, :header), content_type)
     |> next.()
+  end
+
+  defp put_content_type_at(message, nil, content_type) do
+    put_content_type(message, content_type)
+  end
+  defp put_content_type_at(message, header, content_type) do
+    put_header(message, header, content_type)
   end
 end

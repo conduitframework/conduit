@@ -9,6 +9,10 @@ defmodule Conduit.Plug.Encode do
     2. The content encoding specified on the message.
     3. The default content encoding `identity`.
 
+  The location of the content encoding can be changed from `content_encoding`
+  to a header with the `:header` option. This is useful for having multiple
+  encodings, like a transfer encoding.
+
   This plug should be used in an outgoing pipeline. Generally after
   a `Conduit.Plug.Format` plug.
 
@@ -16,6 +20,7 @@ defmodule Conduit.Plug.Encode do
 
       plug Conduit.Plug.Encode
       plug Conduit.Plug.Encode, content_encoding: "gzip"
+      plug Conduit.Plug.Encode, header: "transfer_encoding"
 
       iex> import Conduit.Message
       iex> message =
@@ -25,6 +30,16 @@ defmodule Conduit.Plug.Encode do
       iex> message.body
       "{}"
       iex> message.content_encoding
+      "identity"
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.Plug.Encode.run(header: "transfer_encoding")
+      iex> message.body
+      "{}"
+      iex> get_header(message, "transfer_encoding")
       "identity"
 
   """
@@ -43,6 +58,14 @@ defmodule Conduit.Plug.Encode do
 
     message
     |> Encoding.encode(content_encoding, opts)
+    |> put_content_encoding_at(Keyword.get(opts, :header), content_encoding)
     |> next.()
+  end
+
+  defp put_content_encoding_at(message, nil, content_encoding) do
+    put_content_encoding(message, content_encoding)
+  end
+  defp put_content_encoding_at(message, header, content_encoding) do
+    put_header(message, header, content_encoding)
   end
 end

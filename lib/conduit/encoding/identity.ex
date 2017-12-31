@@ -1,48 +1,32 @@
 defmodule Conduit.Encoding.Identity do
   use Conduit.Encoding
   @moduledoc """
-  Does nothing to the body of the message. Sets the content encoding to identity.
+  Does nothing to the body of the message.
   """
 
   @doc """
-  Does nothing to the body and sets the content encoding to identity.
+  Does nothing to the body.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body("{}")
-      iex>   |> Conduit.Encoding.Identity.encode([])
-      iex> message.body
+      iex> Conduit.Encoding.Identity.encode("{}", [])
       "{}"
-      iex> message.content_encoding
-      "identity"
 
   """
-  def encode(message, _opts) do
-    message
-    |> put_content_encoding("identity")
+  def encode(body, _opts) do
+    body
   end
 
   @doc """
-  Decodes the message body from gzip and sets the content encoding.
+  Does nothing to the body.
 
   ## Examples
 
-      iex> import Conduit.Message
-      iex> message =
-      iex>   %Conduit.Message{}
-      iex>   |> put_body("{}")
-      iex>   |> Conduit.Encoding.Identity.decode([])
-      iex> message.body
+      iex> Conduit.Encoding.Identity.decode("{}", [])
       "{}"
-      iex> message.content_encoding
-      "identity"
 
   """
-  def decode(message, _opts) do
-    message
-    |> put_content_encoding("identity")
+  def decode(body, _opts) do
+    body
   end
 end
