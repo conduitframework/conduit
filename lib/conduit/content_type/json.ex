@@ -9,12 +9,17 @@ defmodule Conduit.ContentType.JSON do
 
   ## Examples
 
-      iex> Conduit.ContentType.JSON.format(%{}, [])
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(%{})
+      iex>   |> Conduit.ContentType.JSON.format([])
+      iex> message.body
       "{}"
 
   """
-  def format(body, opts) do
-    Poison.encode!(body, opts)
+  def format(message, opts) do
+    put_body(message, Poison.encode!(message.body, opts))
   end
 
   @doc """
@@ -22,11 +27,16 @@ defmodule Conduit.ContentType.JSON do
 
   ## Examples
 
-      iex> Conduit.ContentType.JSON.parse("{}", [])
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.ContentType.JSON.parse([])
+      iex> message.body
       %{}
 
   """
-  def parse(body, opts) do
-    Poison.decode!(body, opts)
+  def parse(message, opts) do
+    put_body(message, Poison.decode!(message.body, opts))
   end
 end

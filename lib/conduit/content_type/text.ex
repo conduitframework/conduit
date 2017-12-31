@@ -9,12 +9,17 @@ defmodule Conduit.ContentType.Text do
 
   ## Examples
 
-      iex> Conduit.ContentType.Text.format("my message", [])
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("my message")
+      iex>   |> Conduit.ContentType.Text.format([])
+      iex> message.body
       "my message"
 
   """
-  def format(body, _opts) do
-    to_string(body)
+  def format(message, _opts) do
+    put_body(message, to_string(message.body))
   end
 
   @doc """
@@ -22,11 +27,16 @@ defmodule Conduit.ContentType.Text do
 
   ## Examples
 
-      iex> Conduit.ContentType.Text.parse("my message", [])
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("my message")
+      iex>   |> Conduit.ContentType.Text.parse([])
+      iex> message.body
       "my message"
 
   """
-  def parse(body, _opts) do
-    body
+  def parse(message, _opts) do
+    message
   end
 end

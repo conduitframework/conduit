@@ -55,8 +55,8 @@ defmodule Conduit.Plug.Format do
       || @default_content_type
 
     message
-    |> put_body(ContentType.format(message.body, content_type, opts))
     |> put_content_type_at(Keyword.get(opts, :header), content_type)
+    |> ContentType.format(content_type, opts)
     |> next.()
   end
 

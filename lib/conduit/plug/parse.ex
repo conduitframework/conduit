@@ -57,8 +57,8 @@ defmodule Conduit.Plug.Parse do
       || @default_content_type
 
     message
-    |> put_body(ContentType.parse(message.body, content_type, opts))
     |> put_content_type_at(Keyword.get(opts, :header), content_type)
+    |> ContentType.parse(content_type, opts)
     |> next.()
   end
 

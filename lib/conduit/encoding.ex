@@ -15,10 +15,8 @@ defmodule Conduit.Encoding do
   behaviour. See `Conduit.Encoding.GZip` for an example.
 
   """
-  @type body :: term
-
-  @callback encode(body, Keyword.t) :: body
-  @callback decode(body, Keyword.t) :: body
+  @callback encode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
+  @callback decode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
 
   @default_content_encodings [
     {"gzip", Conduit.Encoding.GZip},
@@ -40,14 +38,18 @@ defmodule Conduit.Encoding do
 
   ## Examples
 
-      iex> body = Conduit.Encoding.encode("{}", "gzip", [])
-      iex> :zlib.gunzip(body)
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.Encoding.encode("gzip", [])
+      iex> :zlib.gunzip(message.body)
       "{}"
 
   """
-  @spec encode(body, String.t, Keyword.t) :: body
-  def encode(body, encoding, opts) do
-    content_encoding(encoding).encode(body, opts)
+  @spec encode(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  def encode(message, encoding, opts) do
+    content_encoding(encoding).encode(message, opts)
   end
 
   @doc """
@@ -55,14 +57,19 @@ defmodule Conduit.Encoding do
 
   ## Examples
 
+      iex> import Conduit.Message
       iex> body = <<31, 139, 8, 0, 0, 0, 0, 0, 0, 3, 171, 174, 5, 0, 67, 191, 166, 163, 2, 0, 0, 0>>
-      iex> Conduit.Encoding.decode(body, "gzip", [])
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(body)
+      iex>   |> Conduit.Encoding.decode("gzip", [])
+      iex> message.body
       "{}"
 
   """
-  @spec decode(body, String.t, Keyword.t) :: body
-  def decode(body, encoding, opts) do
-    content_encoding(encoding).decode(body, opts)
+  @spec decode(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  def decode(message, encoding, opts) do
+    content_encoding(encoding).decode(message, opts)
   end
 
   @spec content_encoding(String.t) :: module

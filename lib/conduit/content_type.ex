@@ -15,10 +15,8 @@ defmodule Conduit.ContentType do
   behaviour. See `Conduit.ContentType.JSON` for an example.
 
   """
-  @type body :: term
-
-  @callback format(body, Keyword.t) :: body
-  @callback parse(body, Keyword.t) :: body
+  @callback format(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
+  @callback parse(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
 
   @default_content_types [
     {"text/plain", Conduit.ContentType.Text},
@@ -40,13 +38,18 @@ defmodule Conduit.ContentType do
 
   ## Examples
 
-      iex> Conduit.ContentType.format("my message", "text/plain", [])
-      "my message"
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body(%{})
+      iex>   |> Conduit.ContentType.format("application/json", [])
+      iex> message.body
+      "{}"
 
   """
-  @spec format(body, String.t, Keyword.t) :: body
-  def format(body, type, opts) do
-    content_type(type).format(body, opts)
+  @spec format(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  def format(message, type, opts) do
+    content_type(type).format(message, opts)
   end
 
   @doc """
@@ -54,13 +57,18 @@ defmodule Conduit.ContentType do
 
   ## Examples
 
-      iex> Conduit.ContentType.parse("{}", "application/json", [])
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_body("{}")
+      iex>   |> Conduit.ContentType.parse("application/json", [])
+      iex> message.body
       %{}
 
   """
-  @spec parse(body, String.t, Keyword.t) :: body
-  def parse(body, type, opts) do
-    content_type(type).parse(body, opts)
+  @spec parse(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  def parse(message, type, opts) do
+    content_type(type).parse(message, opts)
   end
 
   @spec content_type(String.t) :: module

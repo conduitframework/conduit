@@ -13,8 +13,8 @@ defmodule Conduit.Encoding.Identity do
       "{}"
 
   """
-  def encode(body, _opts) do
-    body
+  def encode(message, _opts) do
+    message
   end
 
   @doc """
@@ -26,7 +26,7 @@ defmodule Conduit.Encoding.Identity do
       "{}"
 
   """
-  def decode(body, _opts) do
-    body
+  def decode(message, _opts) do
+    message
   end
 end

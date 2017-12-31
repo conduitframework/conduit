@@ -56,8 +56,8 @@ defmodule Conduit.Plug.Decode do
       || @default_content_encoding
 
     message
-    |> put_body(Encoding.decode(message.body, content_encoding, opts))
     |> put_content_encoding_at(Keyword.get(opts, :header), content_encoding)
+    |> Encoding.decode(content_encoding, opts)
     |> next.()
   end
 
