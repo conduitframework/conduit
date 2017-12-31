@@ -3,7 +3,7 @@ defmodule Conduit.Mixfile do
 
   def project do
     [app: :conduit,
-     version: "0.8.3",
+     version: "0.9.0",
      elixir: "~> 1.3",
      build_embedded: Mix.env == :prod,
      start_permanent: Mix.env == :prod,
