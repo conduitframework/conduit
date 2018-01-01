@@ -20,7 +20,8 @@ defmodule Conduit.ContentType do
 
   @default_content_types [
     {"text/plain", Conduit.ContentType.Text},
-    {"application/json", Conduit.ContentType.JSON}
+    {"application/json", Conduit.ContentType.JSON},
+    {"application/x-erlang-binary", Conduit.ContentType.ErlangBinary}
   ]
 
   @doc """
