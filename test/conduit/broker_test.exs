@@ -3,6 +3,7 @@ defmodule Conduit.BrokerTest do
   use Conduit.Test, shared: true
 
   defmodule PassThrough do
+    @moduledoc false
     use Conduit.Plug.Builder
 
     def call(message, next, _opts) do
@@ -13,6 +14,7 @@ defmodule Conduit.BrokerTest do
   end
 
   defmodule MyApp.StuffSubscriber do
+    @moduledoc false
     use Conduit.Subscriber
 
     def process(message, _opts) do
@@ -23,12 +25,15 @@ defmodule Conduit.BrokerTest do
   end
 
   defmodule Broker do
+    @moduledoc false
     use Conduit.Broker, otp_app: :my_app
 
     configure do
       exchange "amq.topic"
+      exchange fn -> "dynamic.name" end
 
       queue "my_app.created.stuff", from: ["#.created.stuff"]
+      queue fn -> "dynamic.name" end, from: ["#"]
     end
 
     pipeline :incoming do
@@ -52,7 +57,7 @@ defmodule Conduit.BrokerTest do
     end
   end
 
-  describe ".start_link" do
+  describe "start_link/0" do
     test "it starts the adapter and passes the setup and subscribers" do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
@@ -61,14 +66,19 @@ defmodule Conduit.BrokerTest do
 
       assert_received {:adapter, [
         Conduit.BrokerTest.Broker,
-        [{:exchange, "amq.topic", []}, {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}],
+        [
+          {:exchange, "amq.topic", []},
+          {:exchange, "dynamic.name", []},
+          {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
+          {:queue, "dynamic.name", [from: ["#"]]}
+        ],
         %{stuff: [from: "my_app.created.stuff"]},
         [adapter: Conduit.TestAdapter]
       ]}
     end
   end
 
-  describe ".publish" do
+  describe "publish/2" do
     test "it delegates to the adapter after passing through the pipeline" do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
@@ -80,7 +90,7 @@ defmodule Conduit.BrokerTest do
     end
   end
 
-  describe ".receives" do
+  describe "receives/2" do
     test "it calls the subscriber and it's pipeline" do
       Broker.receives(:stuff, %Conduit.Message{})
 

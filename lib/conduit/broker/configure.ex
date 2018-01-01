@@ -35,26 +35,54 @@ defmodule Conduit.Broker.Configure do
   @doc """
   Defines an exchange to setup.
   """
-  defmacro exchange(name, opts \\ []) do
-    quote do
-      @topology {:exchange, unquote(name), unquote(opts)}
+  defmacro exchange(name, opts \\ [])
+  defmacro exchange({:fn, _, _} = fun, opts) do
+    quote bind_quoted: [name: :erlang.term_to_binary(fun), opts: opts] do
+      @topology {:exchange, {:fun, name}, opts}
+    end
+  end
+  defmacro exchange(name, opts) do
+    quote bind_quoted: [name: name, opts: opts] do
+      @topology {:exchange, name, opts}
     end
   end
 
   @doc """
   Defines a queue to setup.
   """
-  defmacro queue(name, opts \\ []) do
-    quote do
-      @topology {:queue, unquote(name), unquote(opts)}
+  defmacro queue(name, opts \\ [])
+  defmacro queue({:fn, _, _} = fun, opts) do
+    quote bind_quoted: [name: :erlang.term_to_binary(fun), opts: opts] do
+      @topology {:queue, {:fun, name}, opts}
+    end
+  end
+  defmacro queue(name, opts) do
+    quote bind_quoted: [name: name, opts: opts] do
+      @topology {:queue, name, opts}
     end
   end
 
   @doc false
   defmacro __before_compile__(_) do
-    quote do
-      @ordered_topology @topology |> Enum.reverse
-      def topology, do: @ordered_topology
+    quote unquote: false do
+      ordered_topology =
+        @topology
+        |> Enum.reverse()
+        |> Enum.map(fn
+          {type, {:fun, binary}, opts} ->
+            {:{}, [], [type, :erlang.binary_to_term(binary), opts]}
+          item ->
+            Macro.escape(item)
+        end)
+
+      def topology do
+        Enum.map(unquote(ordered_topology), fn
+          {type, name, opts} when is_function(name) ->
+            {type, name.(), opts}
+          item ->
+            item
+        end)
+      end
     end
   end
 end
