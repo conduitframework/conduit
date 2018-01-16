@@ -19,6 +19,8 @@ defmodule Conduit.ContentType.ErlangBinary do
 
   """
   def format(message, opts) do
+    opts = Keyword.take(opts, [:compressed])
+
     put_body(message, :erlang.term_to_binary(message.body, opts))
   end
 
@@ -37,6 +39,8 @@ defmodule Conduit.ContentType.ErlangBinary do
 
   """
   def parse(message, opts) do
+    opts = if Keyword.get(opts, :safe), do: [:safe], else: []
+
     put_body(message, :erlang.binary_to_term(message.body, opts))
   end
 end
