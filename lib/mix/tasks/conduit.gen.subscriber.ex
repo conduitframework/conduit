@@ -163,7 +163,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
   defmodule <%= @parent_module %>.<%= @subscriber_name %> do
     use Conduit.Subscriber
 
-    def perform(message, _opts) do
+    def process(message, _opts) do
 
 
       message
