@@ -4,7 +4,7 @@ defmodule Conduit.Test do
 
   The helpers in this module are intended to be used in conjunction
   with the `Conduit.TestAdapter`. When you publish a `Conduit.Message`
-  with the `Conduit.TestAdapter setup, it will send a message to the
+  with the `Conduit.TestAdapter` setup, it will send a message to the
   same process that `publish` on your broker, was called in.
   """
 
