@@ -88,7 +88,7 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
       defmodule ConduitQueue.FooSubscriber do
         use Conduit.Subscriber
 
-        def perform(message, _opts) do
+        def process(message, _opts) do
 
 
           message
@@ -141,7 +141,7 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
       defmodule MyApp.FooSubscriber do
         use Conduit.Subscriber
 
-        def perform(message, _opts) do
+        def process(message, _opts) do
 
 
           message
