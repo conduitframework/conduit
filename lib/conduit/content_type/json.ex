@@ -19,7 +19,7 @@ defmodule Conduit.ContentType.JSON do
 
   """
   def format(message, opts) do
-    put_body(message, Poison.encode!(message.body, opts))
+    put_body(message, Jason.encode!(message.body, opts))
   end
 
   @doc """
@@ -37,6 +37,6 @@ defmodule Conduit.ContentType.JSON do
 
   """
   def parse(message, opts) do
-    put_body(message, Poison.decode!(message.body, opts))
+    put_body(message, Jason.decode!(message.body, opts))
   end
 end

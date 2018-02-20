@@ -32,7 +32,7 @@ defmodule Conduit.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [applications: [:logger, :timex, :poison, :uuid]]
+    [extra_applications: [:logger]]
   end
 
   # Dependencies can be Hex packages:
@@ -47,7 +47,7 @@ defmodule Conduit.Mixfile do
   defp deps do
     [{:uuid, "~> 1.1"},
      {:timex, "~> 3.0"},
-     {:poison, "~> 2.2 or ~> 3.0"},
+     {:jason, "~> 1.0"},
      {:ex_doc, "~> 0.14", only: :dev},
      {:dialyxir, "~> 0.4", only: :dev},
      {:excoveralls, "~> 0.5", only: :test},
