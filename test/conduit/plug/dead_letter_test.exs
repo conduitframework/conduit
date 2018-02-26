@@ -29,14 +29,17 @@ defmodule Conduit.Plug.DeadLetterTest do
       use Conduit.Subscriber
       plug Conduit.Plug.DeadLetter, broker: Broker, publish_to: :error
 
-      def process(_message, _opts), do: raise "failure"
+      def process(_message, _opts), do: raise("failure")
     end
 
     test "it publishes the message to the dead letter destination and reraises the error" do
       assert_raise(RuntimeError, "failure", fn ->
         ErroredDeadLetter.run(%Conduit.Message{})
       end)
-      assert_received {:publish, :error, %Conduit.Message{} = message, broker: Broker, publish_to: :error}
+
+      assert_received {:publish, :error, %Conduit.Message{} = message,
+                       broker: Broker, publish_to: :error}
+
       assert Conduit.Message.get_header(message, "exception") =~ "failure"
     end
   end

@@ -21,9 +21,9 @@ defmodule Conduit.Broker.Scope do
   def generate_module(module, name, postfix) do
     module_name =
       name
-      |> Atom.to_string
+      |> Atom.to_string()
       |> Kernel.<>(postfix)
-      |> Macro.camelize
+      |> Macro.camelize()
 
     Module.concat(module, module_name)
   end
@@ -35,6 +35,6 @@ defmodule Conduit.Broker.Scope do
     pipelines = Module.get_attribute(module, :pipelines)
 
     pipeline_names
-    |> Enum.map(&(pipelines[&1]))
+    |> Enum.map(&pipelines[&1])
   end
 end

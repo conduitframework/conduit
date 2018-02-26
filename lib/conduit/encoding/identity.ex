@@ -1,5 +1,6 @@
 defmodule Conduit.Encoding.Identity do
   use Conduit.Encoding
+
   @moduledoc """
   Does nothing to the body of the message.
   """

@@ -36,14 +36,14 @@ defmodule Conduit do
     Exception raised when no adapter is configured
     """
     defexception message: """
-    There was no adapter configured for your broker. You can configured
-    an adapter in your config.
+                 There was no adapter configured for your broker. You can configured
+                 an adapter in your config.
 
-        config :my_app, MyApp.Broker,
-          adapter: ConduitAdapter # The message queue adapter to use
+                     config :my_app, MyApp.Broker,
+                       adapter: ConduitAdapter # The message queue adapter to use
 
-      Note that different adapters may have additional configuration
-      necessary.
-    """
+                   Note that different adapters may have additional configuration
+                   necessary.
+                 """
   end
 end

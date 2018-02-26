@@ -43,38 +43,41 @@ defmodule Conduit.Broker.DSLTest do
 
   describe ".topology" do
     test "returns a list of everything to setup" do
-      assert Broker.topology == [
-        {:exchange, "amq.topic", []},
-        {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}
-      ]
+      assert Broker.topology() == [
+               {:exchange, "amq.topic", []},
+               {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}
+             ]
     end
   end
 
   describe ".pipelines" do
     test "returns a list of all the pipelines defined" do
-      assert Broker.pipelines == [outgoing: Broker.OutgoingPipeline, incoming: Broker.IncomingPipeline]
+      assert Broker.pipelines() == [
+               outgoing: Broker.OutgoingPipeline,
+               incoming: Broker.IncomingPipeline
+             ]
     end
   end
 
   describe ".subscribers" do
     test "it returns all the subscribers defined" do
-      assert Broker.subscribers == %{
-        stuff: {
-          Broker.StuffIncoming,
-          [from: "my_app.created.stuff"]
-        }
-      }
+      assert Broker.subscribers() == %{
+               stuff: {
+                 Broker.StuffIncoming,
+                 [from: "my_app.created.stuff"]
+               }
+             }
     end
   end
 
   describe ".publishers" do
     test "it returns all the publishers defined" do
-      assert Broker.publishers == %{
-        more_stuff: {
-          Broker.MoreStuffOutgoing,
-          [exchange: "amq.topic", to: "my_app.created.more_stuff"]
-        }
-      }
+      assert Broker.publishers() == %{
+               more_stuff: {
+                 Broker.MoreStuffOutgoing,
+                 [exchange: "amq.topic", to: "my_app.created.more_stuff"]
+               }
+             }
     end
   end
 

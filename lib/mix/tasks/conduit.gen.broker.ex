@@ -23,8 +23,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
 
   @doc false
   def run(args) do
-    {switches, _} =
-      OptionParser.parse!(args, strict: [module: :string, adapter: :string])
+    {switches, _} = OptionParser.parse!(args, strict: [module: :string, adapter: :string])
 
     app = get_app()
     module = get_module(switches[:module], app)
@@ -54,6 +53,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
   defp get_module(nil, app) do
     Macro.camelize(app) <> "Queue.Broker"
   end
+
   defp get_module(module, _), do: module
 
   defp get_parent_module(module) do
@@ -89,10 +89,10 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
 
     broker_file = Path.join([assigns[:path], assigns[:file]])
     create_file(broker_file, broker_template(assigns))
-    info broker_info_template(assigns)
+    info(broker_info_template(assigns))
   end
 
-  embed_template :broker, """
+  embed_template(:broker, """
   defmodule <%= @module %> do
     use Conduit.Broker, otp_app: :<%= @app %>
   <%= case @adapter do %>
@@ -176,9 +176,9 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
     # end
   <% end %>
   end
-  """
+  """)
 
-  embed_template :broker_info, """
+  embed_template(:broker_info, """
   <%= case @adapter do %>
   <% "conduit_sqs" -> %>
   Add conduit_sqs to your dependencies in mix.exs:
@@ -212,5 +212,5 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
 
         supervise(children, strategy: :one_for_one)
       end
-  """
+  """)
 end

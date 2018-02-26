@@ -4,9 +4,11 @@ defmodule Conduit.ContentTypeTest do
 
   describe "unknown content type" do
     test "raises an error" do
-      assert_raise Conduit.UnknownContentTypeError, "Unknown content type \"unknown/unknown\"", fn ->
-        Conduit.ContentType.format(%Conduit.Message{}, "unknown/unknown", [])
-      end
+      assert_raise Conduit.UnknownContentTypeError,
+                   "Unknown content type \"unknown/unknown\"",
+                   fn ->
+                     Conduit.ContentType.format(%Conduit.Message{}, "unknown/unknown", [])
+                   end
     end
   end
 end

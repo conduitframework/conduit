@@ -46,7 +46,7 @@ defmodule Conduit.Plug.Builder do
         next.(message)
       end
 
-      defoverridable [init: 1, call: 3]
+      defoverridable init: 1, call: 3
 
       Module.register_attribute(__MODULE__, :plugs, accumulate: true)
       @before_compile Conduit.Plug.Builder
@@ -55,14 +55,14 @@ defmodule Conduit.Plug.Builder do
 
   @doc false
   defmacro __before_compile__(env) do
-    plugs = [{:call, quote do: opts} | Module.get_attribute(env.module, :plugs)]
-    pipeline = compile(plugs, quote do: next)
+    plugs = [{:call, quote(do: opts)} | Module.get_attribute(env.module, :plugs)]
+    pipeline = compile(plugs, quote(do: next))
 
     quote do
       def run(message, opts \\ []) do
         opts = init(opts)
 
-        __build__(&(&1), opts).(message)
+        __build__(& &1, opts).(message)
       end
 
       def __build__(next, opts) do
@@ -82,16 +82,19 @@ defmodule Conduit.Plug.Builder do
 
   """
   defmacro plug(plug, opts \\ [])
+
   defmacro plug(plug, {:&, _, _} = fun) do
     quote do
       @plugs {unquote(plug), unquote(Macro.escape(fun))}
     end
   end
+
   defmacro plug(plug, {:fn, _, _} = fun) do
     quote do
       @plugs {unquote(plug), unquote(Macro.escape(fun))}
     end
   end
+
   defmacro plug(plug, opts) do
     quote do
       @plugs {unquote(plug), unquote(opts)}
@@ -105,7 +108,7 @@ defmodule Conduit.Plug.Builder do
   defp quote_plug({plug, opts}, next) do
     case Atom.to_charlist(plug) do
       ~c"Elixir." ++ _ -> quote_module_plug(plug, next, opts)
-      _                -> quote_fun_plug(plug, next, opts)
+      _ -> quote_fun_plug(plug, next, opts)
     end
   end
 
@@ -120,7 +123,7 @@ defmodule Conduit.Plug.Builder do
         unquote(plug).__build__(unquote(next), unquote(opts))
       end
     else
-      raise Conduit.UnknownPlugError, "Couldn't find module #{inspect plug}"
+      raise Conduit.UnknownPlugError, "Couldn't find module #{inspect(plug)}"
     end
   end
 

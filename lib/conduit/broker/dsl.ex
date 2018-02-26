@@ -12,7 +12,7 @@ defmodule Conduit.Broker.DSL do
       @otp_app unquote(opts)[:otp_app]
       @configure nil
 
-      Module.register_attribute(__MODULE__, :pipelines, accumulate: :true)
+      Module.register_attribute(__MODULE__, :pipelines, accumulate: true)
       import DSL
 
       IncomingScope.init(__MODULE__)
@@ -32,6 +32,7 @@ defmodule Conduit.Broker.DSL do
 
         unquote(block)
       end
+
       @configure __MODULE__.Configure
     end
   end
@@ -86,8 +87,7 @@ defmodule Conduit.Broker.DSL do
   """
   defmacro subscribe(name, subscriber, opts \\ []) do
     quote do
-      IncomingScope.subscribe(__MODULE__,
-        unquote(name), unquote(subscriber), unquote(opts))
+      IncomingScope.subscribe(__MODULE__, unquote(name), unquote(subscriber), unquote(opts))
     end
   end
 
@@ -127,8 +127,8 @@ defmodule Conduit.Broker.DSL do
       IncomingScope.compile(__MODULE__)
       OutgoingScope.compile(__MODULE__)
 
-      unquote(IncomingScope.methods)
-      unquote(OutgoingScope.methods)
+      unquote(IncomingScope.methods())
+      unquote(OutgoingScope.methods())
     end
   end
 end

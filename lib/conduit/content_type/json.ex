@@ -1,5 +1,6 @@
 defmodule Conduit.ContentType.JSON do
   use Conduit.ContentType
+
   @moduledoc """
   Handles converting to and from JSON.
   """

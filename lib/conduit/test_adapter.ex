@@ -1,6 +1,7 @@
 defmodule Conduit.TestAdapter do
   use Conduit.Adapter
   use Supervisor
+
   @moduledoc """
   This module is intended to be used instead of a normal adapter in tests.
 

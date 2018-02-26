@@ -1,5 +1,6 @@
 defmodule Conduit.Encoding.GZip do
   use Conduit.Encoding
+
   @moduledoc """
   Handles encoding to and from gzip.
   """

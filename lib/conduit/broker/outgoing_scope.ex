@@ -50,8 +50,7 @@ defmodule Conduit.Broker.OutgoingScope do
     scope = get_scope(broker)
 
     Enum.each(scope.publishers, fn {name, opts} ->
-      Module.put_attribute(broker, :publisher_configs,
-        {name, scope.pipelines, opts})
+      Module.put_attribute(broker, :publisher_configs, {name, scope.pipelines, opts})
     end)
 
     put_scope(broker, nil)
@@ -87,6 +86,7 @@ defmodule Conduit.Broker.OutgoingScope do
           adapter.publish(message, config, opts)
         end
       end
+
       Module.put_attribute(broker, :publishers, {name, {module, opts}})
     end)
   end

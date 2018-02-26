@@ -33,147 +33,161 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
     end
 
     test "prints subscriber being created and info about other files to update when adapter is AMQP" do
-      assert capture_io(fn ->
-        GenSubscriber.run(["foo"])
-      end) == """
-      \e[32m* creating \e[0mtmp/lib/conduit_queue/subscribers\e[0m
-      \e[32m* creating \e[0mtmp/lib/conduit_queue/subscribers/foo_subscriber.ex\e[0m
-      \e[32m* creating \e[0mtmp/test/conduit_queue/subscribers/foo_subscriber_test.exs\e[0m
+      io =
+        capture_io(fn ->
+          GenSubscriber.run(["foo"])
+        end)
 
-      In an outgoing block in your ConduitQueue.Broker add:
+      assert io == """
+             \e[32m* creating \e[0mtmp/lib/conduit_queue/subscribers\e[0m
+             \e[32m* creating \e[0mtmp/lib/conduit_queue/subscribers/foo_subscriber.ex\e[0m
+             \e[32m* creating \e[0mtmp/test/conduit_queue/subscribers/foo_subscriber_test.exs\e[0m
 
-          subscribe :foo, FooSubscriber, to: "conduit.foo"
+             In an outgoing block in your ConduitQueue.Broker add:
 
-      You may also want to define the queue in the configure block for ConduitQueue.Broker:
+                 subscribe :foo, FooSubscriber, to: "conduit.foo"
 
-          queue "conduit.foo"
+             You may also want to define the queue in the configure block for ConduitQueue.Broker:
 
-      """
+                 queue "conduit.foo"
+
+             """
     end
 
     test "prints subscriber being created and info about other files to update when adapter is SQS" do
-      assert capture_io(fn ->
-        GenSubscriber.run(["foo", "--broker", "Sqs.Broker"])
-      end) == """
-      \e[32m* creating \e[0mtmp/lib/sqs/subscribers\e[0m
-      \e[32m* creating \e[0mtmp/lib/sqs/subscribers/foo_subscriber.ex\e[0m
-      \e[32m* creating \e[0mtmp/test/sqs/subscribers/foo_subscriber_test.exs\e[0m
+      io =
+        capture_io(fn ->
+          GenSubscriber.run(["foo", "--broker", "Sqs.Broker"])
+        end)
 
-      In an outgoing block in your Sqs.Broker add:
+      assert io == """
+             \e[32m* creating \e[0mtmp/lib/sqs/subscribers\e[0m
+             \e[32m* creating \e[0mtmp/lib/sqs/subscribers/foo_subscriber.ex\e[0m
+             \e[32m* creating \e[0mtmp/test/sqs/subscribers/foo_subscriber_test.exs\e[0m
 
-          subscribe :foo, FooSubscriber, to: "conduit-foo"
+             In an outgoing block in your Sqs.Broker add:
 
-      You may also want to define the queue in the configure block for Sqs.Broker:
+                 subscribe :foo, FooSubscriber, to: "conduit-foo"
 
-          queue "conduit-foo"
+             You may also want to define the queue in the configure block for Sqs.Broker:
 
-      """
+                 queue "conduit-foo"
+
+             """
     end
 
     test "creates subscriber in expected directory" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo"])
-      end
+      end)
 
       assert File.exists?("tmp/lib/conduit_queue/subscribers/foo_subscriber.ex")
       assert File.exists?("tmp/test/conduit_queue/subscribers/foo_subscriber_test.exs")
     end
 
     test "generates the subscriber with the expected content" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo"])
-      end
+      end)
 
-      assert File.read!("tmp/lib/conduit_queue/subscribers/foo_subscriber.ex") == """
-      defmodule ConduitQueue.FooSubscriber do
-        use Conduit.Subscriber
+      contents = File.read!("tmp/lib/conduit_queue/subscribers/foo_subscriber.ex")
 
-        def process(message, _opts) do
+      assert contents == """
+             defmodule ConduitQueue.FooSubscriber do
+               use Conduit.Subscriber
+
+               def process(message, _opts) do
 
 
-          message
-        end
-      end
-      """
+                 message
+               end
+             end
+             """
     end
 
     test "generates the subscriber test with the expected content" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo"])
-      end
+      end)
 
-      assert File.read!("tmp/test/conduit_queue/subscribers/foo_subscriber_test.exs") == """
-      defmodule ConduitQueue.FooSubscriberTest do
-        use ExUnit.Case
-        use Conduit.Test
-        import Conduit.Message
-        alias Conduit.Message
-        alias ConduitQueue.FooSubscriber
+      contents = File.read!("tmp/test/conduit_queue/subscribers/foo_subscriber_test.exs")
 
-        describe "process/2" do
-          test "returns acked message" do
-            message =
-              %Message{}
-              |> put_body("foo")
+      assert contents == """
+             defmodule ConduitQueue.FooSubscriberTest do
+               use ExUnit.Case
+               use Conduit.Test
+               import Conduit.Message
+               alias Conduit.Message
+               alias ConduitQueue.FooSubscriber
 
-            assert %Message{status: :ack} = FooSubscriber.run(message)
-          end
-        end
-      end
-      """
+               describe "process/2" do
+                 test "returns acked message" do
+                   message =
+                     %Message{}
+                     |> put_body("foo")
+
+                   assert %Message{status: :ack} = FooSubscriber.run(message)
+                 end
+               end
+             end
+             """
     end
 
     test "creates subscriber in expected directory with broker flag" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo", "--broker", "MyApp.Broker"])
-      end
+      end)
 
       assert File.exists?("tmp/lib/my_app/subscribers/foo_subscriber.ex")
       assert File.exists?("tmp/test/my_app/subscribers/foo_subscriber_test.exs")
     end
 
     test "generates the subscriber with the expected content with broker flag" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo", "--broker", "MyApp.Broker"])
-      end
+      end)
 
-      assert File.read!("tmp/lib/my_app/subscribers/foo_subscriber.ex") == """
-      defmodule MyApp.FooSubscriber do
-        use Conduit.Subscriber
+      contents = File.read!("tmp/lib/my_app/subscribers/foo_subscriber.ex")
 
-        def process(message, _opts) do
+      assert contents == """
+             defmodule MyApp.FooSubscriber do
+               use Conduit.Subscriber
+
+               def process(message, _opts) do
 
 
-          message
-        end
-      end
-      """
+                 message
+               end
+             end
+             """
     end
 
     test "generates the subscriber test with the expected content with broker flag" do
-      capture_io fn ->
+      capture_io(fn ->
         GenSubscriber.run(["foo", "--broker", "MyApp.Broker"])
-      end
+      end)
 
-      assert File.read!("tmp/test/my_app/subscribers/foo_subscriber_test.exs") == """
-      defmodule MyApp.FooSubscriberTest do
-        use ExUnit.Case
-        use Conduit.Test
-        import Conduit.Message
-        alias Conduit.Message
-        alias MyApp.FooSubscriber
+      contents = File.read!("tmp/test/my_app/subscribers/foo_subscriber_test.exs")
 
-        describe "process/2" do
-          test "returns acked message" do
-            message =
-              %Message{}
-              |> put_body("foo")
+      assert contents == """
+             defmodule MyApp.FooSubscriberTest do
+               use ExUnit.Case
+               use Conduit.Test
+               import Conduit.Message
+               alias Conduit.Message
+               alias MyApp.FooSubscriber
 
-            assert %Message{status: :ack} = FooSubscriber.run(message)
-          end
-        end
-      end
-      """
+               describe "process/2" do
+                 test "returns acked message" do
+                   message =
+                     %Message{}
+                     |> put_body("foo")
+
+                   assert %Message{status: :ack} = FooSubscriber.run(message)
+                 end
+               end
+             end
+             """
     end
   end
 end

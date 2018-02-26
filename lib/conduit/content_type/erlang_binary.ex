@@ -1,5 +1,6 @@
 defmodule Conduit.ContentType.ErlangBinary do
   use Conduit.ContentType
+
   @moduledoc """
   Handles converting to and from erlang binary.
   """

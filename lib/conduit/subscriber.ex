@@ -3,7 +3,7 @@ defmodule Conduit.Subscriber do
   Provides functions and macros for handling incoming messages
   """
 
-  @callback process(Conduit.Message.t, Conduit.Plug.opts) :: Conduit.Message.t
+  @callback process(Conduit.Message.t(), Conduit.Plug.opts()) :: Conduit.Message.t()
 
   @doc """
   Defines default implementations for the `Conduit.Plug` and `Conduit.Subscriber` behavior
@@ -21,7 +21,7 @@ defmodule Conduit.Subscriber do
         message
       end
 
-      defoverridable [process: 2]
+      defoverridable process: 2
     end
   end
 end

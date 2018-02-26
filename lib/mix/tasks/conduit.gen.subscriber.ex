@@ -25,12 +25,12 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
 
   @doc false
   def run(args) do
-    {switches, argv} =
-      OptionParser.parse!(args, strict: [broker: :string])
+    {switches, argv} = OptionParser.parse!(args, strict: [broker: :string])
 
     case argv do
       [] ->
         raise ArgumentError, "name is a required argument"
+
       [name | _] ->
         app = get_app()
         name = Macro.underscore(name)
@@ -72,7 +72,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     subscriber_test_file = Path.join([assigns[:test_path], assigns[:test_file]])
     create_file(subscriber_test_file, subscriber_test_template(assigns))
 
-    info subscriber_info_template(assigns)
+    info(subscriber_info_template(assigns))
   end
 
   defp get_app do
@@ -93,6 +93,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
         #{broker_module} is not configured. To configure your broker, see
         https://hexdocs.pm/conduit/readme.html#getting-started
         """
+
       config ->
         config
     end
@@ -105,6 +106,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     |> case do
       ConduitSQS ->
         :sqs
+
       _ ->
         :amqp
     end
@@ -115,6 +117,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     |> Kernel.<>("_queue/broker")
     |> Macro.camelize()
   end
+
   defp get_broker_module(broker_module) do
     broker_module
   end
@@ -129,6 +132,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
   defp get_queue_name(:sqs, app, name) do
     String.replace("#{app}-#{name}", ~r<[/_.]>, "-")
   end
+
   defp get_queue_name(_, app, name) do
     String.replace("#{app}.#{name}", ~r<[/]>, ".")
   end
@@ -159,7 +163,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     |> Kernel.<>(postfix)
   end
 
-  embed_template :subscriber, """
+  embed_template(:subscriber, """
   defmodule <%= @parent_module %>.<%= @subscriber_name %> do
     use Conduit.Subscriber
 
@@ -169,9 +173,9 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
       message
     end
   end
-  """
+  """)
 
-  embed_template :subscriber_test, """
+  embed_template(:subscriber_test, """
   defmodule <%= @parent_module %>.<%= @subscriber_name %>Test do
     use ExUnit.Case
     use Conduit.Test
@@ -189,9 +193,9 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
       end
     end
   end
-  """
+  """)
 
-  embed_template :subscriber_info, """
+  embed_template(:subscriber_info, """
 
   In an outgoing block in your <%= @broker_module %> add:
 
@@ -200,5 +204,5 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
   You may also want to define the queue in the configure block for <%= @broker_module %>:
 
       queue "<%= @queue_name %>"
-  """
+  """)
 end

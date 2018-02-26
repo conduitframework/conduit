@@ -62,19 +62,20 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      Broker.start_link
+      Broker.start_link()
 
-      assert_received {:adapter, [
-        Conduit.BrokerTest.Broker,
-        [
-          {:exchange, "amq.topic", []},
-          {:exchange, "dynamic.name", []},
-          {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
-          {:queue, "dynamic.name", [from: ["#"]]}
-        ],
-        %{stuff: [from: "my_app.created.stuff"]},
-        [adapter: Conduit.TestAdapter]
-      ]}
+      assert_received {:adapter,
+                       [
+                         Conduit.BrokerTest.Broker,
+                         [
+                           {:exchange, "amq.topic", []},
+                           {:exchange, "dynamic.name", []},
+                           {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
+                           {:queue, "dynamic.name", [from: ["#"]]}
+                         ],
+                         %{stuff: [from: "my_app.created.stuff"]},
+                         [adapter: Conduit.TestAdapter]
+                       ]}
     end
   end
 
@@ -86,7 +87,9 @@ defmodule Conduit.BrokerTest do
       Broker.publish(:more_stuff, %Conduit.Message{})
 
       assert_received {:pass_through, %Conduit.Message{}}
-      assert_received {:publish, %Conduit.Message{}, [adapter: Conduit.TestAdapter], [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
+
+      assert_received {:publish, %Conduit.Message{}, [adapter: Conduit.TestAdapter],
+                       [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
     end
   end
 

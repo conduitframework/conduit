@@ -15,8 +15,8 @@ defmodule Conduit.ContentType do
   behaviour. See `Conduit.ContentType.JSON` for an example.
 
   """
-  @callback format(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
-  @callback parse(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
+  @callback format(Conduit.Message.t(), Keyword.t()) :: Conduit.Message.t()
+  @callback parse(Conduit.Message.t(), Keyword.t()) :: Conduit.Message.t()
 
   @default_content_types [
     {"text/plain", Conduit.ContentType.Text},
@@ -48,7 +48,7 @@ defmodule Conduit.ContentType do
       "{}"
 
   """
-  @spec format(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  @spec format(Conduit.Message.t(), String.t(), Keyword.t()) :: Conduit.Message.t()
   def format(message, type, opts) do
     content_type(type).format(message, opts)
   end
@@ -67,18 +67,19 @@ defmodule Conduit.ContentType do
       %{}
 
   """
-  @spec parse(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  @spec parse(Conduit.Message.t(), String.t(), Keyword.t()) :: Conduit.Message.t()
   def parse(message, type, opts) do
     content_type(type).parse(message, opts)
   end
 
-  @spec content_type(String.t) :: module
+  @spec content_type(String.t()) :: module
   config_content_types = Application.get_env(:conduit, Conduit.ContentType, [])
+
   for {type, content_type} <- config_content_types ++ @default_content_types do
     defp content_type(unquote(type)), do: unquote(content_type)
   end
 
   defp content_type(content_type) do
-    raise Conduit.UnknownContentTypeError, "Unknown content type #{inspect content_type}"
+    raise Conduit.UnknownContentTypeError, "Unknown content type #{inspect(content_type)}"
   end
 end

@@ -1,6 +1,7 @@
 defmodule Conduit.Plug.LogIncoming do
   use Conduit.Plug.Builder
   require Logger
+
   @moduledoc """
   Logs an incoming message and how long it takes to process it.
 
@@ -26,9 +27,10 @@ defmodule Conduit.Plug.LogIncoming do
       end)
 
       next.(message)
-    rescue error ->
-      Logger.log(:error, Exception.format(:error, error))
-      reraise error, System.stacktrace
+    rescue
+      error ->
+        Logger.log(:error, Exception.format(:error, error))
+        reraise error, System.stacktrace()
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
@@ -39,6 +41,6 @@ defmodule Conduit.Plug.LogIncoming do
     end
   end
 
-  defp formatted_diff(diff) when diff > 1000, do: [diff |> div(1000) |> Integer.to_string, "ms"]
-  defp formatted_diff(diff), do: [diff |> Integer.to_string, "µs"]
+  defp formatted_diff(diff) when diff > 1000, do: [diff |> div(1000) |> Integer.to_string(), "ms"]
+  defp formatted_diff(diff), do: [diff |> Integer.to_string(), "µs"]
 end

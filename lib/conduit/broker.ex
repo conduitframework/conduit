@@ -14,7 +14,7 @@ defmodule Conduit.Broker do
   """
   defmacro __using__(opts) do
     quote do
-      @otp_app unquote(opts)[:otp_app] || raise "endpoint expects :otp_app to be given"
+      @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
       use Supervisor
       use Conduit.Broker.DSL, otp_app: @otp_app
 
@@ -26,9 +26,7 @@ defmodule Conduit.Broker do
         import Supervisor.Spec
 
         config = Application.get_env(@otp_app, __MODULE__)
-        adapter =
-          Keyword.get(config, :adapter)
-          || raise Conduit.AdapterNotConfiguredError
+        adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
 
         subs =
           subscribers()
@@ -37,12 +35,14 @@ defmodule Conduit.Broker do
           end)
           |> Enum.into(%{})
 
-        children = [supervisor(adapter, [
-          __MODULE__,
-          topology(),
-          subs,
-          config
-        ])]
+        children = [
+          supervisor(adapter, [
+            __MODULE__,
+            topology(),
+            subs,
+            config
+          ])
+        ]
 
         supervise(children, strategy: :one_for_one)
       end

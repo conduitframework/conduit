@@ -11,13 +11,12 @@ defmodule Conduit.Plug.AckExceptionTest do
     end
   end
 
-
   test "it acks the message if an exception is raised" do
     capture_log(fn ->
       message =
         %Conduit.Message{}
-        |> Conduit.Message.nack
-        |> ExceptionRaiser.run
+        |> Conduit.Message.nack()
+        |> ExceptionRaiser.run()
 
       assert message.status == :ack
     end)

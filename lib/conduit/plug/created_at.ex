@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.CreatedAt do
   use Conduit.Plug.Builder
+
   @moduledoc """
   Assigns a created_at date to the message.
 
@@ -39,6 +40,6 @@ defmodule Conduit.Plug.CreatedAt do
     |> next.()
   end
 
-  defp created_at(:unix_epoch), do: Timex.to_unix(Timex.now)
-  defp created_at(format), do: Timex.format!(Timex.now, format)
+  defp created_at(:unix_epoch), do: Timex.to_unix(Timex.now())
+  defp created_at(format), do: Timex.format!(Timex.now(), format)
 end

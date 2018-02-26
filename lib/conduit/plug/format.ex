@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.Format do
   use Conduit.Plug.Builder
+
   @moduledoc """
   Formats the message body based on the content type.
 
@@ -50,9 +51,7 @@ defmodule Conduit.Plug.Format do
   @default_content_type "text/plain"
   def call(message, next, opts) do
     content_type =
-      Keyword.get(opts, :content_type)
-      || Map.get(message, :content_type)
-      || @default_content_type
+      Keyword.get(opts, :content_type) || Map.get(message, :content_type) || @default_content_type
 
     message
     |> put_content_type_at(Keyword.get(opts, :header), content_type)
@@ -63,6 +62,7 @@ defmodule Conduit.Plug.Format do
   defp put_content_type_at(message, nil, content_type) do
     put_content_type(message, content_type)
   end
+
   defp put_content_type_at(message, header, content_type) do
     put_header(message, header, content_type)
   end

@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.CreatedBy do
   use Conduit.Plug.Builder
+
   @moduledoc """
   Assigns name of app to created_by of the message.
 

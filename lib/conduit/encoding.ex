@@ -15,8 +15,8 @@ defmodule Conduit.Encoding do
   behaviour. See `Conduit.Encoding.GZip` for an example.
 
   """
-  @callback encode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
-  @callback decode(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
+  @callback encode(Conduit.Message.t(), Keyword.t()) :: Conduit.Message.t()
+  @callback decode(Conduit.Message.t(), Keyword.t()) :: Conduit.Message.t()
 
   @default_content_encodings [
     {"gzip", Conduit.Encoding.GZip},
@@ -47,7 +47,7 @@ defmodule Conduit.Encoding do
       "{}"
 
   """
-  @spec encode(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  @spec encode(Conduit.Message.t(), String.t(), Keyword.t()) :: Conduit.Message.t()
   def encode(message, encoding, opts) do
     content_encoding(encoding).encode(message, opts)
   end
@@ -67,19 +67,20 @@ defmodule Conduit.Encoding do
       "{}"
 
   """
-  @spec decode(Conduit.Message.t, String.t, Keyword.t) :: Conduit.Message.t
+  @spec decode(Conduit.Message.t(), String.t(), Keyword.t()) :: Conduit.Message.t()
   def decode(message, encoding, opts) do
     content_encoding(encoding).decode(message, opts)
   end
 
-  @spec content_encoding(String.t) :: module
+  @spec content_encoding(String.t()) :: module
   config_content_encodings = Application.get_env(:conduit, Conduit.Encoding, [])
   encodings = config_content_encodings ++ @default_content_encodings
+
   for {encoding, content_encoding} <- encodings do
     defp content_encoding(unquote(encoding)), do: unquote(content_encoding)
   end
 
   defp content_encoding(content_encoding) do
-    raise Conduit.UnknownEncodingError, "Unknown encoding #{inspect content_encoding}"
+    raise Conduit.UnknownEncodingError, "Unknown encoding #{inspect(content_encoding)}"
   end
 end

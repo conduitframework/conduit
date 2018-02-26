@@ -53,6 +53,7 @@ defmodule Conduit.Test do
       import Conduit.Test, only: :macros
     end
   end
+
   defmacro __using__(_) do
     quote do
       setup tags do
@@ -78,7 +79,7 @@ defmodule Conduit.Test do
 
   """
   defmacro assert_message_published(message) do
-    quote do: assert_received {:publish, unquote(message), _, _}
+    quote do: assert_received({:publish, unquote(message), _, _})
   end
 
   @doc """
@@ -94,7 +95,7 @@ defmodule Conduit.Test do
 
   """
   defmacro assert_message_published(message, opts) do
-    quote do: assert_received {:publish, unquote(message), _, unquote(opts)}
+    quote do: assert_received({:publish, unquote(message), _, unquote(opts)})
   end
 
   @doc """
@@ -110,7 +111,7 @@ defmodule Conduit.Test do
 
   """
   defmacro refute_message_published(message) do
-    quote do: refute_received {:publish, unquote(message), _, _}
+    quote do: refute_received({:publish, unquote(message), _, _})
   end
 
   @doc """
@@ -126,7 +127,7 @@ defmodule Conduit.Test do
 
   """
   defmacro refute_message_published(message, opts) do
-    quote do: refute_received {:publish, unquote(message), _, unquote(opts)}
+    quote do: refute_received({:publish, unquote(message), _, unquote(opts)})
   end
 
   @doc """

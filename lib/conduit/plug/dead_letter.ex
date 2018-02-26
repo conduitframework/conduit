@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.DeadLetter do
   use Conduit.Plug.Builder
+
   @moduledoc """
   Publishes messages that were nacked or raised an exception to a
   dead letter destination.
@@ -39,15 +40,16 @@ defmodule Conduit.Plug.DeadLetter do
       :nack -> publish_dead_letter(message, opts)
       :ack -> message
     end
-  rescue error ->
-    message
-    |> put_header("exception", Exception.format(:error, error))
-    |> publish_dead_letter(opts)
+  rescue
+    error ->
+      message
+      |> put_header("exception", Exception.format(:error, error))
+      |> publish_dead_letter(opts)
 
-    reraise error, System.stacktrace
+      reraise error, System.stacktrace()
   end
 
-  @spec publish_dead_letter(Conduit.Message.t, Keyword.t) :: Conduit.Message.t
+  @spec publish_dead_letter(Conduit.Message.t(), Keyword.t()) :: Conduit.Message.t()
   defp publish_dead_letter(message, opts) do
     broker = Keyword.get(opts, :broker)
     publish_to = Keyword.get(opts, :publish_to)

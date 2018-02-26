@@ -3,8 +3,11 @@ defmodule Conduit.TestSharedTest do
   use Conduit.Test, shared: true
 
   setup do
-    Application.put_env(:shared_test_app, Conduit.TestSharedTest.Broker,
-      adapter: Conduit.TestAdapter)
+    Application.put_env(
+      :shared_test_app,
+      Conduit.TestSharedTest.Broker,
+      adapter: Conduit.TestAdapter
+    )
 
     :ok
   end
@@ -26,7 +29,7 @@ defmodule Conduit.TestSharedTest do
   test "assert_message_published/2" do
     Broker.publish(:message, %Conduit.Message{})
 
-    assert_message_published %Conduit.Message{}, [to: "somewhere"]
+    assert_message_published %Conduit.Message{}, to: "somewhere"
   end
 
   test "refute_message_published/1" do
@@ -34,7 +37,7 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "refute_message_published/2" do
-    refute_message_published %Conduit.Message{}, [to: "somewhere"]
+    refute_message_published %Conduit.Message{}, to: "somewhere"
   end
 
   test "assert_message_publish/1" do
@@ -53,8 +56,11 @@ defmodule Conduit.TestUnsharedTest do
   use Conduit.Test, shared: false
 
   setup do
-    Application.put_env(:unshared_test_app, Conduit.TestUnsharedTest.Broker,
-      adapter: Conduit.TestAdapter)
+    Application.put_env(
+      :unshared_test_app,
+      Conduit.TestUnsharedTest.Broker,
+      adapter: Conduit.TestAdapter
+    )
 
     :ok
   end
@@ -76,7 +82,7 @@ defmodule Conduit.TestUnsharedTest do
   test "assert_message_published/2" do
     Broker.publish(:message, %Conduit.Message{})
 
-    assert_message_published %Conduit.Message{}, [to: "somewhere"]
+    assert_message_published %Conduit.Message{}, to: "somewhere"
   end
 
   test "refute_message_published/1" do
@@ -84,7 +90,7 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "refute_message_published/2" do
-    refute_message_published %Conduit.Message{}, [to: "somewhere"]
+    refute_message_published %Conduit.Message{}, to: "somewhere"
   end
 
   test "assert_message_publish/1" do

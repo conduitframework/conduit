@@ -24,7 +24,7 @@ defmodule Conduit.Broker.Configure do
   @doc false
   defmacro __using__(_opts) do
     quote do
-      Module.register_attribute(__MODULE__, :topology, accumulate: :true)
+      Module.register_attribute(__MODULE__, :topology, accumulate: true)
 
       import Conduit.Broker.Configure
 
@@ -36,11 +36,13 @@ defmodule Conduit.Broker.Configure do
   Defines an exchange to setup.
   """
   defmacro exchange(name, opts \\ [])
+
   defmacro exchange({:fn, _, _} = fun, opts) do
     quote bind_quoted: [name: :erlang.term_to_binary(fun), opts: opts] do
       @topology {:exchange, {:fun, name}, opts}
     end
   end
+
   defmacro exchange(name, opts) do
     quote bind_quoted: [name: name, opts: opts] do
       @topology {:exchange, name, opts}
@@ -51,11 +53,13 @@ defmodule Conduit.Broker.Configure do
   Defines a queue to setup.
   """
   defmacro queue(name, opts \\ [])
+
   defmacro queue({:fn, _, _} = fun, opts) do
     quote bind_quoted: [name: :erlang.term_to_binary(fun), opts: opts] do
       @topology {:queue, {:fun, name}, opts}
     end
   end
+
   defmacro queue(name, opts) do
     quote bind_quoted: [name: name, opts: opts] do
       @topology {:queue, name, opts}
@@ -71,6 +75,7 @@ defmodule Conduit.Broker.Configure do
         |> Enum.map(fn
           {type, {:fun, binary}, opts} ->
             {:{}, [], [type, :erlang.binary_to_term(binary), opts]}
+
           item ->
             Macro.escape(item)
         end)
@@ -79,6 +84,7 @@ defmodule Conduit.Broker.Configure do
         Enum.map(unquote(ordered_topology), fn
           {type, name, opts} when is_function(name) ->
             {type, name.(), opts}
+
           item ->
             item
         end)

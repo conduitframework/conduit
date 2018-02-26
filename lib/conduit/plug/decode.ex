@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.Decode do
   use Conduit.Plug.Builder
+
   @moduledoc """
   Decodes the message body based on the content encoding.
 
@@ -51,9 +52,8 @@ defmodule Conduit.Plug.Decode do
   @default_content_encoding "identity"
   def call(message, next, opts) do
     content_encoding =
-      Keyword.get(opts, :content_encoding)
-      || Map.get(message, :content_encoding)
-      || @default_content_encoding
+      Keyword.get(opts, :content_encoding) || Map.get(message, :content_encoding) ||
+        @default_content_encoding
 
     message
     |> put_content_encoding_at(Keyword.get(opts, :header), content_encoding)
@@ -64,6 +64,7 @@ defmodule Conduit.Plug.Decode do
   defp put_content_encoding_at(message, nil, content_encoding) do
     put_content_encoding(message, content_encoding)
   end
+
   defp put_content_encoding_at(message, header, content_encoding) do
     put_header(message, header, content_encoding)
   end

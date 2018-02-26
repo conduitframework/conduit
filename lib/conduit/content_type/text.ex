@@ -1,5 +1,6 @@
 defmodule Conduit.ContentType.Text do
   use Conduit.ContentType
+
   @moduledoc """
   Handles converting a message body to and from Text.
   """

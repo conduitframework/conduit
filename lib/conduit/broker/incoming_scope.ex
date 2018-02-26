@@ -33,8 +33,11 @@ defmodule Conduit.Broker.IncomingScope do
     Enum.each(scope.subscribers, fn {name, subscriber, opts} ->
       subscriber_name = Module.concat(scope.namespace, subscriber)
 
-      Module.put_attribute(module, :subscriber_configs,
-        {name, subscriber_name, scope.pipelines, opts})
+      Module.put_attribute(
+        module,
+        :subscriber_configs,
+        {name, subscriber_name, scope.pipelines, opts}
+      )
     end)
 
     put_scope(module, nil)
@@ -82,6 +85,7 @@ defmodule Conduit.Broker.IncomingScope do
 
         plug subscriber
       end
+
       Module.put_attribute(module, :subscribers, {name, {mod, opts}})
     end)
   end

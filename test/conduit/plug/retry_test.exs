@@ -6,18 +6,18 @@ defmodule Conduit.Plug.RetryTest do
   describe ".init" do
     test "it merges passed opts and returns a map" do
       assert Conduit.Plug.Retry.init([]) == %{
-        attempts: 3,
-        backoff_factor: 2,
-        jitter: 0,
-        delay: 1000
-      }
+               attempts: 3,
+               backoff_factor: 2,
+               jitter: 0,
+               delay: 1000
+             }
 
-      assert Conduit.Plug.Retry.init([attempts: 2, jitter: 3]) == %{
-        attempts: 2,
-        backoff_factor: 2,
-        jitter: 3,
-        delay: 1000
-      }
+      assert Conduit.Plug.Retry.init(attempts: 2, jitter: 3) == %{
+               attempts: 2,
+               backoff_factor: 2,
+               jitter: 3,
+               delay: 1000
+             }
     end
   end
 

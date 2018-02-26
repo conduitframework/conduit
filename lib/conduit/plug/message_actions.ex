@@ -20,11 +20,11 @@ defmodule Conduit.Plug.MessageActions do
       :ack
 
   """
-  @spec ack(Message.t, Plug.next, Plug.opts) :: Message.t
+  @spec ack(Message.t(), Plug.next(), Plug.opts()) :: Message.t()
   def ack(message, next, _opts) do
     message
     |> next.()
-    |> Message.ack
+    |> Message.ack()
   end
 
   @doc """
@@ -43,11 +43,11 @@ defmodule Conduit.Plug.MessageActions do
       :nack
 
   """
-  @spec nack(Message.t, Plug.next, Plug.opts) :: Message.t
+  @spec nack(Message.t(), Plug.next(), Plug.opts()) :: Message.t()
   def nack(message, next, _opts) do
     message
     |> next.()
-    |> Message.nack
+    |> Message.nack()
   end
 
   @doc """
@@ -66,7 +66,7 @@ defmodule Conduit.Plug.MessageActions do
       "gzip"
 
   """
-  @spec put_headers(Message.t, Plug.next, Message.headers) :: Message.t
+  @spec put_headers(Message.t(), Plug.next(), Message.headers()) :: Message.t()
   def put_headers(message, next, opts) when is_function(next) do
     opts
     |> Enum.reduce(message, fn {key, value}, mess ->
@@ -91,7 +91,7 @@ defmodule Conduit.Plug.MessageActions do
       1
 
   """
-  @spec put_assigns(Message.t, Plug.next, Keyword.t) :: Message.t
+  @spec put_assigns(Message.t(), Plug.next(), Keyword.t()) :: Message.t()
   def put_assigns(message, next, opts) when is_function(next) do
     opts
     |> Enum.reduce(message, fn {key, value}, mess ->
@@ -142,12 +142,14 @@ defmodule Conduit.Plug.MessageActions do
               plug :#{unquote(action)}, #{inspect(unquote(value))}
 
               iex> import Conduit.Plug.MessageActions
-              iex> message = #{unquote(action)}(%Conduit.Message{}, &(&1), #{inspect(unquote(value))})
+              iex> message = #{unquote(action)}(%Conduit.Message{}, &(&1), #{
+            inspect(unquote(value))
+          })
               iex> message.#{unquote(field)}
               #{inspect(unquote(value))}
 
           """
-          @spec unquote(action)(Message.t, Plug.next, Plug.opts) :: Message.t
+          @spec unquote(action)(Message.t(), Plug.next(), Plug.opts()) :: Message.t()
           def unquote(action)(message, next, opts) do
             Message
             |> apply(unquote(action), [message, opts])

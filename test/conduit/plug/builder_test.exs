@@ -19,7 +19,7 @@ defmodule Conduit.Plug.BuilderTest do
   defmodule Multiplier do
     use Conduit.Plug.Builder
 
-    def call(message, next, [by: amount]) do
+    def call(message, next, by: amount) do
       message
       |> put_body(message.body * amount)
       |> next.()
@@ -47,7 +47,7 @@ defmodule Conduit.Plug.BuilderTest do
       message =
         %Message{}
         |> put_body(1)
-        |> PlusOne.run
+        |> PlusOne.run()
 
       assert message.body == 2
     end
@@ -64,7 +64,7 @@ defmodule Conduit.Plug.BuilderTest do
       message =
         %Message{}
         |> put_body(1)
-        |> TimesTwo.run
+        |> TimesTwo.run()
 
       assert message.body == 2
     end
@@ -81,7 +81,7 @@ defmodule Conduit.Plug.BuilderTest do
       message =
         %Message{}
         |> put_body(4)
-        |> DivideTwo.run
+        |> DivideTwo.run()
 
       assert message.body == 2
     end
@@ -98,7 +98,7 @@ defmodule Conduit.Plug.BuilderTest do
       message =
         %Message{}
         |> put_body(4)
-        |> SubtractTwo.run
+        |> SubtractTwo.run()
 
       assert message.body == 2
     end
