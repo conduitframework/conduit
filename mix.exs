@@ -60,7 +60,7 @@ defmodule Conduit.Mixfile do
     # These are the default files included in the package
     [
       name: :conduit,
-      files: ["lib", "mix.exs", "README*", "LICENSE*"],
+      files: ["lib", "mix.exs", "README*", "LICENSE*", ".formatter.exs"],
       maintainers: ["Allen Madsen"],
       licenses: ["MIT"],
       links: %{
