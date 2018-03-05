@@ -3,7 +3,7 @@ jobs:
   build:
     working_directory: ~/app
     docker:
-      - image: circleci/elixir:1.5.2
+      - image: circleci/elixir:1.6.2
     steps:
       - checkout
 
@@ -13,50 +13,48 @@ jobs:
 
       - restore_cache:
           keys:
-            - v1-deps-{{checksum "mix.lock.frozen"}}
-            - v1-deps-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
-            - v1-deps-develop
+            - v6-deps-{{checksum "mix.lock.frozen"}}
+            - v6-deps-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
+            - v6-deps-master
       - run: mix deps.get
       - save_cache:
-          key: v1-deps-{{checksum "mix.lock.frozen"}}
+          key: v6-deps-{{checksum "mix.lock.frozen"}}
           paths:
             - deps
       - save_cache:
-          key: v1-deps-{{.Branch}}-{{.BuildNum}}
+          key: v6-deps-{{.Branch}}-{{.BuildNum}}
           paths:
             - deps
       - save_cache:
-          key: v1-deps-{{.Branch}}
+          key: v6-deps-{{.Branch}}
           paths:
             - deps
 
       - restore_cache:
           keys:
-            - v1-build-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
-            - v1-build-{{checksum "mix.lock.frozen"}}
-            - v1-build-develop
+            - v6-build-{{.Branch}}-{{.Environment.CIRCLE_PREVIOUS_BUILD_NUM}}
+            - v6-build-{{checksum "mix.lock.frozen"}}
+            - v6-build-master
       - run: mix compile
       - run: MIX_ENV=test mix compile
       - run: MIX_ENV=prod mix compile
+      - run: mix dialyzer --plt --no-compile
       - save_cache:
-          key: v1-build-{{checksum "mix.lock.frozen"}}
+          key: v6-build-{{checksum "mix.lock.frozen"}}
           paths:
             - _build
       - save_cache:
-          key: v1-build-{{.Branch}}-{{.BuildNum}}
+          key: v6-build-{{.Branch}}-{{.BuildNum}}
           paths:
             - _build
       - save_cache:
-          key: v1-build-{{.Branch}}
+          key: v6-build-{{.Branch}}
           paths:
             - _build
 
       - run: mix coveralls.circle
-      - run: mix credo
-
+      - run: mix dialyzer --halt-exit-status --no-check --no-compile
+      - run: mix format --check-formatted
+      - run: mix credo --all
       - store_test_results:
           path: _build/test/lib/conduit/
-
-      - run: mix docs
-      - store_artifacts:
-          path: doc

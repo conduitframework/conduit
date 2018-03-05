@@ -97,18 +97,19 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
       config ->
         config
     end
-    |> Keyword.get_lazy(:adapter, fn ->
-      raise ArgumentError, """
-      #{broker_module} is not configured with an adapter. To configure your broker, see
-      https://hexdocs.pm/conduit/readme.html#getting-started
-      """
-    end)
+    |> Keyword.get(:adapter)
     |> case do
       ConduitSQS ->
         :sqs
 
-      _ ->
+      ConduitAMQP ->
         :amqp
+
+      _ ->
+        raise ArgumentError, """
+        #{broker_module} is not configured with an adapter. To configure your broker, see
+        https://hexdocs.pm/conduit/readme.html#getting-started
+        """
     end
   end
 
