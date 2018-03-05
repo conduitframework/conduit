@@ -19,7 +19,7 @@ defmodule Conduit.Mixfile do
       # Package
       description: "Message queue framework, with support for middleware and multiple adapters.",
       package: package(),
-      dialyzer: [flags: ["-Werror_handling", "-Wrace_conditions"]],
+      dialyzer: [flags: ["-Werror_handling", "-Wrace_conditions"], plt_add_apps: [:eex]],
 
       # Coveralls
       test_coverage: [tool: ExCoveralls],
