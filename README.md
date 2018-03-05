@@ -17,20 +17,20 @@ The package can be installed as:
 
   1. Add `conduit` to your list of dependencies in `mix.exs`:
 
-    ```elixir
-    def deps do
-      [{:conduit, "~> 0.8"}]
-    end
-    ```
+```elixir
+def deps do
+  [{:conduit, "~> 0.10"}]
+end
+```
 
   2. If you are explicitly stating which applications to start, ensure `conduit`
      is started before your application:
 
-    ```elixir
-    def application do
-      [applications: [:conduit]]
-    end
-    ```
+```elixir
+def application do
+  [applications: [:conduit]]
+end
+```
 
 ## Getting Started
 
