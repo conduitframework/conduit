@@ -6,8 +6,8 @@ defmodule Conduit.BrokerTest do
     @moduledoc false
     use Conduit.Plug.Builder
 
-    def call(message, next, _opts) do
-      send(self(), {:pass_through, message})
+    def call(message, next, opts) do
+      send(self(), {:pass_through, message, opts})
 
       next.(message)
     end
@@ -17,8 +17,8 @@ defmodule Conduit.BrokerTest do
     @moduledoc false
     use Conduit.Subscriber
 
-    def process(message, _opts) do
-      send(self(), {:subscriber, message})
+    def process(message, opts) do
+      send(self(), {:subscriber, message, opts})
 
       message
     end
@@ -37,17 +37,17 @@ defmodule Conduit.BrokerTest do
     end
 
     pipeline :incoming do
-      plug PassThrough
+      plug PassThrough, :incoming
     end
 
     pipeline :outgoing do
-      plug PassThrough
+      plug PassThrough, :outgoing
     end
 
     incoming Conduit.BrokerTest.MyApp do
       pipe_through :incoming
 
-      subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
+      subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff", other: :stuff
     end
 
     outgoing do
@@ -73,7 +73,7 @@ defmodule Conduit.BrokerTest do
                            {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
                            {:queue, "dynamic.name", [from: ["#"]]}
                          ],
-                         %{stuff: [from: "my_app.created.stuff"]},
+                         %{stuff: [from: "my_app.created.stuff", other: :stuff]},
                          [adapter: Conduit.TestAdapter]
                        ]}
     end
@@ -86,7 +86,7 @@ defmodule Conduit.BrokerTest do
 
       Broker.publish(:more_stuff, %Conduit.Message{})
 
-      assert_received {:pass_through, %Conduit.Message{}}
+      assert_received {:pass_through, %Conduit.Message{}, :outgoing}
 
       assert_received {:publish, %Conduit.Message{}, [adapter: Conduit.TestAdapter],
                        [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
@@ -97,8 +97,8 @@ defmodule Conduit.BrokerTest do
     test "it calls the subscriber and it's pipeline" do
       Broker.receives(:stuff, %Conduit.Message{})
 
-      assert_received {:pass_through, %Conduit.Message{}}
-      assert_received {:subscriber, %Conduit.Message{}}
+      assert_received {:pass_through, %Conduit.Message{}, :incoming}
+      assert_received {:subscriber, %Conduit.Message{}, from: "my_app.created.stuff", other: :stuff}
     end
   end
 end

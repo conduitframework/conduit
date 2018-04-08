@@ -83,7 +83,7 @@ defmodule Conduit.Broker.IncomingScope do
           plug pipeline
         end)
 
-        plug subscriber
+        defdelegate call(message, next, opts), to: subscriber
       end
 
       Module.put_attribute(module, :subscribers, {name, {mod, opts}})
