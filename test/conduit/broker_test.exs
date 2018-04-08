@@ -98,7 +98,9 @@ defmodule Conduit.BrokerTest do
       Broker.receives(:stuff, %Conduit.Message{})
 
       assert_received {:pass_through, %Conduit.Message{}, :incoming}
-      assert_received {:subscriber, %Conduit.Message{}, from: "my_app.created.stuff", other: :stuff}
+
+      assert_received {:subscriber, %Conduit.Message{},
+                       from: "my_app.created.stuff", other: :stuff}
     end
   end
 end
