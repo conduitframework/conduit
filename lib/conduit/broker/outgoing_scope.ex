@@ -83,7 +83,7 @@ defmodule Conduit.Broker.OutgoingScope do
           config = Application.get_env(@otp_app, @broker)
           adapter = Keyword.get(config, :adapter)
 
-          adapter.publish(message, config, opts)
+          adapter.publish(@broker, message, config, opts)
         end
       end
 

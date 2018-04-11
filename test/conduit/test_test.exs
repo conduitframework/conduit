@@ -13,6 +13,7 @@ defmodule Conduit.TestSharedTest do
   end
 
   defmodule Broker do
+    @moduledoc false
     use Conduit.Broker, otp_app: :shared_test_app
 
     outgoing do
