@@ -29,7 +29,11 @@ defmodule Conduit.Adapter do
 
       def publish(broker, message, config, opts) do
         require Logger
-        Logger.warn("#{__MODULE__}.publish/3 is deprecated. Adapter should implement #{__MODULE__}.publish/4 instead.")
+
+        Logger.warn(
+          "#{__MODULE__}.publish/3 is deprecated. Adapter should implement #{__MODULE__}.publish/4 instead."
+        )
+
         publish(message, config, opts)
       end
 
