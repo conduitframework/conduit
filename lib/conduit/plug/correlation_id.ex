@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.CorrelationId do
   use Conduit.Plug.Builder
+  require Logger
 
   @moduledoc """
   Assigns a UUID for the correlation ID of the message if one isn't present and always assigns
@@ -9,7 +10,6 @@ defmodule Conduit.Plug.CorrelationId do
 
       plug Conduit.Plug.CorrelationId
 
-      iex> require Logger
       iex> message = Conduit.Plug.CorrelationId.run(%Conduit.Message{})
       iex> message.correlation_id == Logger.metadata[:correlation_id]
       true
