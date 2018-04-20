@@ -91,6 +91,21 @@ defmodule Conduit.BrokerTest do
       assert_received {:publish, Broker, %Conduit.Message{}, [adapter: Conduit.TestAdapter],
                        [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
     end
+
+    @expected_message """
+    Undefined publish route :non_existent.
+
+    Perhaps it's misspelled. Otherwise, it can be defined in Conduit.BrokerTest.Broker by adding:
+
+        outgoing do
+          subscribe :non_existent, to: "my.destination", other: "options"
+        end
+    """
+    test "it produces a useful error when publishing to an undefined publish" do
+      assert_raise Conduit.UndefinedPublishRouteError, @expected_message, fn ->
+        Broker.publish(:non_existent, %Conduit.Message{})
+      end
+    end
   end
 
   describe "receives/2" do

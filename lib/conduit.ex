@@ -31,6 +31,13 @@ defmodule Conduit do
     defexception [:message]
   end
 
+  defmodule UndefinedPublishRouteError do
+    @moduledoc """
+    Exception raised calling a publish route that is undefined
+    """
+    defexception [:message]
+  end
+
   defmodule AdapterNotConfiguredError do
     @moduledoc """
     Exception raised when no adapter is configured

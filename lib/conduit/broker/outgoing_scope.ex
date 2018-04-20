@@ -95,14 +95,30 @@ defmodule Conduit.Broker.OutgoingScope do
   Defines publishing related methods for the broker.
   """
   def methods do
-    quote do
+    quote unquote: false do
       @publishers_map Enum.into(@publishers, %{})
       def publishers, do: @publishers_map
 
-      def publish(name, message, opts \\ []) do
-        {publisher, broker_opts} = publishers()[name]
+      def publish(name, message, opts \\ [])
 
-        publisher.run(message, Keyword.merge(broker_opts, opts))
+      for {name, {publisher, broker_opts}} <- @publishers_map do
+        def publish(unquote(name), message, opts) do
+          unquote(publisher).run(message, Keyword.merge(unquote(broker_opts), opts))
+        end
+      end
+
+      def publish(name, _, _) do
+        message = """
+        Undefined publish route #{inspect(name)}.
+
+        Perhaps it's misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+
+            outgoing do
+              subscribe #{inspect(name)}, to: "my.destination", other: "options"
+            end
+        """
+
+        raise Conduit.UndefinedPublishRouteError, message
       end
     end
   end
