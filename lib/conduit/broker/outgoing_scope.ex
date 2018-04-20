@@ -111,7 +111,7 @@ defmodule Conduit.Broker.OutgoingScope do
         message = """
         Undefined publish route #{inspect(name)}.
 
-        Perhaps it's misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+        Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
 
             outgoing do
               subscribe #{inspect(name)}, to: "my.destination", other: "options"

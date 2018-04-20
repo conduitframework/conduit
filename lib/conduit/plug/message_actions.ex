@@ -142,9 +142,7 @@ defmodule Conduit.Plug.MessageActions do
               plug :#{unquote(action)}, #{inspect(unquote(value))}
 
               iex> import Conduit.Plug.MessageActions
-              iex> message = #{unquote(action)}(%Conduit.Message{}, &(&1), #{
-            inspect(unquote(value))
-          })
+              iex> message = #{unquote(action)}(%Conduit.Message{}, &(&1), #{inspect(unquote(value))})
               iex> message.#{unquote(field)}
               #{inspect(unquote(value))}
 

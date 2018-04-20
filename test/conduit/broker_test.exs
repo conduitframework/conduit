@@ -95,13 +95,13 @@ defmodule Conduit.BrokerTest do
     @expected_message """
     Undefined publish route :non_existent.
 
-    Perhaps it's misspelled. Otherwise, it can be defined in Conduit.BrokerTest.Broker by adding:
+    Perhaps :non_existent is misspelled. Otherwise, it can be defined in Conduit.BrokerTest.Broker by adding:
 
         outgoing do
           subscribe :non_existent, to: "my.destination", other: "options"
         end
     """
-    test "it produces a useful error when publishing to an undefined publish" do
+    test "it produces a useful error when publishing to an undefined publish route" do
       assert_raise Conduit.UndefinedPublishRouteError, @expected_message, fn ->
         Broker.publish(:non_existent, %Conduit.Message{})
       end
@@ -114,8 +114,22 @@ defmodule Conduit.BrokerTest do
 
       assert_received {:pass_through, %Conduit.Message{}, :incoming}
 
-      assert_received {:subscriber, %Conduit.Message{},
-                       from: "my_app.created.stuff", other: :stuff}
+      assert_received {:subscriber, %Conduit.Message{}, from: "my_app.created.stuff", other: :stuff}
+    end
+
+    @expected_message """
+    Undefined subscribe route :non_existent.
+
+    Perhaps :non_existent is misspelled. Otherwise, it can be defined in Conduit.BrokerTest.Broker by adding:
+
+        incoming MyApp do
+          subscribe :non_existent, MySubscriber, from: "my.source", other: "options"
+        end
+    """
+    test "it produces a useful error when receiving for an undefined subscribe route" do
+      assert_raise Conduit.UndefinedSubscribeRouteError, @expected_message, fn ->
+        Broker.receives(:non_existent, %Conduit.Message{})
+      end
     end
   end
 end

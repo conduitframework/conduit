@@ -38,6 +38,13 @@ defmodule Conduit do
     defexception [:message]
   end
 
+  defmodule UndefinedSubscribeRouteError do
+    @moduledoc """
+    Exception raised calling a subscribe route that is undefined
+    """
+    defexception [:message]
+  end
+
   defmodule AdapterNotConfiguredError do
     @moduledoc """
     Exception raised when no adapter is configured

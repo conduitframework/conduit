@@ -37,8 +37,7 @@ defmodule Conduit.Plug.DeadLetterTest do
         ErroredDeadLetter.run(%Conduit.Message{})
       end)
 
-      assert_received {:publish, :error, %Conduit.Message{} = message,
-                       broker: Broker, publish_to: :error}
+      assert_received {:publish, :error, %Conduit.Message{} = message, broker: Broker, publish_to: :error}
 
       assert Conduit.Message.get_header(message, "exception") =~ "failure"
     end

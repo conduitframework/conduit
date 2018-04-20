@@ -94,14 +94,28 @@ defmodule Conduit.Broker.IncomingScope do
   Defines subscriber related methods for the broker.
   """
   def methods do
-    quote do
+    quote unquote: false do
       @subscribers_map Enum.into(@subscribers, %{})
       def subscribers, do: @subscribers_map
 
-      def receives(name, message) do
-        {subscriber, opts} = subscribers()[name]
+      for {name, {subscriber, opts}} <- @subscribers_map do
+        def receives(unquote(name), message) do
+          unquote(subscriber).run(message, unquote(opts))
+        end
+      end
 
-        subscriber.run(message, opts)
+      def receives(name, _) do
+        message = """
+        Undefined subscribe route #{inspect(name)}.
+
+        Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+
+            incoming MyApp do
+              subscribe #{inspect(name)}, MySubscriber, from: "my.source", other: "options"
+            end
+        """
+
+        raise Conduit.UndefinedSubscribeRouteError, message
       end
     end
   end

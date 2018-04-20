@@ -104,8 +104,7 @@ defmodule Conduit.Message do
       1
 
   """
-  @spec take(from :: __MODULE__.t(), opts :: [fields: [atom], headers: [String.t()]]) ::
-          __MODULE__.t()
+  @spec take(from :: __MODULE__.t(), opts :: [fields: [atom], headers: [String.t()]]) :: __MODULE__.t()
   def take(from, opts) do
     %__MODULE__{}
     |> merge_fields(from, Keyword.get(opts, :fields, []))
@@ -136,8 +135,7 @@ defmodule Conduit.Message do
     :created_at,
     :status
   ]
-  @spec merge_fields(to :: __MODULE__.t(), from :: __MODULE__.t(), fields :: [atom]) ::
-          __MODULE__.t()
+  @spec merge_fields(to :: __MODULE__.t(), from :: __MODULE__.t(), fields :: [atom]) :: __MODULE__.t()
   def merge_fields(%__MODULE__{} = to, %__MODULE__{} = from, fields) do
     fields =
       MapSet.intersection(
@@ -159,8 +157,7 @@ defmodule Conduit.Message do
       iex> get_header(new_message, "retries")
       1
   """
-  @spec merge_headers(to :: __MODULE__.t(), from :: __MODULE__.t(), headers :: [String.t()]) ::
-          __MODULE__.t()
+  @spec merge_headers(to :: __MODULE__.t(), from :: __MODULE__.t(), headers :: [String.t()]) :: __MODULE__.t()
   def merge_headers(%__MODULE__{} = to, %__MODULE__{} = from, headers) do
     headers = Map.take(from.headers, headers)
 

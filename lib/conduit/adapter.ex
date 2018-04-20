@@ -13,8 +13,7 @@ defmodule Conduit.Adapter do
 
   @callback publish(Conduit.Message.t(), config, opts) ::
               {:ok, Conduit.Message.t()} | {:error, binary | atom} | no_return
-  @callback publish(module, Conduit.Message.t(), config, opts) ::
-              {:ok, Conduit.Message.t()} | {:error, binary | atom}
+  @callback publish(module, Conduit.Message.t(), config, opts) :: {:ok, Conduit.Message.t()} | {:error, binary | atom}
 
   @doc """
   Defines the `use`ing module as implementing the `Conduit.Adapter` behavior.
@@ -30,9 +29,7 @@ defmodule Conduit.Adapter do
       def publish(broker, message, config, opts) do
         require Logger
 
-        Logger.warn(
-          "#{__MODULE__}.publish/3 is deprecated. Adapter should implement #{__MODULE__}.publish/4 instead."
-        )
+        Logger.warn("#{__MODULE__}.publish/3 is deprecated. Adapter should implement #{__MODULE__}.publish/4 instead.")
 
         publish(message, config, opts)
       end

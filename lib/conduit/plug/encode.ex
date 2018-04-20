@@ -53,8 +53,7 @@ defmodule Conduit.Plug.Encode do
   @default_content_encoding "identity"
   def call(message, next, opts) do
     content_encoding =
-      Keyword.get(opts, :content_encoding) || Map.get(message, :content_encoding) ||
-        @default_content_encoding
+      Keyword.get(opts, :content_encoding) || Map.get(message, :content_encoding) || @default_content_encoding
 
     message
     |> put_content_encoding_at(Keyword.get(opts, :header), content_encoding)
