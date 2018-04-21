@@ -31,29 +31,35 @@ defmodule Conduit.Broker do
       end
 
       def init(_opts) do
-        import Supervisor.Spec
-
-        config = Application.get_env(@otp_app, __MODULE__)
-        adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
-
-        subs =
-          subscribers()
-          |> Enum.map(fn {name, {_, opts}} ->
-            {name, opts}
-          end)
-          |> Enum.into(%{})
-
-        children = [
-          supervisor(adapter, [
-            __MODULE__,
-            topology(),
-            subs,
-            config
-          ])
-        ]
-
-        supervise(children, strategy: :one_for_one)
+        Conduit.Broker.init(@otp_app, __MODULE__, topology(), subscribers())
       end
     end
+  end
+
+  @doc false
+  def init(otp_app, broker, topology, subscribers) do
+    config = Application.get_env(otp_app, broker)
+    adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
+
+    subs =
+      subscribers
+      |> Enum.map(fn {name, {_, opts}} ->
+        {name, opts}
+      end)
+      |> Enum.into(%{})
+
+    children = [
+      {adapter, [broker, topology, subs, config]}
+    ]
+
+    Supervisor.init(children, strategy: :one_for_one)
+  end
+
+  @doc false
+  def raw_publish(otp_app, broker, message, opts) do
+    config = Application.get_env(otp_app, broker)
+    adapter = Keyword.get(config, :adapter)
+
+    adapter.publish(broker, message, config, opts)
   end
 end

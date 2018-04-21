@@ -8,6 +8,14 @@ defmodule Conduit.TestAdapter do
   See `Conduit.Test` for details.
   """
 
+  def child_spec([broker, _, _, _] = args) do
+    %{
+      id: Module.concat(broker, Adapter),
+      start: {__MODULE__, :start_link, args},
+      type: :supervisor
+    }
+  end
+
   @doc false
   def start_link(broker, topology, subscribers, opts) do
     Supervisor.start_link(__MODULE__, [broker, topology, subscribers, opts])

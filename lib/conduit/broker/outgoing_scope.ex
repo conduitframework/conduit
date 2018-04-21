@@ -80,10 +80,7 @@ defmodule Conduit.Broker.OutgoingScope do
         end)
 
         def call(message, _next, opts) do
-          config = Application.get_env(@otp_app, @broker)
-          adapter = Keyword.get(config, :adapter)
-
-          adapter.publish(@broker, message, config, opts)
+          Conduit.Broker.raw_publish(@otp_app, @broker, message, opts)
         end
       end
 
