@@ -101,7 +101,7 @@ defmodule Conduit.Plug.Builder do
     end
   end
 
-  defp compile(plugs, last) do
+  def compile(plugs, last) do
     Enum.reduce(plugs, last, &quote_plug/2)
   end
 

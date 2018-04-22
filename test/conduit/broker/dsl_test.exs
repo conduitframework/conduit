@@ -63,8 +63,8 @@ defmodule Conduit.Broker.DSLTest do
     test "it returns all the subscribers defined" do
       assert Broker.subscribers() == %{
                stuff: {
-                 Broker.StuffIncoming,
-                 [from: "my_app.created.stuff"]
+                  Conduit.Broker.DSLTest.MyApp.StuffSubscriber,
+                  [from: "my_app.created.stuff"]
                }
              }
     end

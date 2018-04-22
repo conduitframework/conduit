@@ -124,7 +124,6 @@ defmodule Conduit.Broker.DSL do
 
       def pipelines, do: @pipelines
 
-      IncomingScope.compile(__MODULE__)
       OutgoingScope.compile(__MODULE__)
 
       unquote(IncomingScope.methods())

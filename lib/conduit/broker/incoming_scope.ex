@@ -1,15 +1,15 @@
 defmodule Conduit.Broker.IncomingScope do
   @moduledoc false
   import Conduit.Broker.Scope
+  alias Conduit.SubscribeRoute
 
-  defstruct pipelines: [], subscribers: [], namespace: nil
+  defstruct pipelines: [], subscriber_routes: [], namespace: nil
 
   @doc """
   Initializes the incoming scope for subscribers.
   """
   def init(module) do
-    Module.register_attribute(module, :subscriber_configs, accumulate: true)
-    Module.register_attribute(module, :subscribers, accumulate: true)
+    Module.register_attribute(module, :subscriber_routes, accumulate: true)
     put_scope(module, nil)
   end
 
@@ -30,13 +30,11 @@ defmodule Conduit.Broker.IncomingScope do
   def end_scope(module) do
     scope = get_scope(module)
 
-    Enum.each(scope.subscribers, fn {name, subscriber, opts} ->
-      subscriber_name = Module.concat(scope.namespace, subscriber)
-
+    Enum.each(scope.subscriber_routes, fn subscriber_route ->
       Module.put_attribute(
         module,
-        :subscriber_configs,
-        {name, subscriber_name, scope.pipelines, opts}
+        :subscriber_routes,
+        SubscribeRoute.extend(subscriber_route, scope.namespace, expand_pipelines(module, scope.pipelines))
       )
     end)
 
@@ -55,39 +53,11 @@ defmodule Conduit.Broker.IncomingScope do
   """
   def subscribe(module, name, subscriber, opts) do
     if scope = get_scope(module) do
-      sub = {name, subscriber, opts}
-      put_scope(module, %{scope | subscribers: [sub | scope.subscribers]})
+      sub = SubscribeRoute.new(name, subscriber, opts)
+      put_scope(module, %{scope | subscriber_routes: [sub | scope.subscriber_routes]})
     else
       raise Conduit.BrokerDefinitionError, "subscribe can only be called under an incoming block"
     end
-  end
-
-  @doc """
-  Compiles the subscribers.
-  """
-  def compile(module) do
-    module
-    |> Module.get_attribute(:subscriber_configs)
-    |> Enum.each(fn {name, subscriber, pipeline_names, opts} ->
-      mod = generate_module(module, name, "_incoming")
-      expanded_pipelines = expand_pipelines(module, pipeline_names)
-      source = Keyword.get(opts, :from, Atom.to_string(name))
-
-      defmodule mod do
-        @moduledoc false
-        use Conduit.Plug.Builder
-
-        plug :put_source, source
-
-        Enum.each(expanded_pipelines, fn pipeline ->
-          plug pipeline
-        end)
-
-        defdelegate call(message, next, opts), to: subscriber
-      end
-
-      Module.put_attribute(module, :subscribers, {name, {mod, opts}})
-    end)
   end
 
   @doc """
@@ -95,12 +65,22 @@ defmodule Conduit.Broker.IncomingScope do
   """
   def methods do
     quote unquote: false do
-      @subscribers_map Enum.into(@subscribers, %{})
+      def subscriber_routes, do: @subscriber_routes
+
+      @subscribers_map Enum.reduce(@subscriber_routes, %{}, fn route, acc ->
+        Map.put(acc, route.name, {route.subscriber, route.opts})
+      end)
       def subscribers, do: @subscribers_map
 
-      for {name, {subscriber, opts}} <- @subscribers_map do
-        def receives(unquote(name), message) do
-          unquote(subscriber).run(message, unquote(opts))
+      import Conduit.Plug.MessageActions, only: [put_source: 3]
+      for route <- @subscriber_routes do
+        source = Keyword.get(route.opts, :from, Atom.to_string(route.name))
+        pipelines = Enum.map(route.pipelines, &({&1, []}))
+        plugs = [{route.subscriber, route.opts} | pipelines] ++ [{:put_source, source}]
+        pipeline = Conduit.Plug.Builder.compile(plugs, quote do: & &1)
+
+        def receives(unquote(route.name), message) do
+          unquote(pipeline).(message)
         end
       end
 
