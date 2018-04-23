@@ -62,7 +62,7 @@ defmodule Conduit.Broker.DSLTest do
   describe ".subscribe_routes" do
     test "it returns all the subscribe routes defined" do
       assert Broker.subscribe_routes() == [
-               %Conduit.SubscribeRoute{
+               %Conduit.Broker.SubscribeRoute{
                  name: :stuff,
                  opts: [from: "my_app.created.stuff"],
                  pipelines: [Conduit.Broker.DSLTest.Broker.IncomingPipeline],
@@ -75,7 +75,7 @@ defmodule Conduit.Broker.DSLTest do
   describe "publish_routes" do
     test "it returns all the publish routes defined" do
       assert Broker.publish_routes() == [
-               %Conduit.PublishRoute{
+               %Conduit.Broker.PublishRoute{
                  name: :more_stuff,
                  opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
                  pipelines: [Conduit.Broker.DSLTest.Broker.OutgoingPipeline]

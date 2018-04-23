@@ -1,5 +1,5 @@
-defmodule Conduit.SubscribeRoute do
-  defstruct [:name, :subscriber, :opts, :pipelines]
+defmodule Conduit.Broker.SubscribeRoute do
+  defstruct name: nil, subscriber: nil, opts: [], pipelines: []
 
   def new(name, subscriber, opts) do
     %__MODULE__{

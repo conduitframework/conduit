@@ -1,5 +1,5 @@
-defmodule Conduit.PublishRoute do
-  defstruct [:name, :opts, :pipelines]
+defmodule Conduit.Broker.PublishRoute do
+  defstruct name: nil, opts: [], pipelines: []
 
   def new(name, opts) do
     %__MODULE__{

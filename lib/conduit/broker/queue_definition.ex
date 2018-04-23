@@ -1,3 +1,3 @@
 defmodule Conduit.QueueDefinition do
-  defstruct [:name, :opts]
+  defstruct name: nil, opts: []
 end

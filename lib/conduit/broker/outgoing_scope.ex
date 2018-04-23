@@ -1,7 +1,7 @@
 defmodule Conduit.Broker.OutgoingScope do
   @moduledoc false
   import Conduit.Broker.Scope
-  alias Conduit.PublishRoute
+  alias Conduit.Broker.PublishRoute
 
   defstruct pipelines: [], publish_routes: []
 

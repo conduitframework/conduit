@@ -1,3 +1,3 @@
 defmodule Conduit.ExchangeDefinition do
-  defstruct [:name, :opts]
+  defstruct name: nil, opts: []
 end

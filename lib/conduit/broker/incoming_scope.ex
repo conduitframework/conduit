@@ -1,7 +1,7 @@
 defmodule Conduit.Broker.IncomingScope do
   @moduledoc false
   import Conduit.Broker.Scope
-  alias Conduit.SubscribeRoute
+  alias Conduit.Broker.SubscribeRoute
 
   defstruct pipelines: [], subscribe_routes: [], namespace: nil
 
