@@ -56,9 +56,14 @@ defmodule Conduit.Broker.DSLTest do
                %Conduit.Broker.SubscribeRoute{
                  name: :stuff,
                  opts: [from: "my_app.created.stuff"],
-                 pipelines: [%Conduit.Broker.Pipeline{name: :incoming, plugs: [
-                   {Conduit.Broker.DSLTest.PassThrough, []}
-                 ]}],
+                 pipelines: [
+                   %Conduit.Broker.Pipeline{
+                     name: :incoming,
+                     plugs: [
+                       {Conduit.Broker.DSLTest.PassThrough, []}
+                     ]
+                   }
+                 ],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
              ]
@@ -71,9 +76,14 @@ defmodule Conduit.Broker.DSLTest do
                %Conduit.Broker.PublishRoute{
                  name: :more_stuff,
                  opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
-                 pipelines: [%Conduit.Broker.Pipeline{name: :outgoing, plugs: [
-                   {Conduit.Broker.DSLTest.PassThrough, []}
-                 ]}]
+                 pipelines: [
+                   %Conduit.Broker.Pipeline{
+                     name: :outgoing,
+                     plugs: [
+                       {Conduit.Broker.DSLTest.PassThrough, []}
+                     ]
+                   }
+                 ]
                }
              ]
     end
