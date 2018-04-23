@@ -4,7 +4,7 @@ defmodule Conduit.Broker.DSL do
   publishing messages, and pipelines for processing messages.
   """
 
-  alias Conduit.Broker.{DSL, Scope, IncomingScope, OutgoingScope}
+  alias Conduit.Broker.{DSL, Scope, IncomingScope, OutgoingScope, Pipeline}
 
   @doc false
   defmacro __using__(opts) do
@@ -15,6 +15,7 @@ defmodule Conduit.Broker.DSL do
       Module.register_attribute(__MODULE__, :pipelines, accumulate: true)
       import DSL
 
+      Pipeline.init(__MODULE__)
       IncomingScope.init(__MODULE__)
       OutgoingScope.init(__MODULE__)
       @before_compile unquote(__MODULE__)
@@ -41,16 +42,32 @@ defmodule Conduit.Broker.DSL do
   Defines a message pipeline.
   """
   defmacro pipeline(name, do: block) do
-    quote do
-      module = Scope.generate_module(__MODULE__, unquote(name), "_pipeline")
-      @pipelines {unquote(name), module}
+    quote bind_quoted: [name: name], unquote: true do
+      Pipeline.start_scope(__MODULE__, name)
 
-      defmodule module do
-        @moduledoc false
-        use Conduit.Plug.Builder
+      unquote(block)
 
-        unquote(block)
-      end
+      Pipeline.end_scope(__MODULE__)
+    end
+  end
+
+  defmacro plug(plug, opts \\ [])
+
+  defmacro plug(plug, {:&, _, _} = fun) do
+    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
+      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, fun})
+    end
+  end
+
+  defmacro plug(plug, {:fn, _, _} = fun) do
+    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
+      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, fun})
+    end
+  end
+
+  defmacro plug(plug, opts) do
+    quote bind_quoted: [plug: plug, opts: opts] do
+      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, opts})
     end
   end
 
@@ -58,7 +75,7 @@ defmodule Conduit.Broker.DSL do
   Defines a grouped of subscribers who share the same pipelines.
   """
   defmacro incoming(namespace, do: block) do
-    quote do
+    quote bind_quoted: [namespace: namespace], unquote: true do
       IncomingScope.start_scope(__MODULE__, unquote(namespace))
 
       unquote(block)
@@ -71,11 +88,9 @@ defmodule Conduit.Broker.DSL do
   Defines a set of pipelines for the surrounding scope.
   """
   defmacro pipe_through(pipelines) do
-    pipelines = List.wrap(pipelines)
-
-    quote do
+    quote bind_quoted: [pipelines: List.wrap(pipelines)] do
       if @scope do
-        @scope.__struct__.pipe_through(__MODULE__, unquote(pipelines))
+        @scope.__struct__.pipe_through(__MODULE__, pipelines)
       else
         raise "pipe_through can only be called in an incoming or outgoing block"
       end
@@ -86,8 +101,8 @@ defmodule Conduit.Broker.DSL do
   Defines a subscriber.
   """
   defmacro subscribe(name, subscriber, opts \\ []) do
-    quote do
-      IncomingScope.subscribe(__MODULE__, unquote(name), unquote(subscriber), unquote(opts))
+    quote bind_quoted: [name: name, subscriber: subscriber, opts: opts] do
+      IncomingScope.subscribe(__MODULE__, name, subscriber, opts)
     end
   end
 
@@ -108,8 +123,8 @@ defmodule Conduit.Broker.DSL do
   Defines a publisher.
   """
   defmacro publish(name, opts \\ []) do
-    quote do
-      OutgoingScope.publish(__MODULE__, unquote(name), unquote(opts))
+    quote bind_quoted: [name: name, opts: opts] do
+      OutgoingScope.publish(__MODULE__, name, opts)
     end
   end
 
@@ -121,8 +136,6 @@ defmodule Conduit.Broker.DSL do
       else
         def topology, do: []
       end
-
-      def pipelines, do: @pipelines
 
       unquote(IncomingScope.methods())
       unquote(OutgoingScope.methods())

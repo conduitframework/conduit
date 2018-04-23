@@ -61,8 +61,8 @@ defmodule Conduit.Broker.IncomingScope do
 
   def compile(route) do
     source = Keyword.get(route.opts, :from, Atom.to_string(route.name))
-    pipelines = Enum.map(route.pipelines, &{&1, []})
-    plugs = [{route.subscriber, route.opts} | pipelines] ++ [{:put_source, source}]
+    pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
+    plugs = [{route.subscriber, route.opts} | pipeline_plugs] ++ [{:put_source, source}]
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
 

@@ -34,7 +34,6 @@ defmodule Conduit.Broker.Scope do
   def expand_pipelines(module, pipeline_names) do
     pipelines = Module.get_attribute(module, :pipelines)
 
-    pipeline_names
-    |> Enum.map(&pipelines[&1])
+    Enum.map(pipeline_names, &pipelines[&1])
   end
 end

@@ -56,11 +56,11 @@ defmodule Conduit.Broker.OutgoingScope do
 
   @doc false
   def compile(broker, route) do
-    pipelines = Enum.map(route.pipelines, &{&1, []})
+    pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
     destination = Keyword.get(route.opts, :to, Atom.to_string(route.name))
 
     plugs =
-      [{:raw_publish, route.opts} | pipelines] ++
+      [{:raw_publish, route.opts} | pipeline_plugs] ++
         [
           {:put_private, broker: broker, received: route.name},
           {:put_new_destination, destination}

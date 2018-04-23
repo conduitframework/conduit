@@ -50,22 +50,15 @@ defmodule Conduit.Broker.DSLTest do
     end
   end
 
-  describe ".pipelines" do
-    test "returns a list of all the pipelines defined" do
-      assert Broker.pipelines() == [
-               outgoing: Broker.OutgoingPipeline,
-               incoming: Broker.IncomingPipeline
-             ]
-    end
-  end
-
   describe ".subscribe_routes" do
     test "it returns all the subscribe routes defined" do
       assert Broker.subscribe_routes() == [
                %Conduit.Broker.SubscribeRoute{
                  name: :stuff,
                  opts: [from: "my_app.created.stuff"],
-                 pipelines: [Conduit.Broker.DSLTest.Broker.IncomingPipeline],
+                 pipelines: [%Conduit.Broker.Pipeline{name: :incoming, plugs: [
+                   {Conduit.Broker.DSLTest.PassThrough, []}
+                 ]}],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
              ]
@@ -78,7 +71,9 @@ defmodule Conduit.Broker.DSLTest do
                %Conduit.Broker.PublishRoute{
                  name: :more_stuff,
                  opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
-                 pipelines: [Conduit.Broker.DSLTest.Broker.OutgoingPipeline]
+                 pipelines: [%Conduit.Broker.Pipeline{name: :outgoing, plugs: [
+                   {Conduit.Broker.DSLTest.PassThrough, []}
+                 ]}]
                }
              ]
     end
