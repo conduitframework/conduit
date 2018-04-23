@@ -9,7 +9,11 @@ defmodule Conduit.SubscribeRoute do
     }
   end
 
-  def extend(%__MODULE__{} = route, namespace, pipelines) do
-    %{route | subscriber: Module.concat(namespace, route.subscriber), pipelines: pipelines}
+  def expand_subscriber(%__MODULE__{} = route, namespace) do
+    %{route | subscriber: Module.concat(namespace, route.subscriber)}
+  end
+
+  def put_pipelines(%__MODULE__{} = route, pipelines) do
+    %{route | pipelines: pipelines}
   end
 end

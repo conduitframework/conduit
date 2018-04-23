@@ -100,6 +100,31 @@ defmodule Conduit.Plug.MessageActions do
     |> next.()
   end
 
+  @doc """
+  Proxies to `Conduit.Message.put_private/3` for each key/value and calls the next plug.
+
+  Options should be a `Keyword` list.
+
+  ## Examples
+
+      import Conduit.Plug.MessageActions
+      plug :put_private, one: 1, two: 2
+
+      iex> import Conduit.Plug.MessageActions
+      iex> message = put_private(%Conduit.Message{}, &(&1), one: 1)
+      iex> Conduit.Message.get_private(message, :one)
+      1
+
+  """
+  @spec put_private(Message.t(), Plug.next(), Keyword.t()) :: Message.t()
+  def put_private(message, next, opts) when is_function(next) do
+    opts
+    |> Enum.reduce(message, fn {key, value}, mess ->
+      Message.put_private(mess, key, value)
+    end)
+    |> next.()
+  end
+
   @before_compile __MODULE__.Generator
 
   defmodule Generator do
