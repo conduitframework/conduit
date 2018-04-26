@@ -7,7 +7,6 @@
 - Message ID plug
 - Improved error message when publishing to a route that doesn't exist
 - Improved error message when receiving from a route that doesn't exist
-- Added child specs to suport `Supervisor.init/1`
 
 ### Changed
 
@@ -15,13 +14,17 @@
 
 ## 0.11.0 (2018-04-11)
 
+### Added
+
+- Added child specs to suport `Supervisor.init/1`
+
 ### Fixed
 
 - Subscriber gets passed opts specified in broker
 
 ### Changed
 
-- Adapter publish callback now accepts broker. Necessary for adapters to namespace processes to allow multiple instances of an adapter to run.
+- Adapter publish callback now accepts broker. Necessary for adapters to namespace processes to allow multiple instances of an adapter to run. Upgrading to this version requires an upgrade to the adapter.
 
 ## 0.10.8 (2018-03-05)
 
