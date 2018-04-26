@@ -136,7 +136,7 @@
 
 ## 0.6.1 (2016-12-14)
 
-## Changed
+### Changed
 
 - Improved docs
 
