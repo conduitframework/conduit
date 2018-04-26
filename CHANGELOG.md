@@ -1,0 +1,200 @@
+# Changelog
+
+## Unreleased
+
+### Added
+
+- Message ID plug
+- Improved error message when publishing to a route that doesn't exist
+- Improved error message when receiving from a route that doesn't exist
+- Added child specs to suport `Supervisor.init/1`
+
+### Changed
+
+- Stop generating modules namespaced under broker for pipelines, config, subscribers, and publishers.
+
+## 0.11.0 (2018-04-11)
+
+### Fixed
+
+- Subscriber gets passed opts specified in broker
+
+### Changed
+
+- Adapter publish callback now accepts broker. Necessary for adapters to namespace processes to allow multiple instances of an adapter to run.
+
+## 0.10.8 (2018-03-05)
+
+- No notable changes
+
+## 0.10.7 (2018-02-28)
+
+### Added
+
+- Formatter exports for Broker DSL and test macros. (Add `import_deps: [:conduit]` to your `.formatter.exs` file)
+
+## 0.10.6 (2018-02-28)
+
+- No notable changes
+
+## 0.10.5 (2018-02-20)
+
+### Changed
+
+- Switched from Poison to Jason for `application/json` content type
+
+## 0.10.4 (2018-02-02)
+
+### Fixed
+
+- Subscriber generator no longer generates wrong method name @doughsay
+- Fixed fallback for generator config @doughsay
+
+## 0.10.3 (2018-01-16)
+
+### Fixed
+
+- Extra opts passed to content type `application/x-erlang-binary` are ignored
+
+## 0.10.2 (2018-01-01)
+
+### Added
+
+- Allow function to be passed for name of queue and exchange (useful for per app instance queues)
+
+## 0.10.1 (2018-01-01)
+
+### Added
+
+- `application/x-erlang-binary` content type
+
+## 0.10.0 (2017-12-31)
+
+### Changed
+
+- Support 0.9.0 feature, with API for new content types and encodings from pre-0.9.0
+
+## 0.9.0 (2017-12-31)
+
+### Added
+
+- Allow content type and encoding to be stored in other parts of message. Useful for multiple encodings (e.g. encrypted and compressed)
+
+## 0.8.3 (2017-11-08)
+
+### Added
+
+- Generators for Brokers and Subscribers
+
+## 0.8.2 (2017-08-27)
+
+### Added
+
+- Support for dynamic destination for messages
+
+## 0.8.1 (2017-03-02)
+
+### Added
+
+- Improved logging when errors occur
+
+## 0.8.0 (2017-02-21)
+
+### Changed
+
+- Adapter callback accepts new config argument
+
+## 0.7.2 (2017-01-12)
+
+### Changed
+
+- Fixed all elixir deprecations
+- Added more docs
+
+## 0.7.1 (2017-01-03)
+
+### Added
+
+- Support short hand functions for options argument for all plugs (e.g. `&foo(&1)`)
+
+## 0.7.0 (2017-01-01)
+
+### Added
+
+- Support function for the options argument of all plugs
+- AckException and NackException plugs
+- Test assertions and test adapter
+
+## 0.6.2 (2016-12-14)
+
+### Changed
+
+- Loosened Poison version dependency
+
+## 0.6.1 (2016-12-14)
+
+## Changed
+
+- Improved docs
+
+## 0.6.0 (2016-12-12)
+
+### Changed
+
+- Improved errors
+- Dead letter plug adds exception as header
+- Small improvements for message action plugs
+
+## 0.5.0 (2016-12-05)
+
+### Added
+
+- Lots of functions for working with message attributes
+- Added dead letter plug
+- Added message action plugs for most of the operations available to modify message attributes
+- Added retry plug
+
+### Changed
+
+- Plug system changed from `Enum.reduce(plugs, message, fn plug, message -> plug.(message))` to being passed the next plug to control if it's called and handle any errors
+- Changed callbacks for Subscribers to work with plug system changes
+
+## 0.4.0 (2016-11-27)
+
+### Added
+
+- Functions for working with headers
+
+### Changed
+
+- Message headers became map with string keys
+
+## 0.3.0 (2016-11-27)
+
+### Added
+
+- Added parse and format plugs with system to extend with custom content types
+- Added encode and decode plugs with system to extend with custom encodings
+- Added created_at plug to add timestamp to message
+- Added created_by plug to annotate message with application
+- Added a lot of docs around new plugs
+
+### Changed
+
+- Conduit.Message top level attributes
+
+## 0.2.1 (2016-11-20)
+
+- No notable changes
+
+## 0.2.0 (2016-11-20)
+
+- No notable changes
+
+## 0.1.1 (2016-11-20)
+
+- No notable changes
+
+## 0.1.0 (2016-11-20)
+
+- Initial version
