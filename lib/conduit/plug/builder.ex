@@ -83,13 +83,7 @@ defmodule Conduit.Plug.Builder do
   """
   defmacro plug(plug, opts \\ [])
 
-  defmacro plug(plug, {:&, _, _} = fun) do
-    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
-      @plugs {plug, fun}
-    end
-  end
-
-  defmacro plug(plug, {:fn, _, _} = fun) do
+  defmacro plug(plug, {label, _, _} = fun) when label in [:&, :fn] do
     quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
       @plugs {plug, fun}
     end

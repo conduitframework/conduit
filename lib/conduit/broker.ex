@@ -31,7 +31,7 @@ defmodule Conduit.Broker do
       end
 
       def init(_opts) do
-        Conduit.Broker.init(@otp_app, __MODULE__, topology(), subscribers())
+        Conduit.Broker.init(@otp_app, __MODULE__, topology_config(), subscribers())
       end
     end
   end

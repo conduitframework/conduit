@@ -44,8 +44,8 @@ defmodule Conduit.Broker.DSLTest do
   describe ".topology" do
     test "returns a list of everything to setup" do
       assert Broker.topology() == [
-               {:exchange, "amq.topic", []},
-               {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]}
+               %Conduit.Broker.Topology.Exchange{name: "amq.topic", opts: []},
+               %Conduit.Broker.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]}
              ]
     end
   end

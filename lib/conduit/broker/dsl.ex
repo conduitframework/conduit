@@ -4,20 +4,21 @@ defmodule Conduit.Broker.DSL do
   publishing messages, and pipelines for processing messages.
   """
 
-  alias Conduit.Broker.{DSL, Scope, IncomingScope, OutgoingScope, Pipeline}
+  alias Conduit.Broker.{DSL, IncomingScope, OutgoingScope, Pipeline, Topology}
 
   @doc false
   defmacro __using__(opts) do
+    otp_app = Keyword.get(opts, :otp_app)
+    module = __CALLER__.module
+
+    Topology.init(module)
+    Pipeline.init(module)
+    IncomingScope.init(module)
+    OutgoingScope.init(module)
+
     quote do
-      @otp_app unquote(opts)[:otp_app]
-      @configure nil
-
-      Module.register_attribute(__MODULE__, :pipelines, accumulate: true)
+      @otp_app unquote(otp_app)
       import DSL
-
-      Pipeline.init(__MODULE__)
-      IncomingScope.init(__MODULE__)
-      OutgoingScope.init(__MODULE__)
       @before_compile unquote(__MODULE__)
     end
   end
@@ -26,16 +27,21 @@ defmodule Conduit.Broker.DSL do
   Defines configuration of a message queue.
   """
   defmacro configure(do: block) do
+    Topology.start_scope(__CALLER__.module)
+
     quote do
-      defmodule Configure do
-        @moduledoc false
-        use Conduit.Broker.Configure
+      unquote(block)
 
-        unquote(block)
-      end
-
-      @configure __MODULE__.Configure
+      Topology.end_scope(__MODULE__)
     end
+  end
+
+  defmacro queue(name, opts \\ []) do
+    Topology.queue(__CALLER__.module, name, opts)
+  end
+
+  defmacro exchange(name, opts \\ []) do
+    Topology.exchange(__CALLER__.module, name, opts)
   end
 
   @doc """
@@ -131,12 +137,7 @@ defmodule Conduit.Broker.DSL do
   @doc false
   defmacro __before_compile__(_) do
     quote do
-      if @configure do
-        def topology, do: @configure.topology
-      else
-        def topology, do: []
-      end
-
+      unquote(Topology.methods())
       unquote(IncomingScope.methods())
       unquote(OutgoingScope.methods())
     end
