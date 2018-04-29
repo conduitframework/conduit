@@ -30,6 +30,7 @@ defmodule Conduit.Broker.Topology do
       __MODULE__ ->
         Module.put_attribute(module, :topology, {Queue, [Util.escape(name), Util.escape(opts)]})
         []
+
       _ ->
         raise Conduit.BrokerDefinitionError, "queue can only be called in a configure block"
     end
@@ -41,6 +42,7 @@ defmodule Conduit.Broker.Topology do
       __MODULE__ ->
         Module.put_attribute(module, :topology, {Exchange, [Util.escape(name), Util.escape(opts)]})
         []
+
       _ ->
         raise Conduit.BrokerDefinitionError, "exchange can only be called in a configure block"
     end
@@ -49,6 +51,7 @@ defmodule Conduit.Broker.Topology do
   def methods do
     quote unquote: false do
       topology = @topology
+
       def topology do
         unquote(topology)
         |> Enum.reverse()

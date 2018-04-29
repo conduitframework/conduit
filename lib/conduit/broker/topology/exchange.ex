@@ -3,6 +3,7 @@ defmodule Conduit.Broker.Topology.Exchange do
 
   def new(name, opts) when is_function(name), do: new(name.(), opts)
   def new(name, opts) when is_function(opts), do: new(name, opts.())
+
   def new(name, opts) do
     %__MODULE__{
       name: name,
