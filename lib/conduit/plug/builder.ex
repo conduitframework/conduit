@@ -29,6 +29,8 @@ defmodule Conduit.Plug.Builder do
   """
   @type plug :: module | atom
 
+  alias Conduit.Util
+
   @doc false
   defmacro __using__(_opts) do
     quote do
@@ -129,8 +131,6 @@ defmodule Conduit.Plug.Builder do
     end
   end
 
-  defp escape_opts({:fn, _, _} = fun), do: fun
-  defp escape_opts({:&, _, _} = fun), do: fun
   defp escape_opts({:opts, [], Conduit.Plug.Builder} = opts), do: opts
-  defp escape_opts(opts), do: Macro.escape(opts)
+  defp escape_opts(opts), do: Util.escape(opts)
 end
