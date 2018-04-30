@@ -4,11 +4,11 @@ defmodule Conduit.Broker.Topology.Exchange do
   """
 
   @type t :: %__MODULE__{
-    name: String.t,
-    opts: Keyword.t
-  }
-  @type name :: String.t | (() -> String.t)
-  @type opts :: Keyword.t | (() -> Keyword.t)
+          name: String.t(),
+          opts: Keyword.t()
+        }
+  @type name :: String.t() | (() -> String.t())
+  @type opts :: Keyword.t() | (() -> Keyword.t())
 
   defstruct name: nil, opts: []
 
@@ -29,7 +29,7 @@ defmodule Conduit.Broker.Topology.Exchange do
   end
 
   @doc false
-  @spec to_tuple(queue :: t) :: {:exchange, String.t, Keyword.t}
+  @spec to_tuple(queue :: t) :: {:exchange, String.t(), Keyword.t()}
   def to_tuple(%__MODULE__{} = data) do
     {:exchange, data.name, data.opts}
   end

@@ -5,14 +5,14 @@ defmodule Conduit.Broker.SubscribeRoute do
 
   @type name :: atom
   @type subscriber :: module
-  @type opts :: Keyword.t
+  @type opts :: Keyword.t()
   @type pipelines :: [module]
   @type t :: %__MODULE__{
-    name: String.t,
-    subscriber: module,
-    opts: Keyword.t,
-    pipelines: pipelines
-  }
+          name: String.t(),
+          subscriber: module,
+          opts: Keyword.t(),
+          pipelines: pipelines
+        }
 
   defstruct name: nil, subscriber: nil, opts: [], pipelines: []
 

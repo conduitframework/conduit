@@ -35,7 +35,7 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Defines a publisher.
   """
-  @spec publish(module, atom, Keyword.t) :: :ok | no_return
+  @spec publish(module, atom, Keyword.t()) :: :ok | no_return
   def publish(broker, name, opts) do
     if scope = get_scope(broker) do
       route = PublishRoute.new(name, opts)

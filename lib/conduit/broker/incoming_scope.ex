@@ -54,7 +54,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Defines a subscriber for the block.
   """
-  @spec subscribe(module, atom, module, Keyword.t) :: :ok | no_return
+  @spec subscribe(module, atom, module, Keyword.t()) :: :ok | no_return
   def subscribe(module, name, subscriber, opts) do
     if scope = get_scope(module) do
       sub = SubscribeRoute.new(name, subscriber, opts)

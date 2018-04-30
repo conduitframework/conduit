@@ -4,13 +4,13 @@ defmodule Conduit.Broker.PublishRoute do
   """
 
   @type name :: atom
-  @type opts :: Keyword.t
+  @type opts :: Keyword.t()
   @type pipelines :: [module]
   @type t :: %__MODULE__{
-    name: String.t,
-    opts: Keyword.t,
-    pipelines: pipelines
-  }
+          name: String.t(),
+          opts: Keyword.t(),
+          pipelines: pipelines
+        }
 
   defstruct name: nil, opts: [], pipelines: []
 

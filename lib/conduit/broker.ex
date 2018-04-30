@@ -17,8 +17,8 @@ defmodule Conduit.Broker do
       use Conduit.Broker.DSL, otp_app: @otp_app
 
       @type route :: atom
-      @type message :: Conduit.Message.t
-      @type opts :: Keyword.t
+      @type message :: Conduit.Message.t()
+      @type opts :: Keyword.t()
 
       @callback publish(route, message, opts) :: message | no_return
       @callback receives(route, message) :: message | no_return
