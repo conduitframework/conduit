@@ -1,1 +1,1 @@
-lib/conduit/test_adapter.ex:2: Function publish/3 only terminates with explicit exception
+lib/conduit/test_adapter.ex:8: Function publish/3 only terminates with explicit exception

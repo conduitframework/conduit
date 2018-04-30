@@ -8,12 +8,14 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Initializes outgoing scope for publishers.
   """
+  @spec init(module) :: :ok
   def init(broker) do
     Module.register_attribute(broker, :publish_routes, accumulate: true)
     put_scope(broker, nil)
   end
 
   @doc false
+  @spec start_scope(module) :: :ok
   def start_scope(broker) do
     if get_scope(broker) do
       raise Conduit.BrokerDefinitionError, "outgoing cannot be nested under anything else"
@@ -25,6 +27,7 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Sets the pipelines for the scope.
   """
+  @spec pipe_through(module, [atom]) :: :ok
   def pipe_through(broker, pipelines) do
     put_scope(broker, %{get_scope(broker) | pipelines: pipelines})
   end
@@ -32,6 +35,7 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Defines a publisher.
   """
+  @spec publish(module, atom, Keyword.t) :: :ok | no_return
   def publish(broker, name, opts) do
     if scope = get_scope(broker) do
       route = PublishRoute.new(name, opts)
@@ -41,7 +45,10 @@ defmodule Conduit.Broker.OutgoingScope do
     end
   end
 
-  @doc false
+  @doc """
+  Ends a scope block.
+  """
+  @spec end_scope(module) :: :ok
   def end_scope(broker) do
     scope = get_scope(broker)
 
@@ -54,7 +61,9 @@ defmodule Conduit.Broker.OutgoingScope do
     put_scope(broker, nil)
   end
 
-  @doc false
+  @doc """
+  Generates the body of receives for a specific route
+  """
   def compile(broker, route) do
     pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
     destination = Keyword.get(route.opts, :to, Atom.to_string(route.name))
@@ -72,6 +81,7 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Defines publishing related methods for the broker.
   """
+  @spec methods :: term
   def methods do
     quote unquote: false do
       def publish_routes, do: @publish_routes

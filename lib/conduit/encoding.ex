@@ -23,9 +23,7 @@ defmodule Conduit.Encoding do
     {"identity", Conduit.Encoding.Identity}
   ]
 
-  @doc """
-  Defines as implementing the `Conduit.Encoding` behavior and imports `Conduit.Message`.
-  """
+  @doc false
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.Encoding

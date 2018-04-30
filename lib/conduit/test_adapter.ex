@@ -1,13 +1,14 @@
 defmodule Conduit.TestAdapter do
-  use Conduit.Adapter
-  use Supervisor
-
   @moduledoc """
   This module is intended to be used instead of a normal adapter in tests.
 
   See `Conduit.Test` for details.
   """
 
+  use Conduit.Adapter
+  use Supervisor
+
+  @doc false
   def child_spec([broker, _, _, _] = args) do
     %{
       id: Module.concat(broker, Adapter),

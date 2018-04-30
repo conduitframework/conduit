@@ -24,9 +24,7 @@ defmodule Conduit.ContentType do
     {"application/x-erlang-binary", Conduit.ContentType.ErlangBinary}
   ]
 
-  @doc """
-  Defines as implementing the `Conduit.ContentType` behavior and imports `Conduit.Message`.
-  """
+  @doc false
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.ContentType

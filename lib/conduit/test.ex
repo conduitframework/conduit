@@ -6,9 +6,7 @@ defmodule Conduit.Test do
   with the `Conduit.TestAdapter`. When you publish a `Conduit.Message`
   with the `Conduit.TestAdapter` setup, it will send a message to the
   same process that `publish` on your broker, was called in.
-  """
 
-  @doc """
   If another process is responsible for publishing a `Conduit.Message`,
   you must:
 
@@ -31,6 +29,8 @@ defmodule Conduit.Test do
       use Conduit.Test, shared: true
 
   """
+
+  @doc false
   defmacro __using__(shared: true) do
     quote do
       setup tags do

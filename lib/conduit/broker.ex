@@ -8,29 +8,37 @@ defmodule Conduit.Broker do
   messages.
   """
 
-  @doc """
-  Sets the broker up as a `Supervisor` and includes the
-  `Conduit.Broker.DSL`.
-  """
+  @doc false
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
+      @behaviour Conduit.Broker
       use Supervisor
       use Conduit.Broker.DSL, otp_app: @otp_app
 
+      @type route :: atom
+      @type message :: Conduit.Message.t
+      @type opts :: Keyword.t
+
+      @callback publish(route, message, opts) :: message | no_return
+      @callback receives(route, message) :: message | no_return
+
+      @doc false
       def start_link(opts \\ []) do
-        Supervisor.start_link(__MODULE__, opts, name: __MODULE__)
+        Supervisor.start_link(__MODULE__, [opts], name: __MODULE__)
       end
 
-      def child_spec(_) do
+      @doc false
+      def child_spec(args) do
         %{
           id: __MODULE__,
-          start: {__MODULE__, :start_link, []},
+          start: {__MODULE__, :start_link, args},
           type: :supervisor
         }
       end
 
-      def init(_opts) do
+      @doc false
+      def init([_opts]) do
         Conduit.Broker.init(@otp_app, __MODULE__, topology_config(), subscribers())
       end
     end
@@ -38,7 +46,7 @@ defmodule Conduit.Broker do
 
   @doc false
   def init(otp_app, broker, topology, subscribers) do
-    config = Application.get_env(otp_app, broker)
+    config = Application.get_env(otp_app, broker, [])
     adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
 
     subs =

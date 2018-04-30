@@ -35,8 +35,11 @@ defmodule Conduit.Plug do
   generally call `next` with the message unless you are halting the chain.
   See `Conduit.Plug.MessageActions` for examples.
   """
+
   @type opts :: tuple | atom | integer | float | [opts] | map | fun | binary
   @type next :: (Conduit.Message.t() -> Conduit.Message.t())
+
+  @type t :: {atom | module, opts}
 
   @callback init(opts) :: opts
   @callback call(Conduit.Message.t(), next, opts) :: Conduit.Message.t()

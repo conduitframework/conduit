@@ -15,9 +15,7 @@ defmodule Conduit.Adapter do
               {:ok, Conduit.Message.t()} | {:error, binary | atom} | no_return
   @callback publish(module, Conduit.Message.t(), config, opts) :: {:ok, Conduit.Message.t()} | {:error, binary | atom}
 
-  @doc """
-  Defines the `use`ing module as implementing the `Conduit.Adapter` behavior.
-  """
+  @doc false
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.Adapter

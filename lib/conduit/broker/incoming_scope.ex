@@ -8,6 +8,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Initializes the incoming scope for subscribers.
   """
+  @spec init(module) :: :ok
   def init(module) do
     Module.register_attribute(module, :subscribe_routes, accumulate: true)
     put_scope(module, nil)
@@ -16,6 +17,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Starts a scope block.
   """
+  @spec start_scope(module, module) :: :ok | no_return
   def start_scope(module, namespace) do
     if get_scope(module) do
       raise Conduit.BrokerDefinitionError, "incoming cannot be nested under anything else"
@@ -27,6 +29,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Ends a scope block.
   """
+  @spec end_scope(module) :: :ok
   def end_scope(module) do
     scope = get_scope(module)
 
@@ -43,6 +46,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Sets the pipelines for the scope.
   """
+  @spec pipe_through(module, [atom]) :: :ok
   def pipe_through(module, pipelines) do
     put_scope(module, %{get_scope(module) | pipelines: pipelines})
   end
@@ -50,6 +54,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Defines a subscriber for the block.
   """
+  @spec subscribe(module, atom, module, Keyword.t) :: :ok | no_return
   def subscribe(module, name, subscriber, opts) do
     if scope = get_scope(module) do
       sub = SubscribeRoute.new(name, subscriber, opts)
@@ -59,6 +64,9 @@ defmodule Conduit.Broker.IncomingScope do
     end
   end
 
+  @doc """
+  Generates the body of receives for a specific route
+  """
   def compile(route) do
     source = Keyword.get(route.opts, :from, Atom.to_string(route.name))
     pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
@@ -69,6 +77,7 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Defines subscriber related methods for the broker.
   """
+  @spec methods :: term
   def methods do
     quote unquote: false do
       def subscribe_routes, do: @subscribe_routes
