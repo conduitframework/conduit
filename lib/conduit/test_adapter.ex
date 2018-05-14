@@ -41,6 +41,6 @@ defmodule Conduit.TestAdapter do
     name = Conduit.Message.get_private(message, :received)
     send(process, {:publish, broker, name, message, config, opts})
 
-    message
+    {:ok, message}
   end
 end

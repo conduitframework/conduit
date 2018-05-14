@@ -13,7 +13,7 @@ defmodule Conduit.Adapter do
 
   @callback publish(Conduit.Message.t(), config, opts) ::
               {:ok, Conduit.Message.t()} | {:error, binary | atom} | no_return
-  @callback publish(module, Conduit.Message.t(), config, opts) :: {:ok, Conduit.Message.t()} | {:error, binary | atom}
+  @callback publish(module, Conduit.Message.t(), config, opts) :: {:ok, Conduit.Message.t()} | {:error, term}
 
   @doc false
   defmacro __using__(_opts) do
