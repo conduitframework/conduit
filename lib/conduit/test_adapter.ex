@@ -38,7 +38,8 @@ defmodule Conduit.TestAdapter do
   """
   def publish(broker, message, config, opts) do
     process = Application.get_env(:conduit, :shared_test_process, self())
-    send(process, {:publish, broker, message, config, opts})
+    name = Conduit.Message.get_private(message, :received)
+    send(process, {:publish, broker, name, message, config, opts})
 
     message
   end

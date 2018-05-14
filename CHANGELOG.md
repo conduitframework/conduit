@@ -11,6 +11,7 @@
 ### Changed
 
 - Stop generating modules namespaced under broker for pipelines, config, subscribers, and publishers.
+- Test helpers now expect a route name
 
 ## 0.11.0 (2018-04-11)
 

@@ -12,7 +12,6 @@ defmodule Conduit.Broker do
   defmacro __using__(opts) do
     quote do
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
-      @behaviour Conduit.Broker
       use Supervisor
       use Conduit.Broker.DSL, otp_app: @otp_app
 
