@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.12.0 (2018-05-28)
+
 ### Added
 
 - Message ID plug
