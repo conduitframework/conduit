@@ -37,7 +37,8 @@ end
 Once conduit is added to your project, you can generate a broker. For example:
 
 ``` bash
-mix conduit.gen.broker
+mix conduit.gen.broker --adapter amqp
+mix conduit.gen.broker --adapter sqs
 ```
 
 The Broker is responsible for describing how to setup your
@@ -82,7 +83,7 @@ See `mix help conduit.gen.subscriber` for all the options that are available.
 You can find more information about configuring your subscriber in the adapter
 specific docs here:
 
-  * AMQP 0-9-1 - TODO: Write docs for this
+  * AMQP 0-9-1 - [Subscribers](https://hexdocs.pm/conduit_amqp/readme.html#configuring-a-subscriber)
   * SQS - [Subscribers](https://hexdocs.pm/conduit_sqs/readme.html#configuring-a-subscriber)
 
 ## Configuring a Publisher
@@ -90,5 +91,5 @@ specific docs here:
 A publisher is responsible for sending messages. You can find more information
 abount configuring publishers in the adapter specific docs here:
 
-  * AMQP 0-9-1 - TODO: Write docs for this
+  * AMQP 0-9-1 - [Publishers](https://hexdocs.pm/conduit_amqp/readme.html#configuring-a-publisher)
   * SQS - [Publishers](https://hexdocs.pm/conduit_sqs/readme.html#configuring-a-publisher)
