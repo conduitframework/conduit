@@ -32,6 +32,7 @@ defmodule Conduit.Broker.DSLTest do
       pipe_through :incoming
 
       subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
+      subscribe :dynamic, StuffSubscriber, from: fn -> "my_app.dynamically.created.stuff" end
     end
 
     outgoing do
@@ -63,6 +64,14 @@ defmodule Conduit.Broker.DSLTest do
                        {Conduit.Broker.DSLTest.PassThrough, []}
                      ]
                    }
+                 ],
+                 subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
+               },
+               %Conduit.Broker.SubscribeRoute{
+                 name: :dynamic,
+                 opts: [from: "my_app.dynamically.created.stuff"],
+                 pipelines: [
+                   %Conduit.Broker.Pipeline{name: :incoming, plugs: [{Conduit.Broker.DSLTest.PassThrough, []}]}
                  ],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }

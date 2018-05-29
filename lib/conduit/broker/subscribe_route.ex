@@ -24,7 +24,7 @@ defmodule Conduit.Broker.SubscribeRoute do
     %__MODULE__{
       name: name,
       subscriber: subscriber,
-      opts: opts,
+      opts: expand_opts(opts),
       pipelines: pipelines
     }
   end
@@ -41,5 +41,15 @@ defmodule Conduit.Broker.SubscribeRoute do
   @spec put_pipelines(t, pipelines) :: t
   def put_pipelines(%__MODULE__{} = route, pipelines) do
     %{route | pipelines: pipelines}
+  end
+
+  defp expand_opts(opts) do
+    Enum.map(opts, fn
+      {:from, fun} when is_function(fun) ->
+        {:from, fun.()}
+
+      opt ->
+        opt
+    end)
   end
 end
