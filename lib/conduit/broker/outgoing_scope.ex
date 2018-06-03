@@ -88,8 +88,6 @@ defmodule Conduit.Broker.OutgoingScope do
 
       def publish(name, message, opts \\ [])
 
-      import Conduit.Plug.MessageActions, only: [put_new_destination: 3, put_private: 3]
-
       for route <- @publish_routes do
         pipeline = Conduit.Broker.OutgoingScope.compile(__MODULE__, route)
 

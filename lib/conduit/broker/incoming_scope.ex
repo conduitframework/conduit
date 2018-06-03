@@ -87,8 +87,6 @@ defmodule Conduit.Broker.IncomingScope do
                        end)
       def subscribers, do: @subscribers_map
 
-      import Conduit.Plug.MessageActions, only: [put_source: 3]
-
       for route <- @subscribe_routes do
         pipeline = Conduit.Broker.IncomingScope.compile(route)
 

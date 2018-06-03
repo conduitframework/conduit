@@ -224,6 +224,7 @@ defmodule Conduit.Broker.DSL do
   @doc false
   defmacro __before_compile__(_) do
     quote do
+      import Conduit.Plug.MessageActions
       unquote(Topology.methods())
       unquote(IncomingScope.methods())
       unquote(OutgoingScope.methods())

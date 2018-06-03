@@ -22,10 +22,12 @@ defmodule Conduit.Broker.DSLTest do
 
     pipeline :incoming do
       plug PassThrough
+      plug :put_headers, %{"test" => true}
     end
 
     pipeline :outgoing do
       plug PassThrough
+      plug :put_headers, %{"test" => true}
     end
 
     incoming Conduit.Broker.DSLTest.MyApp do
@@ -61,6 +63,7 @@ defmodule Conduit.Broker.DSLTest do
                    %Conduit.Broker.Pipeline{
                      name: :incoming,
                      plugs: [
+                       {:put_headers, %{"test" => true}},
                        {Conduit.Broker.DSLTest.PassThrough, []}
                      ]
                    }
@@ -71,7 +74,10 @@ defmodule Conduit.Broker.DSLTest do
                  name: :dynamic,
                  opts: [from: "my_app.dynamically.created.stuff"],
                  pipelines: [
-                   %Conduit.Broker.Pipeline{name: :incoming, plugs: [{Conduit.Broker.DSLTest.PassThrough, []}]}
+                   %Conduit.Broker.Pipeline{
+                     name: :incoming,
+                     plugs: [{:put_headers, %{"test" => true}}, {Conduit.Broker.DSLTest.PassThrough, []}]
+                   }
                  ],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
@@ -89,6 +95,7 @@ defmodule Conduit.Broker.DSLTest do
                    %Conduit.Broker.Pipeline{
                      name: :outgoing,
                      plugs: [
+                       {:put_headers, %{"test" => true}},
                        {Conduit.Broker.DSLTest.PassThrough, []}
                      ]
                    }

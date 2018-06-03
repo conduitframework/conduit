@@ -14,6 +14,7 @@ defmodule Conduit.Broker do
       @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
       use Supervisor
       use Conduit.Broker.DSL, otp_app: @otp_app
+      import Conduit.Plug.MessageActions
 
       @type route :: atom
       @type message :: Conduit.Message.t()
