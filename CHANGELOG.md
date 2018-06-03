@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.1 (2018-06-02)
+
+### Fixes
+
+- Regression where `Conduit.Plug.MessageActions` were no longer available in `Broker` for plugs.
+
 ## 0.12.0 (2018-05-28)
 
 ### Added
