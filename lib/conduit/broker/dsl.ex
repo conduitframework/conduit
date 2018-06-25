@@ -24,7 +24,9 @@ defmodule Conduit.Broker.DSL do
   end
 
   @doc """
-  Defines configuration of a message queue
+  Defines the topology of a message broker
+
+  You can use `Conduit.Broker.DSL.queue/2` and `Conduit.Broker.DSL.exchange/2` within a configure block.
 
   ## Examples
 
@@ -45,6 +47,8 @@ defmodule Conduit.Broker.DSL do
 
   @doc """
   Defines configuration of a queue
+
+  *Note: the name of the queue may only allow specific characters depending upon the message broker you use.*
 
   ## Examples
 

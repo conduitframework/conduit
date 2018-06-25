@@ -24,6 +24,19 @@ defmodule Conduit.BrokerTest do
     end
   end
 
+  defmodule ListPrepender do
+    @moduledoc false
+    use Conduit.Plug.Builder
+
+    def call(message, next, item) do
+      new_list = [item | message.assigns[:list] || []]
+
+      message
+      |> Conduit.Message.assign(:list, new_list)
+      |> next.()
+    end
+  end
+
   defmodule Broker do
     @moduledoc false
     use Conduit.Broker, otp_app: :my_app
@@ -44,16 +57,38 @@ defmodule Conduit.BrokerTest do
       plug PassThrough, :outgoing
     end
 
+    pipeline :prepend1 do
+      plug ListPrepender, 1
+      plug ListPrepender, 2
+    end
+
+    pipeline :prepend2 do
+      plug ListPrepender, 3
+      plug ListPrepender, 4
+    end
+
     incoming Conduit.BrokerTest.MyApp do
       pipe_through :incoming
 
       subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff", other: :stuff
     end
 
+    incoming Conduit.BrokerTest.MyApp do
+      pipe_through [:prepend1, :prepend2]
+
+      subscribe :prepend, StuffSubscriber, from: "my_app.created.prepend"
+    end
+
     outgoing do
       pipe_through :outgoing
 
       publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+    end
+
+    outgoing do
+      pipe_through [:prepend1, :prepend2]
+
+      publish :prepend, exchange: "amq.topic", to: "my_app.created.more_stuff"
     end
   end
 
@@ -92,6 +127,17 @@ defmodule Conduit.BrokerTest do
                        [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
     end
 
+    test "plugs are called in order" do
+      Process.register(self(), __MODULE__)
+      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      Broker.publish(:prepend, %Conduit.Message{})
+
+      assert_received {:publish, Broker, :prepend, message, _, _}
+
+      assert message.assigns.list == [4, 3, 2, 1]
+    end
+
     @expected_message """
     Undefined publish route :non_existent.
 
@@ -115,6 +161,14 @@ defmodule Conduit.BrokerTest do
       assert_received {:pass_through, %Conduit.Message{}, :incoming}
 
       assert_received {:subscriber, %Conduit.Message{}, from: "my_app.created.stuff", other: :stuff}
+    end
+
+    test "plugs are called in order" do
+      Broker.receives(:prepend, %Conduit.Message{})
+
+      assert_received {:subscriber, message, _}
+
+      assert message.assigns.list == [4, 3, 2, 1]
     end
 
     @expected_message """

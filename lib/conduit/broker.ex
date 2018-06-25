@@ -1,17 +1,40 @@
 defmodule Conduit.Broker do
   @moduledoc """
-  Defines a Conduit Broker.
+  A broker is a declarative description of your external message broker (i.e. RabbitMQ, SQS, etc).
 
-  The broker is the boundary between your application and a
-  message queue. It allows the setup of a message queue and
-  provides a DSL for handling incoming messages and outgoing
-  messages.
+  You can create a broker by using `Conduit.Broker` in a module.
+
+      defmodule MyApp.Broker do
+        use Conduit.Broker, otp_app: :my_app
+      end
+
+  The `:otp_app` option is required, so that your broker can find it's configuration. In this example, it would be
+  expected to be defined like so:
+
+      config :my_app, MyApp.Broker, [] # adapter options...
+
+  ## Topology
+
+  The topology is a
+  description of the primitives that need to exist on your broker before the application can publish and receive
+  messages. In really simple brokers, this may just mean defining the queues that need to exist. In more complex
+  brokers, you may need to define other things like exchanges. You will need to understand what your specific broker
+  supports
+
+  The topology for your broker can be defined in the `Conduit.Broker.DSL.configure/1` block.
+
+      defmodule MyApp.Broker do
+        use Conduit.Broker, otp_app: :my_app
+
+        configure do
+        end
+      end
   """
 
   @doc false
   defmacro __using__(opts) do
     quote do
-      @otp_app unquote(opts)[:otp_app] || raise("endpoint expects :otp_app to be given")
+      @otp_app unquote(opts)[:otp_app] || raise("broker expects :otp_app to be given")
       use Supervisor
       use Conduit.Broker.DSL, otp_app: @otp_app
       import Conduit.Plug.MessageActions

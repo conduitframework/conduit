@@ -152,7 +152,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     |> Keyword.get(:lib_path, "lib")
   end
 
-  def test_path() do
+  defp test_path() do
     :conduit
     |> Application.get_env(Mix.Tasks.Conduit.Gen.Broker, [])
     |> Keyword.get(:test_path, "test")
