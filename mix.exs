@@ -76,7 +76,70 @@ defmodule Conduit.Mixfile do
   end
 
   defp docs do
-    [main: "readme", project: "Conduit", extra_section: "Guides", extras: ["README.md"]]
+    [
+      logo: "logo.png",
+      main: "readme",
+      project: "Conduit",
+      extra_section: "Guides",
+      extras: ["README.md"],
+      groups_for_modules: groups_for_modules()
+    ]
+  end
+
+  defp groups_for_modules do
+    [
+      Message: [
+        "Conduit.Message"
+      ],
+      Broker: [
+        "Conduit.Broker",
+        "Conduit.Broker.DSL",
+        "Conduit.Broker.Topology.Exchange",
+        "Conduit.Broker.Topology.Queue",
+        "Conduit.Broker.PublishRoute",
+        "Conduit.Broker.SubscribeRoute"
+      ],
+      Subscriber: [
+        "Conduit.Subscriber"
+      ],
+      Plugs: [
+        "Conduit.Plug",
+        "Conduit.Plug.AckException",
+        "Conduit.Plug.Builder",
+        "Conduit.Plug.CorrelationId",
+        "Conduit.Plug.CreatedAt",
+        "Conduit.Plug.CreatedBy",
+        "Conduit.Plug.DeadLetter",
+        "Conduit.Plug.Decode",
+        "Conduit.Plug.Encode",
+        "Conduit.Plug.Format",
+        "Conduit.Plug.LogIncoming",
+        "Conduit.Plug.LogOutgoing",
+        "Conduit.Plug.MessageActions",
+        "Conduit.Plug.MessageId",
+        "Conduit.Plug.NackException",
+        "Conduit.Plug.Parse",
+        "Conduit.Plug.Retry"
+      ],
+      Adapter: [
+        "Conduit.Adapter"
+      ],
+      "Content Types": [
+        "Conduit.ContentType",
+        "Conduit.ContentType.ErlangBinary",
+        "Conduit.ContentType.JSON",
+        "Conduit.ContentType.Text"
+      ],
+      Encodings: [
+        "Conduit.Encoding",
+        "Conduit.Encoding.GZip",
+        "Conduit.Encoding.Identity"
+      ],
+      Testing: [
+        "Conduit.Test",
+        "Conduit.TestAdapter"
+      ]
+    ]
   end
 
   defp git_tag(_args) do

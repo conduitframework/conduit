@@ -5,7 +5,6 @@
 [![Hex.pm](https://img.shields.io/hexpm/v/conduit.svg?style=flat-square)](https://hex.pm/packages/conduit)
 [![Hex.pm](https://img.shields.io/hexpm/l/conduit.svg?style=flat-square)](https://github.com/conduitframework/conduit/blob/master/LICENSE.md)
 [![Hex.pm](https://img.shields.io/hexpm/dt/conduit.svg?style=flat-square)](https://hex.pm/packages/conduit)
-[![Gratipay](https://img.shields.io/gratipay/blatyo.svg?style=flat-square)](https://gratipay.com/blatyo)
 
 A message queue framework, with support for middleware and multiple adapters.
 

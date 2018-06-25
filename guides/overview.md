@@ -32,6 +32,8 @@ Conduit is made up of a number of distinct parts, each with its own purpose and 
   - sets up queues and other aspects of your message queue broker
   - responsible for sending and receiving messages
   - manages resources and connections to your message queue
+- [Content Types & Encodings](content-types-and-encodings.html)
+  - serialize and deserialize message bodies
 
 ## A Note about these guides
 
