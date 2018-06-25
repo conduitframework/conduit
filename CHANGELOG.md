@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.2 (2018-06-25)
+
+### Fixes
+
+- Regression where plugs were executed in reverse order.
+
 ## 0.12.1 (2018-06-02)
 
 ### Fixes
