@@ -50,7 +50,7 @@ defmodule Conduit.Mixfile do
   # Type "mix help deps" for more examples and options
   defp deps do
     [
-      {:uuid, "~> 1.1"},
+      {:elixir_uuid, "~> 1.1"},
       {:timex, "~> 3.0"},
       {:jason, "~> 1.0"},
       {:ex_doc, "~> 0.14", only: :dev},
