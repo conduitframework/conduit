@@ -78,10 +78,24 @@ defmodule Conduit.Mixfile do
   defp docs do
     [
       logo: "logo.png",
-      main: "readme",
+      main: "overview",
       project: "Conduit",
       extra_section: "Guides",
-      extras: ["README.md"],
+      extras: [
+        "guides/introduction/overview.md",
+        "guides/introduction/installation.md",
+        "guides/introduction/community.md",
+
+        "guides/testing/testing.md",
+        "guides/testing/testing_publishing.md",
+        "guides/testing/testing_subscribers.md",
+        "guides/testing/testing_plugs.md"
+      ],
+      groups_for_extras: [
+        "Introduction": ~r/guides\/introduction\/.?/,
+        "Guides": ~r/guides\/[^\/]+\.md/,
+        "Testing": ~r/guides\/testing\/.?/
+      ],
       groups_for_modules: groups_for_modules()
     ]
   end
@@ -102,10 +116,12 @@ defmodule Conduit.Mixfile do
       Subscriber: [
         "Conduit.Subscriber"
       ],
-      Plugs: [
+      Plug: [
         "Conduit.Plug",
+        "Conduit.Plug.Builder"
+      ],
+      Plugs: [
         "Conduit.Plug.AckException",
-        "Conduit.Plug.Builder",
         "Conduit.Plug.CorrelationId",
         "Conduit.Plug.CreatedAt",
         "Conduit.Plug.CreatedBy",
