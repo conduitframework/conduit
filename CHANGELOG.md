@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.3 (2018-07-14)
+
+### Changed
+
+- Switched from uuid, to elixir_uuid to prevent conflict with uuid_erl, which uses also used uuid as it's app name and is commonly used in erlang packages.
+
 ## 0.12.2 (2018-06-25)
 
 ### Fixes
