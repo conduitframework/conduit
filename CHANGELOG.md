@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.4 (2018-07-27)
+
+### Fixes
+
+- Fix Elixir 1.7.0 warnings
+
 ## 0.12.3 (2018-07-14)
 
 ### Changed
