@@ -105,7 +105,7 @@ defmodule Conduit.Broker.OutgoingScope do
         Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
 
             outgoing do
-              subscribe #{inspect(name)}, to: "my.destination", other: "options"
+              publish #{inspect(name)}, to: "my.destination", other: "options"
             end
         """
 
