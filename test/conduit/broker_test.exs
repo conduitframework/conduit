@@ -144,7 +144,7 @@ defmodule Conduit.BrokerTest do
     Perhaps :non_existent is misspelled. Otherwise, it can be defined in Conduit.BrokerTest.Broker by adding:
 
         outgoing do
-          subscribe :non_existent, to: "my.destination", other: "options"
+          publish :non_existent, to: "my.destination", other: "options"
         end
     """
     test "it produces a useful error when publishing to an undefined publish route" do
