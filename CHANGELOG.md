@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+## 0.12.5 (2018-08-05)
+
+### Fixes
+
+- Error message said subscribe instead of publish.
+- Raises error when duplicate routes are defined.
+
 ## 0.12.4 (2018-07-27)
 
 ### Fixes
