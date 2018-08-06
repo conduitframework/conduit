@@ -81,8 +81,10 @@ defmodule Conduit.Broker.OutgoingScope do
   @doc """
   Defines publishing related methods for the broker.
   """
-  @spec methods :: term
-  def methods do
+  @spec methods(module) :: term | no_return
+  def methods(module) do
+    validate_routes!(module)
+
     quote unquote: false do
       def publish_routes, do: @publish_routes
 
@@ -119,5 +121,23 @@ defmodule Conduit.Broker.OutgoingScope do
         Conduit.Broker.raw_publish(@otp_app, __MODULE__, message, Keyword.merge(broker_opts, opts))
       end
     end
+  end
+
+  defp validate_routes!(module) do
+    module
+    |> Module.get_attribute(:publish_routes)
+    |> Enum.group_by(& &1.name)
+    |> Enum.each(fn
+      {route_name, routes} when length(routes) > 1 ->
+        raise Conduit.DuplicateRouteError, """
+        Duplicate publish route named #{inspect(route_name)} found in #{inspect(module)}.
+
+        Publish route names must be unique, because they are used to route messages through the correct
+        pipelines and send to the right queue.
+        """
+
+      _ ->
+        nil
+    end)
   end
 end

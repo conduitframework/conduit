@@ -77,8 +77,10 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Defines subscriber related methods for the broker.
   """
-  @spec methods :: term
-  def methods do
+  @spec methods(module) :: term | no_return
+  def methods(module) do
+    validate_routes!(module)
+
     quote unquote: false do
       def subscribe_routes, do: @subscribe_routes
 
@@ -109,5 +111,23 @@ defmodule Conduit.Broker.IncomingScope do
         raise Conduit.UndefinedSubscribeRouteError, message
       end
     end
+  end
+
+  defp validate_routes!(module) do
+    module
+    |> Module.get_attribute(:subscribe_routes)
+    |> Enum.group_by(& &1.name)
+    |> Enum.each(fn
+      {route_name, routes} when length(routes) > 1 ->
+        raise Conduit.DuplicateRouteError, """
+        Duplicate subscribe route named #{inspect(route_name)} found in #{inspect(module)}.
+
+        Subscribe route names must be unique, because they are used to route messages through the correct
+        pipelines and to the right subscriber.
+        """
+
+      _ ->
+        nil
+    end)
   end
 end

@@ -45,6 +45,13 @@ defmodule Conduit do
     defexception [:message]
   end
 
+  defmodule DuplicateRouteError do
+    @moduledoc """
+    Exception raised when two routes have the same name
+    """
+    defexception [:message]
+  end
+
   defmodule AdapterNotConfiguredError do
     @moduledoc """
     Exception raised when no adapter is configured
