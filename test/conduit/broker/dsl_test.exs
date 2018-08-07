@@ -154,4 +154,42 @@ defmodule Conduit.Broker.DSLTest do
       end
     end
   end
+
+  @error_message """
+  Duplicate subscribe route named :stuff found in Conduit.Broker.DSLTest.DuplicateSubscribeBroker.
+
+  Subscribe route names must be unique, because they are used to route messages through the correct
+  pipelines and to the right subscriber.
+  """
+  test "raises error when duplicate subscribe routes are defined" do
+    assert_raise Conduit.DuplicateRouteError, @error_message, fn ->
+      defmodule DuplicateSubscribeBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        incoming Dups do
+          subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
+          subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
+        end
+      end
+    end
+  end
+
+  @error_message """
+  Duplicate publish route named :more_stuff found in Conduit.Broker.DSLTest.DuplicateSubscribeBroker.
+
+  Publish route names must be unique, because they are used to route messages through the correct
+  pipelines and send to the right queue.
+  """
+  test "raises error when duplicate publish routes are defined" do
+    assert_raise Conduit.DuplicateRouteError, @error_message, fn ->
+      defmodule DuplicateSubscribeBroker do
+        use Conduit.Broker, otp_app: :my_app
+
+        outgoing do
+          publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+          publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+        end
+      end
+    end
+  end
 end
