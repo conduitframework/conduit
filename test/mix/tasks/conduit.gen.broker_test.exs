@@ -42,6 +42,19 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
              Also, add your broker to the supervision hierarchy in your conduit.ex:
 
+             Elixir v1.5 or above:
+
+                 def start(_type, _args) do
+                   children = [
+                     # ...
+                     {ConduitQueue.Broker, []}
+                   ]
+
+                   supervise(children, strategy: :one_for_one)
+                 end
+
+             Elixir v1.4 or below:
+
                  def start(_type, _args) do
                    children = [
                      # ...
@@ -76,6 +89,19 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
                    secret_access_key: [{:system, "AWS_SECRET_ACCESS_KEY"}, :instance_role]
 
              Also, add your broker to the supervision hierarchy in your conduit.ex:
+
+             Elixir v1.5 or above:
+
+                 def start(_type, _args) do
+                   children = [
+                     # ...
+                     {ConduitQueue.Broker, []}
+                   ]
+
+                   supervise(children, strategy: :one_for_one)
+                 end
+
+             Elixir v1.4 or below:
 
                  def start(_type, _args) do
                    children = [

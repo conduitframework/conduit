@@ -204,6 +204,19 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
   <% end %>
   Also, add your broker to the supervision hierarchy in your <%= @app %>.ex:
 
+  Elixir v1.5 or above:
+
+      def start(_type, _args) do
+        children = [
+          # ...
+          {<%= @module %>, []}
+        ]
+
+        supervise(children, strategy: :one_for_one)
+      end
+
+  Elixir v1.4 or below:
+
       def start(_type, _args) do
         children = [
           # ...
