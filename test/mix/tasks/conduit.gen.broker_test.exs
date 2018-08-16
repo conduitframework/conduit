@@ -50,7 +50,9 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
                      {ConduitQueue.Broker, []}
                    ]
 
-                   supervise(children, strategy: :one_for_one)
+                   opts = [strategy: :one_for_one, name: Conduit.Supervisor]
+
+                   Supervisor.start_link(children, opts)
                  end
 
              Elixir v1.4 or below:
@@ -98,7 +100,9 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
                      {ConduitQueue.Broker, []}
                    ]
 
-                   supervise(children, strategy: :one_for_one)
+                   opts = [strategy: :one_for_one, name: Conduit.Supervisor]
+
+                   Supervisor.start_link(children, opts)
                  end
 
              Elixir v1.4 or below:

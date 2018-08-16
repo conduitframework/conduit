@@ -31,6 +31,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
     path = get_path(parent_module)
     file = get_file(module)
     adapter = get_adapter(switches[:adapter])
+    module_app = get_app() |> String.capitalize()
 
     assigns = [
       path: path,
@@ -38,7 +39,8 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
       parent_module: parent_module,
       module: module,
       app: app,
-      adapter: adapter
+      adapter: adapter,
+      module_app: module_app
     ]
 
     create_broker(assigns)
@@ -212,7 +214,9 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
           {<%= @module %>, []}
         ]
 
-        supervise(children, strategy: :one_for_one)
+        opts = [strategy: :one_for_one, name: <%= @module_app %>.Supervisor]
+
+        Supervisor.start_link(children, opts)
       end
 
   Elixir v1.4 or below:
