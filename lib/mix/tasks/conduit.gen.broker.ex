@@ -31,7 +31,6 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
     path = get_path(parent_module)
     file = get_file(module)
     adapter = get_adapter(switches[:adapter])
-    module_app = get_app() |> String.capitalize()
 
     assigns = [
       path: path,
@@ -39,8 +38,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
       parent_module: parent_module,
       module: module,
       app: app,
-      adapter: adapter,
-      module_app: module_app
+      adapter: adapter
     ]
 
     create_broker(assigns)
@@ -214,7 +212,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
           {<%= @module %>, []}
         ]
 
-        opts = [strategy: :one_for_one, name: <%= @module_app %>.Supervisor]
+        opts = [strategy: :one_for_one]
 
         Supervisor.start_link(children, opts)
       end

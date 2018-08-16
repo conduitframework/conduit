@@ -50,7 +50,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
                      {ConduitQueue.Broker, []}
                    ]
 
-                   opts = [strategy: :one_for_one, name: Conduit.Supervisor]
+                   opts = [strategy: :one_for_one]
 
                    Supervisor.start_link(children, opts)
                  end
@@ -100,7 +100,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
                      {ConduitQueue.Broker, []}
                    ]
 
-                   opts = [strategy: :one_for_one, name: Conduit.Supervisor]
+                   opts = [strategy: :one_for_one]
 
                    Supervisor.start_link(children, opts)
                  end
