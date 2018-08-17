@@ -198,9 +198,9 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
 
   embed_template(:subscriber_info, """
 
-  In an outgoing block in your <%= @broker_module %> add:
+  In an incoming block in your <%= @broker_module %> add:
 
-      subscribe :<%= @name %>, <%= @subscriber_name %>, to: "<%= @queue_name %>"
+      subscribe :<%= @name %>, <%= @subscriber_name %>, from: "<%= @queue_name %>"
 
   You may also want to define the queue in the configure block for <%= @broker_module %>:
 
