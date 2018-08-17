@@ -43,9 +43,9 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
              \e[32m* creating \e[0mtmp/lib/conduit_queue/subscribers/foo_subscriber.ex\e[0m
              \e[32m* creating \e[0mtmp/test/conduit_queue/subscribers/foo_subscriber_test.exs\e[0m
 
-             In an outgoing block in your ConduitQueue.Broker add:
+             In an incoming block in your ConduitQueue.Broker add:
 
-                 subscribe :foo, FooSubscriber, to: "conduit.foo"
+                 subscribe :foo, FooSubscriber, from: "conduit.foo"
 
              You may also want to define the queue in the configure block for ConduitQueue.Broker:
 
@@ -65,9 +65,9 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
              \e[32m* creating \e[0mtmp/lib/sqs/subscribers/foo_subscriber.ex\e[0m
              \e[32m* creating \e[0mtmp/test/sqs/subscribers/foo_subscriber_test.exs\e[0m
 
-             In an outgoing block in your Sqs.Broker add:
+             In an incoming block in your Sqs.Broker add:
 
-                 subscribe :foo, FooSubscriber, to: "conduit-foo"
+                 subscribe :foo, FooSubscriber, from: "conduit-foo"
 
              You may also want to define the queue in the configure block for Sqs.Broker:
 
