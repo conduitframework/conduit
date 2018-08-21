@@ -97,7 +97,7 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
                use Conduit.Subscriber
 
                def process(message, _opts) do
-
+                 # Code to process the message
 
                  message
                end
@@ -154,7 +154,7 @@ defmodule Mix.Tasks.Conduit.Gen.SubscriberTest do
                use Conduit.Subscriber
 
                def process(message, _opts) do
-
+                 # Code to process the message
 
                  message
                end

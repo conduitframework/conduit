@@ -27,14 +27,12 @@ defmodule Conduit.Plug.CreatedAt do
 
   """
 
-  def init(opts) do
-    Keyword.get(opts, :format, "{ISO:Extended:Z}")
-  end
-
   @doc """
   Assigns a ISO8601 timestamp to the message.
   """
-  def call(message, next, format) do
+  def call(message, next, opts) do
+    format = Keyword.get(opts, :format, "{ISO:Extended:Z}")
+
     message
     |> put_created_at(created_at(format))
     |> next.()

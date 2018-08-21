@@ -3,6 +3,13 @@ defmodule Conduit do
   A message queue framework, with support for middleware and multiple adapters.
   """
 
+  defmodule BadArityError do
+    @moduledoc """
+    Exception raised when a function with bad arity is provided.
+    """
+    defexception [:message]
+  end
+
   defmodule UnknownContentTypeError do
     @moduledoc """
     Exception raised when the content type is not recognized
@@ -27,6 +34,13 @@ defmodule Conduit do
   defmodule UnknownPlugError do
     @moduledoc """
     Exception raised when module is used as plug, but cannot be found
+    """
+    defexception [:message]
+  end
+
+  defmodule UndefinedPipelineError do
+    @moduledoc """
+    Exception raised calling a pipeline that is undefined
     """
     defexception [:message]
   end

@@ -1,12 +1,10 @@
 defmodule Conduit.Broker.SubscribeRoute do
-  @moduledoc """
-  Configuration for a subscription
-  """
+  @moduledoc false
 
   @type name :: atom
   @type subscriber :: module
   @type opts :: Keyword.t()
-  @type pipelines :: [module]
+  @type pipelines :: [Conduit.Broker.Pipeline.t() | atom]
   @type t :: %__MODULE__{
           name: String.t(),
           subscriber: module,
@@ -24,7 +22,7 @@ defmodule Conduit.Broker.SubscribeRoute do
     %__MODULE__{
       name: name,
       subscriber: subscriber,
-      opts: expand_opts(opts),
+      opts: opts,
       pipelines: pipelines
     }
   end
@@ -43,13 +41,8 @@ defmodule Conduit.Broker.SubscribeRoute do
     %{route | pipelines: pipelines}
   end
 
-  defp expand_opts(opts) do
-    Enum.map(opts, fn
-      {:from, fun} when is_function(fun) ->
-        {:from, fun.()}
-
-      opt ->
-        opt
-    end)
+  def escape(%__MODULE__{} = route) do
+    quote(do: Conduit.SubscribeRoute.new())
+    |> put_elem(2, [route.name, Macro.escape(route.subscriber), route.pipelines, route.opts])
   end
 end

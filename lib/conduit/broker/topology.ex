@@ -1,8 +1,7 @@
 defmodule Conduit.Broker.Topology do
   @moduledoc false
   import Conduit.Broker.Scope
-  alias Conduit.Util
-  alias Conduit.Broker.Topology.{Queue, Exchange}
+  alias Conduit.Broker.Topology.{Exchange, Queue}
 
   @doc false
   def init(module) do
@@ -28,7 +27,7 @@ defmodule Conduit.Broker.Topology do
   def queue(module, name, opts) do
     case get_scope(module) do
       __MODULE__ ->
-        Module.put_attribute(module, :topology, {Queue, [Util.escape(name), Util.escape(opts)]})
+        Module.put_attribute(module, :topology, Queue.new(name, opts))
         []
 
       _ ->
@@ -40,7 +39,7 @@ defmodule Conduit.Broker.Topology do
   def exchange(module, name, opts) do
     case get_scope(module) do
       __MODULE__ ->
-        Module.put_attribute(module, :topology, {Exchange, [Util.escape(name), Util.escape(opts)]})
+        Module.put_attribute(module, :topology, Exchange.new(name, opts))
         []
 
       _ ->
@@ -50,20 +49,15 @@ defmodule Conduit.Broker.Topology do
 
   def methods do
     quote unquote: false do
-      topology = @topology
+      topology =
+        @topology
+        |> Enum.map(fn %{__struct__: module} = data ->
+          module.escape(data)
+        end)
+        |> Enum.reverse()
 
       def topology do
         unquote(topology)
-        |> Enum.reverse()
-        |> Enum.map(fn {module, args} ->
-          apply(module, :new, args)
-        end)
-      end
-
-      def topology_config do
-        Enum.map(topology(), fn %{__struct__: module} = data ->
-          module.to_tuple(data)
-        end)
       end
     end
   end

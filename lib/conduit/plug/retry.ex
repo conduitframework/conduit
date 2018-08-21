@@ -29,11 +29,8 @@ defmodule Conduit.Plug.Retry do
     jitter: 0,
     delay: 1000
   }
-  def init(opts) do
-    Map.merge(@defaults, Enum.into(opts, %{}))
-  end
-
   def call(message, next, opts) do
+    opts = Map.merge(@defaults, Map.new(opts))
     attempt(message, next, 0, opts)
   end
 

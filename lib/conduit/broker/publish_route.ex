@@ -1,14 +1,12 @@
 defmodule Conduit.Broker.PublishRoute do
-  @moduledoc """
-  Configuration for a publication
-  """
+  @moduledoc false
 
   @type name :: atom
   @type opts :: Keyword.t()
   @type pipelines :: [module]
   @type t :: %__MODULE__{
-          name: String.t(),
-          opts: Keyword.t(),
+          name: name,
+          opts: opts,
           pipelines: pipelines
         }
 
@@ -32,5 +30,10 @@ defmodule Conduit.Broker.PublishRoute do
   @spec put_pipelines(t, pipelines) :: t
   def put_pipelines(%__MODULE__{} = route, pipelines) do
     %{route | pipelines: pipelines}
+  end
+
+  def escape(%__MODULE__{} = route) do
+    quote(do: Conduit.PublishRoute.new())
+    |> put_elem(2, [route.name, route.pipelines, route.opts])
   end
 end

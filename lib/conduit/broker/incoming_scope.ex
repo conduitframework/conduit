@@ -35,7 +35,7 @@ defmodule Conduit.Broker.IncomingScope do
 
     scope.subscribe_routes
     |> Enum.map(&SubscribeRoute.expand_subscriber(&1, scope.namespace))
-    |> Enum.map(&SubscribeRoute.put_pipelines(&1, expand_pipelines(module, scope.pipelines)))
+    |> Enum.map(&SubscribeRoute.put_pipelines(&1, scope.pipelines))
     |> Enum.each(fn route ->
       Module.put_attribute(module, :subscribe_routes, route)
     end)
@@ -48,7 +48,7 @@ defmodule Conduit.Broker.IncomingScope do
   """
   @spec pipe_through(module, [atom]) :: :ok
   def pipe_through(module, pipelines) do
-    put_scope(module, %{get_scope(module) | pipelines: pipelines})
+    put_scope(module, %{get_scope(module) | pipelines: List.wrap(pipelines)})
   end
 
   @doc """
@@ -69,7 +69,12 @@ defmodule Conduit.Broker.IncomingScope do
   """
   def compile(route) do
     source = Keyword.get(route.opts, :from, Atom.to_string(route.name))
-    pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
+
+    pipeline_plugs =
+      route.pipelines
+      |> Enum.map(&{:pipeline, &1})
+      |> Enum.reverse()
+
     plugs = [{route.subscriber, route.opts} | pipeline_plugs] ++ [{:put_source, source}]
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
@@ -82,12 +87,8 @@ defmodule Conduit.Broker.IncomingScope do
     validate_routes!(module)
 
     quote unquote: false do
-      def subscribe_routes, do: @subscribe_routes
-
-      @subscribers_map Enum.reduce(@subscribe_routes, %{}, fn route, acc ->
-                         Map.put(acc, route.name, {route.subscriber, route.opts})
-                       end)
-      def subscribers, do: @subscribers_map
+      subscribe_routes = Enum.map(@subscribe_routes, &Conduit.Broker.SubscribeRoute.escape/1)
+      def subscribe_routes, do: unquote(subscribe_routes)
 
       for route <- @subscribe_routes do
         pipeline = Conduit.Broker.IncomingScope.compile(route)
