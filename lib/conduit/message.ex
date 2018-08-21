@@ -658,7 +658,7 @@ defmodule Conduit.Message do
       1
 
   """
-  @spec get_private(__MODULE__.t(), term) :: __MODULE__.t()
+  @spec get_private(__MODULE__.t(), atom) :: term
   def get_private(%__MODULE__{private: private}, key) do
     get_in(private, [key])
   end

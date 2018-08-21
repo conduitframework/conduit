@@ -14,10 +14,6 @@ defmodule Conduit.Plug.LogIncoming do
 
   """
 
-  def init(opts) do
-    Keyword.get(opts, :log, :info)
-  end
-
   def call(message, next, level) do
     start = System.monotonic_time()
 

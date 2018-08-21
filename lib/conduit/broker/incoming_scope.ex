@@ -35,7 +35,6 @@ defmodule Conduit.Broker.IncomingScope do
 
     scope.subscribe_routes
     |> Enum.map(&SubscribeRoute.expand_subscriber(&1, scope.namespace))
-    |> Enum.map(&SubscribeRoute.put_pipelines(&1, expand_pipelines(module, scope.pipelines)))
     |> Enum.each(fn route ->
       Module.put_attribute(module, :subscribe_routes, route)
     end)
@@ -48,7 +47,7 @@ defmodule Conduit.Broker.IncomingScope do
   """
   @spec pipe_through(module, [atom]) :: :ok
   def pipe_through(module, pipelines) do
-    put_scope(module, %{get_scope(module) | pipelines: pipelines})
+    put_scope(module, %{get_scope(module) | pipelines: List.wrap(pipelines)})
   end
 
   @doc """
@@ -67,9 +66,13 @@ defmodule Conduit.Broker.IncomingScope do
   @doc """
   Generates the body of receives for a specific route
   """
-  def compile(route) do
+  def compile(broker, route) do
     source = Keyword.get(route.opts, :from, Atom.to_string(route.name))
-    pipeline_plugs = Enum.flat_map(route.pipelines, & &1.plugs)
+    pipeline_plugs =
+      route
+      |> SubscribeRoute.put_pipelines(expand_pipelines(broker, route.pipelines))
+      |> Map.get(:pipelines)
+      |> Enum.flat_map(& &1.plugs)
     plugs = [{route.subscriber, route.opts} | pipeline_plugs] ++ [{:put_source, source}]
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
@@ -90,7 +93,7 @@ defmodule Conduit.Broker.IncomingScope do
       def subscribers, do: @subscribers_map
 
       for route <- @subscribe_routes do
-        pipeline = Conduit.Broker.IncomingScope.compile(route)
+        pipeline = Conduit.Broker.IncomingScope.compile(__MODULE__, route)
 
         def receives(unquote(route.name), message) do
           unquote(pipeline).(message)

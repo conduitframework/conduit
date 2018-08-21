@@ -4,7 +4,7 @@ defmodule Conduit.Broker.DSL do
   publishing messages, and pipelines for processing messages.
   """
 
-  alias Conduit.Broker.{DSL, IncomingScope, OutgoingScope, Pipeline, Topology}
+  alias Conduit.Broker.{DSL, IncomingScope, OutgoingScope, Pipeline, Topology, Scope}
 
   @doc false
   defmacro __using__(opts) do
@@ -36,13 +36,11 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro configure(do: block) do
-    Topology.start_scope(__CALLER__.module)
-
-    quote do
-      unquote(block)
-
-      Topology.end_scope(__MODULE__)
-    end
+    env = __CALLER__
+    Topology.start_scope(env.module)
+    Code.eval_quoted(block, [], env)
+    Topology.end_scope(env.module)
+    []
   end
 
   @doc """
@@ -86,13 +84,11 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro pipeline(name, do: block) do
-    quote bind_quoted: [name: name], unquote: true do
-      Pipeline.start_scope(__MODULE__, name)
-
-      unquote(block)
-
-      Pipeline.end_scope(__MODULE__)
-    end
+    env = __CALLER__
+    Pipeline.start_scope(env.module, name)
+    Code.eval_quoted(block, [], env)
+    Pipeline.end_scope(env.module)
+    []
   end
 
   @doc """
@@ -105,24 +101,12 @@ defmodule Conduit.Broker.DSL do
         plug Conduit.Plug.Encode, content_encoding: "gzip"
       end
   """
-  defmacro plug(plug, opts \\ [])
-
-  defmacro plug(plug, {:&, _, _} = fun) do
-    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
-      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, fun})
-    end
-  end
-
-  defmacro plug(plug, {:fn, _, _} = fun) do
-    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
-      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, fun})
-    end
-  end
-
-  defmacro plug(plug, opts) do
-    quote bind_quoted: [plug: plug, opts: opts] do
-      Conduit.Broker.Pipeline.plug(__MODULE__, {plug, opts})
-    end
+  defmacro plug(plug, opts \\ []) do
+    plug =
+      plug
+      |> Code.eval_quoted([], __CALLER__)
+      |> elem(0)
+    Conduit.Broker.Pipeline.plug(__CALLER__.module, {plug, opts})
   end
 
   @doc """
@@ -137,13 +121,16 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro incoming(namespace, do: block) do
-    quote bind_quoted: [namespace: namespace], unquote: true do
-      IncomingScope.start_scope(__MODULE__, unquote(namespace))
+    env = __CALLER__
+    namespace =
+      namespace
+      |> Code.eval_quoted([], env)
+      |> elem(0)
 
-      unquote(block)
-
-      IncomingScope.end_scope(__MODULE__)
-    end
+    IncomingScope.start_scope(env.module, namespace)
+    Code.eval_quoted(block, [], env)
+    IncomingScope.end_scope(env.module)
+    []
   end
 
   @doc """
@@ -164,13 +151,16 @@ defmodule Conduit.Broker.DSL do
     end
   """
   defmacro pipe_through(pipelines) do
-    quote bind_quoted: [pipelines: List.wrap(pipelines)] do
-      if @scope do
-        @scope.__struct__.pipe_through(__MODULE__, pipelines)
-      else
-        raise "pipe_through can only be called in an incoming or outgoing block"
-      end
+    module = __CALLER__.module
+    scope = Scope.get_scope(module)
+
+    if scope do
+      scope.__struct__.pipe_through(module, pipelines)
+    else
+      raise "pipe_through can only be called in an incoming or outgoing block"
     end
+
+    []
   end
 
   @doc """
@@ -183,9 +173,12 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro subscribe(name, subscriber, opts \\ []) do
-    quote bind_quoted: [name: name, subscriber: subscriber, opts: opts] do
-      IncomingScope.subscribe(__MODULE__, name, subscriber, opts)
-    end
+    subscriber =
+      subscriber
+      |> Code.eval_quoted()
+      |> elem(0)
+
+    IncomingScope.subscribe(__CALLER__.module, name, subscriber, opts)
   end
 
   @doc """
@@ -201,13 +194,11 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro outgoing(do: block) do
-    quote do
-      OutgoingScope.start_scope(__MODULE__)
-
-      unquote(block)
-
-      OutgoingScope.end_scope(__MODULE__)
-    end
+    env = __CALLER__
+    OutgoingScope.start_scope(env.module)
+    Code.eval_quoted(block, [], env)
+    OutgoingScope.end_scope(env.module)
+    []
   end
 
   @doc """
@@ -220,9 +211,7 @@ defmodule Conduit.Broker.DSL do
       end
   """
   defmacro publish(name, opts \\ []) do
-    quote bind_quoted: [name: name, opts: opts] do
-      OutgoingScope.publish(__MODULE__, name, opts)
-    end
+    OutgoingScope.publish(__CALLER__.module, name, opts)
   end
 
   @doc false

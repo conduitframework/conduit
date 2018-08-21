@@ -15,15 +15,18 @@ defmodule Conduit.Plug.CreatedBy do
   """
 
   def init(opts) do
-    opts
-    |> Keyword.fetch!(:app)
-    |> to_string
+    _ = Keyword.fetch!(opts, :app)
   end
 
   @doc """
   Assigns created_by.
   """
-  def call(message, next, created_by) do
+  def call(message, next, opts) do
+    created_by =
+      opts
+      |> Keyword.get(:app)
+      |> to_string
+
     message
     |> put_created_by(created_by)
     |> next.()

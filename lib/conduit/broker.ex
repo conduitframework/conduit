@@ -44,6 +44,7 @@ defmodule Conduit.Broker do
       @type opts :: Keyword.t()
 
       @callback publish(route, message, opts) :: message | no_return
+      @callback publish(route, message) :: message | no_return
       @callback receives(route, message) :: message | no_return
 
       @doc false
