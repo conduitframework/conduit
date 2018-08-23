@@ -57,7 +57,8 @@ defmodule Conduit.Mixfile do
       {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:junit_formatter, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.5", only: :test},
-      {:credo, "~> 0.7", only: [:dev, :test]}
+      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:erlex, github: "asummers/erlex", branch: "add-when-clauses", override: true}
     ]
   end
 
