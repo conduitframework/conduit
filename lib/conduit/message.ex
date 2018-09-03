@@ -111,18 +111,6 @@ defmodule Conduit.Message do
     |> merge_headers(from, Keyword.get(opts, :headers, []))
   end
 
-  @doc """
-  Merges fields to one message from another.
-
-  ## Examples
-
-      iex> import Conduit.Message
-      iex> old_message = put_correlation_id(%Conduit.Message{}, "123")
-      iex> new_message = Conduit.Message.merge_fields(%Conduit.Message{}, old_message, [:correlation_id])
-      iex> new_message.correlation_id
-      "123"
-
-  """
   @allowed_fields [
     :source,
     :destination,
@@ -135,8 +123,23 @@ defmodule Conduit.Message do
     :created_at,
     :status
   ]
+  @doc """
+  Merges fields to one message from another.
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> old_message = put_correlation_id(%Conduit.Message{}, "123")
+      iex> new_message = Conduit.Message.merge_fields(%Conduit.Message{}, old_message)
+      iex> new_message.correlation_id
+      "123"
+      iex> new_message = Conduit.Message.merge_fields(%Conduit.Message{}, old_message, [:correlation_id])
+      iex> new_message.correlation_id
+      "123"
+
+  """
   @spec merge_fields(to :: __MODULE__.t(), from :: __MODULE__.t(), fields :: [atom]) :: __MODULE__.t()
-  def merge_fields(%__MODULE__{} = to, %__MODULE__{} = from, fields) do
+  def merge_fields(%__MODULE__{} = to, %__MODULE__{} = from, fields \\ @allowed_fields) do
     fields =
       MapSet.intersection(
         MapSet.new(@allowed_fields),
@@ -185,7 +188,7 @@ defmodule Conduit.Message do
   """
   @spec put_source(__MODULE__.t(), source) :: __MODULE__.t()
   def put_source(%__MODULE__{} = message, source) when is_function(source) do
-    put_source(message, source.(message))
+    put_source(message, call_fun(source, message))
   end
 
   def put_source(%__MODULE__{} = message, source) do
@@ -236,7 +239,7 @@ defmodule Conduit.Message do
   """
   @spec put_destination(__MODULE__.t(), destination) :: __MODULE__.t()
   def put_destination(%__MODULE__{} = message, destination) when is_function(destination) do
-    put_destination(message, destination.(message))
+    put_destination(message, call_fun(destination, message))
   end
 
   def put_destination(%__MODULE__{} = message, destination) do
@@ -284,7 +287,7 @@ defmodule Conduit.Message do
   """
   @spec put_user_id(__MODULE__.t(), user_id) :: __MODULE__.t()
   def put_user_id(%__MODULE__{} = message, user_id) when is_function(user_id) do
-    put_user_id(message, user_id.(message))
+    put_user_id(message, call_fun(user_id, message))
   end
 
   def put_user_id(%__MODULE__{} = message, user_id) do
@@ -308,7 +311,7 @@ defmodule Conduit.Message do
   @spec put_correlation_id(__MODULE__.t(), correlation_id) :: __MODULE__.t()
   def put_correlation_id(%__MODULE__{} = message, correlation_id)
       when is_function(correlation_id) do
-    put_correlation_id(message, correlation_id.(message))
+    put_correlation_id(message, call_fun(correlation_id, message))
   end
 
   def put_correlation_id(%__MODULE__{} = message, correlation_id) do
@@ -355,7 +358,7 @@ defmodule Conduit.Message do
   """
   @spec put_message_id(__MODULE__.t(), message_id) :: __MODULE__.t()
   def put_message_id(%__MODULE__{} = message, message_id) when is_function(message_id) do
-    put_message_id(message, message_id.(message))
+    put_message_id(message, call_fun(message_id, message))
   end
 
   def put_message_id(%__MODULE__{} = message, message_id) do
@@ -403,7 +406,7 @@ defmodule Conduit.Message do
   """
   @spec put_content_type(__MODULE__.t(), content_type) :: __MODULE__.t()
   def put_content_type(%__MODULE__{} = message, content_type) when is_function(content_type) do
-    put_content_type(message, content_type.(message))
+    put_content_type(message, call_fun(content_type, message))
   end
 
   def put_content_type(%__MODULE__{} = message, content_type) do
@@ -427,7 +430,7 @@ defmodule Conduit.Message do
   @spec put_content_encoding(__MODULE__.t(), content_encoding) :: __MODULE__.t()
   def put_content_encoding(%__MODULE__{} = message, content_encoding)
       when is_function(content_encoding) do
-    put_content_encoding(message, content_encoding.(message))
+    put_content_encoding(message, call_fun(content_encoding, message))
   end
 
   def put_content_encoding(%__MODULE__{} = message, content_encoding) do
@@ -450,7 +453,7 @@ defmodule Conduit.Message do
   """
   @spec put_created_by(__MODULE__.t(), created_by) :: __MODULE__.t()
   def put_created_by(%__MODULE__{} = message, created_by) when is_function(created_by) do
-    put_created_by(message, created_by.(message))
+    put_created_by(message, call_fun(created_by, message))
   end
 
   def put_created_by(%__MODULE__{} = message, created_by) do
@@ -473,7 +476,7 @@ defmodule Conduit.Message do
   """
   @spec put_created_at(__MODULE__.t(), created_at) :: __MODULE__.t()
   def put_created_at(%__MODULE__{} = message, created_at) when is_function(created_at) do
-    put_created_at(message, created_at.(message))
+    put_created_at(message, call_fun(created_at, message))
   end
 
   def put_created_at(%__MODULE__{} = message, created_at) do
@@ -513,7 +516,7 @@ defmodule Conduit.Message do
   @spec put_header(__MODULE__.t(), String.t(), any) :: __MODULE__.t()
   def put_header(%__MODULE__{} = message, key, value)
       when is_function(value) and is_binary(key) do
-    put_header(message, key, value.(message))
+    put_header(message, key, call_fun(value, message))
   end
 
   def put_header(%__MODULE__{headers: headers} = message, key, value) when is_binary(key) do
@@ -573,7 +576,7 @@ defmodule Conduit.Message do
   """
   @spec put_body(__MODULE__.t(), body) :: __MODULE__.t()
   def put_body(%__MODULE__{} = message, body) when is_function(body) do
-    put_body(message, body.(message))
+    put_body(message, call_fun(body, message))
   end
 
   def put_body(%__MODULE__{} = message, body) do
@@ -658,7 +661,7 @@ defmodule Conduit.Message do
       1
 
   """
-  @spec get_private(__MODULE__.t(), term) :: __MODULE__.t()
+  @spec get_private(__MODULE__.t(), atom) :: term
   def get_private(%__MODULE__{private: private}, key) do
     get_in(private, [key])
   end
@@ -677,5 +680,20 @@ defmodule Conduit.Message do
   @spec put_private(__MODULE__.t(), atom, any) :: __MODULE__.t()
   def put_private(%__MODULE__{private: private} = message, key, value) when is_atom(key) do
     %{message | private: Map.put(private, key, value)}
+  end
+
+  defp call_fun(fun, message) do
+    call_fun(fun, message, :erlang.fun_info(fun, :arity))
+  end
+
+  defp call_fun(fun, _message, {:arity, 0}), do: fun.()
+  defp call_fun(fun, message, {:arity, 1}), do: fun.(message)
+
+  defp call_fun(_fun, _message, {:arity, n}) do
+    message = """
+    Expected function with arity of 0 or 1, but got one with arity #{n}.
+    """
+
+    raise Conduit.BadArityError, message
   end
 end

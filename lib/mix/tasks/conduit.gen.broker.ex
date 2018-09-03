@@ -44,7 +44,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
     create_broker(assigns)
   end
 
-  defp get_app() do
+  defp get_app do
     Mix.Project.config()
     |> Keyword.get(:app)
     |> to_string()
@@ -67,7 +67,7 @@ defmodule Mix.Tasks.Conduit.Gen.Broker do
     Path.join([base_path(), Macro.underscore(parent_module)])
   end
 
-  defp base_path() do
+  defp base_path do
     :conduit
     |> Application.get_env(Mix.Tasks.Conduit.Gen.Broker, [])
     |> Keyword.get(:lib_path, "lib")

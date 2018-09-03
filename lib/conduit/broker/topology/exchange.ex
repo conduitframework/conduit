@@ -1,7 +1,5 @@
 defmodule Conduit.Broker.Topology.Exchange do
-  @moduledoc """
-  Configuration for an exchange
-  """
+  @moduledoc false
 
   @type t :: %__MODULE__{
           name: String.t(),
@@ -18,9 +16,6 @@ defmodule Conduit.Broker.Topology.Exchange do
   Accepts functions for the arguments, that will be evaluated before returning the struct
   """
   @spec new(name, opts) :: t
-  def new(name, opts) when is_function(name), do: new(name.(), opts)
-  def new(name, opts) when is_function(opts), do: new(name, opts.())
-
   def new(name, opts) do
     %__MODULE__{
       name: name,
@@ -29,8 +24,8 @@ defmodule Conduit.Broker.Topology.Exchange do
   end
 
   @doc false
-  @spec to_tuple(queue :: t) :: {:exchange, String.t(), Keyword.t()}
-  def to_tuple(%__MODULE__{} = data) do
-    {:exchange, data.name, data.opts}
+  def escape(%__MODULE__{} = exchange) do
+    quote(do: Conduit.Topology.Exchange.new())
+    |> put_elem(2, [exchange.name, exchange.opts])
   end
 end

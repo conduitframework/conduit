@@ -1,26 +1,15 @@
 defmodule Conduit.Broker.Topology.Queue do
-  @moduledoc """
-  Configuration for a queue
-  """
-
+  @moduledoc false
   @type t :: %__MODULE__{
           name: String.t(),
           opts: Keyword.t()
         }
-  @type name :: String.t() | (() -> String.t())
-  @type opts :: Keyword.t() | (() -> Keyword.t())
+  @type name :: String.t()
+  @type opts :: Keyword.t()
 
   defstruct name: nil, opts: []
 
-  @doc """
-  Creates a Queue struct
-
-  Accepts functions for the arguments, that will be evaluated before returning the struct
-  """
-  @spec new(name, opts) :: t
-  def new(name, opts) when is_function(name), do: new(name.(), opts)
-  def new(name, opts) when is_function(opts), do: new(name, opts.())
-
+  @spec new(name, opts) :: t()
   def new(name, opts) do
     %__MODULE__{
       name: name,
@@ -29,8 +18,9 @@ defmodule Conduit.Broker.Topology.Queue do
   end
 
   @doc false
-  @spec to_tuple(queue :: t) :: {:queue, String.t(), Keyword.t()}
-  def to_tuple(%__MODULE__{} = data) do
-    {:queue, data.name, data.opts}
+  # Conduit.Topology.Queue.new(name, opts)
+  def escape(%__MODULE__{} = queue) do
+    quote(do: Conduit.Topology.Queue.new())
+    |> put_elem(2, [queue.name, queue.opts])
   end
 end

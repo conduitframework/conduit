@@ -146,13 +146,13 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     Path.join([base_path, Macro.underscore(parent_module), "subscribers"])
   end
 
-  defp lib_path() do
+  defp lib_path do
     :conduit
     |> Application.get_env(Mix.Tasks.Conduit.Gen.Broker, [])
     |> Keyword.get(:lib_path, "lib")
   end
 
-  defp test_path() do
+  defp test_path do
     :conduit
     |> Application.get_env(Mix.Tasks.Conduit.Gen.Broker, [])
     |> Keyword.get(:test_path, "test")
@@ -169,7 +169,7 @@ defmodule Mix.Tasks.Conduit.Gen.Subscriber do
     use Conduit.Subscriber
 
     def process(message, _opts) do
-
+      # Code to process the message
 
       message
     end

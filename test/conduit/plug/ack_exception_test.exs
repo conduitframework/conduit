@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.AckExceptionTest do
   use ExUnit.Case
+  alias Conduit.Message
   import ExUnit.CaptureLog
 
   defmodule ExceptionRaiser do
@@ -14,8 +15,8 @@ defmodule Conduit.Plug.AckExceptionTest do
   test "it acks the message if an exception is raised" do
     capture_log(fn ->
       message =
-        %Conduit.Message{}
-        |> Conduit.Message.nack()
+        %Message{}
+        |> Message.nack()
         |> ExceptionRaiser.run()
 
       assert message.status == :ack

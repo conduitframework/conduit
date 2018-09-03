@@ -1,4 +1,7 @@
 defmodule Conduit.Mixfile do
+  @moduledoc """
+  Project config
+  """
   use Mix.Project
 
   def project do
@@ -21,7 +24,7 @@ defmodule Conduit.Mixfile do
       package: package(),
       dialyzer: [
         flags: ["-Werror_handling", "-Wrace_conditions"],
-        plt_add_apps: [:eex],
+        plt_add_apps: [:mix],
         ignore_warnings: "dialyzer.ignore-warnings"
       ],
 
@@ -36,7 +39,7 @@ defmodule Conduit.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [extra_applications: [:logger]]
+    [extra_applications: [:logger, :eex]]
   end
 
   # Dependencies can be Hex packages:
@@ -53,11 +56,12 @@ defmodule Conduit.Mixfile do
       {:elixir_uuid, "~> 1.1"},
       {:timex, "~> 3.0"},
       {:jason, "~> 1.0"},
-      {:ex_doc, "~> 0.14", only: :dev},
-      {:dialyxir, "~> 0.4", only: :dev},
+      {:ex_doc, "~> 0.18.0", only: [:dev]},
+      {:dialyxir, "~> 1.0.0-rc.3", only: [:dev], runtime: false},
       {:junit_formatter, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.5", only: :test},
-      {:credo, "~> 0.7", only: [:dev, :test]}
+      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:inch_ex, "~> 1.0", only: [:dev, :test]}
     ]
   end
 
@@ -93,11 +97,7 @@ defmodule Conduit.Mixfile do
       ],
       Broker: [
         "Conduit.Broker",
-        "Conduit.Broker.DSL",
-        "Conduit.Broker.Topology.Exchange",
-        "Conduit.Broker.Topology.Queue",
-        "Conduit.Broker.PublishRoute",
-        "Conduit.Broker.SubscribeRoute"
+        "Conduit.Broker.DSL"
       ],
       Subscriber: [
         "Conduit.Subscriber"
@@ -138,6 +138,13 @@ defmodule Conduit.Mixfile do
       Testing: [
         "Conduit.Test",
         "Conduit.TestAdapter"
+      ],
+      "Config Structs": [
+        "Conduit.Topology.Exchange",
+        "Conduit.Topology.Queue",
+        "Conduit.PublishRoute",
+        "Conduit.SubscribeRoute",
+        "Conduit.Pipeline"
       ]
     ]
   end

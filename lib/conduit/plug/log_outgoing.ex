@@ -14,11 +14,8 @@ defmodule Conduit.Plug.LogOutgoing do
 
   """
 
-  def init(opts) do
-    Keyword.get(opts, :log, :info)
-  end
-
-  def call(message, next, level) do
+  def call(message, next, opts) do
+    level = Keyword.get(opts, :log, :info)
     start = System.monotonic_time()
 
     try do

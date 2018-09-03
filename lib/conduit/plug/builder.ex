@@ -29,10 +29,10 @@ defmodule Conduit.Plug.Builder do
   """
   @type plug :: module | atom
 
-  alias Conduit.Util
-
   @doc false
   defmacro __using__(_opts) do
+    Module.register_attribute(__CALLER__.module, :plugs, accumulate: true)
+
     quote do
       @behaviour Conduit.Plug
       import Conduit.Message
@@ -50,7 +50,6 @@ defmodule Conduit.Plug.Builder do
 
       defoverridable init: 1, call: 3
 
-      Module.register_attribute(__MODULE__, :plugs, accumulate: true)
       @before_compile Conduit.Plug.Builder
     end
   end
@@ -83,18 +82,17 @@ defmodule Conduit.Plug.Builder do
       plug :put_content_encoding, "gzip"        # plug function
 
   """
-  defmacro plug(plug, opts \\ [])
+  defmacro plug(plug, opts \\ []) do
+    env = __CALLER__
 
-  defmacro plug(plug, {label, _, _} = fun) when label in [:&, :fn] do
-    quote bind_quoted: [plug: plug, fun: Macro.escape(fun)] do
-      @plugs {plug, fun}
-    end
-  end
+    plug =
+      plug
+      |> Code.eval_quoted([], env)
+      |> elem(0)
 
-  defmacro plug(plug, opts) do
-    quote bind_quoted: [plug: plug, opts: opts] do
-      @plugs {plug, opts}
-    end
+    Module.put_attribute(env.module, :plugs, {plug, opts})
+
+    []
   end
 
   def compile(plugs, last) do
@@ -110,10 +108,7 @@ defmodule Conduit.Plug.Builder do
 
   defp quote_module_plug(plug, next, opts) do
     if Code.ensure_compiled?(plug) do
-      opts =
-        opts
-        |> plug.init
-        |> escape_opts
+      opts = plug.init(opts)
 
       quote do
         unquote(plug).__build__(unquote(next), unquote(opts))
@@ -126,11 +121,8 @@ defmodule Conduit.Plug.Builder do
   defp quote_fun_plug(plug, next, opts) do
     quote do
       fn message ->
-        unquote(plug)(message, unquote(next), unquote(escape_opts(opts)))
+        unquote(plug)(message, unquote(next), unquote(opts))
       end
     end
   end
-
-  defp escape_opts({:opts, [], Conduit.Plug.Builder} = opts), do: opts
-  defp escape_opts(opts), do: Util.escape(opts)
 end

@@ -42,8 +42,13 @@ defmodule Conduit.Broker do
       @type route :: atom
       @type message :: Conduit.Message.t()
       @type opts :: Keyword.t()
+      @type next :: (Conduit.Message.t() -> Conduit.Message.t())
+      @type pipeline :: atom
 
+      @callback pipelines() :: [Conduit.Pipeline.t()]
+      @callback pipeline(message, next, pipeline) :: message | no_return
       @callback publish(route, message, opts) :: message | no_return
+      @callback publish(route, message) :: message | no_return
       @callback receives(route, message) :: message | no_return
 
       @doc false
@@ -62,25 +67,29 @@ defmodule Conduit.Broker do
 
       @doc false
       def init([_opts]) do
-        Conduit.Broker.init(@otp_app, __MODULE__, topology_config(), subscribers())
+        Conduit.Broker.init(@otp_app, __MODULE__, topology(), subscribe_routes())
       end
     end
   end
 
   @doc false
-  def init(otp_app, broker, topology, subscribers) do
+  def init(otp_app, broker, topology, subscribe_routes) do
     config = Application.get_env(otp_app, broker, [])
     adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
 
-    subs =
-      subscribers
-      |> Enum.map(fn {name, {_, opts}} ->
-        {name, opts}
+    subscribers =
+      Map.new(subscribe_routes, fn route ->
+        {route.name, route.opts}
       end)
-      |> Enum.into(%{})
+
+    topology =
+      Enum.map(topology, fn
+        %Conduit.Topology.Exchange{} = exchange -> {:exchange, exchange.name, exchange.opts}
+        %Conduit.Topology.Queue{} = queue -> {:queue, queue.name, queue.opts}
+      end)
 
     children = [
-      {adapter, [broker, topology, subs, config]}
+      {adapter, [broker, topology, subscribers, config]}
     ]
 
     Supervisor.init(children, strategy: :one_for_one)

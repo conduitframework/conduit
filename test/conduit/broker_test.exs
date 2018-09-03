@@ -32,7 +32,7 @@ defmodule Conduit.BrokerTest do
       new_list = [item | message.assigns[:list] || []]
 
       message
-      |> Conduit.Message.assign(:list, new_list)
+      |> assign(:list, new_list)
       |> next.()
     end
   end
@@ -71,6 +71,7 @@ defmodule Conduit.BrokerTest do
       pipe_through :incoming
 
       subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff", other: :stuff
+      subscribe :dynamic, StuffSubscriber, from: fn -> "my_app.created.dynamic_stuff" end, other: :stuff
     end
 
     incoming Conduit.BrokerTest.MyApp do
@@ -83,6 +84,7 @@ defmodule Conduit.BrokerTest do
       pipe_through :outgoing
 
       publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+      publish :dynamic, exchange: "amq.topic", to: fn -> "my_app.created.more_dynamic_stuff" end
     end
 
     outgoing do
@@ -102,15 +104,23 @@ defmodule Conduit.BrokerTest do
       assert_received {:adapter,
                        [
                          Conduit.BrokerTest.Broker,
-                         [
-                           {:exchange, "amq.topic", []},
-                           {:exchange, "dynamic.name", []},
-                           {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
-                           {:queue, "dynamic.name", [from: ["#"]]}
-                         ],
-                         %{stuff: [from: "my_app.created.stuff", other: :stuff]},
+                         topology,
+                         subscribers,
                          [adapter: Conduit.TestAdapter]
                        ]}
+
+      assert topology == [
+               {:exchange, "amq.topic", []},
+               {:exchange, "dynamic.name", []},
+               {:queue, "my_app.created.stuff", [from: ["#.created.stuff"]]},
+               {:queue, "dynamic.name", [from: ["#"]]}
+             ]
+
+      assert subscribers == %{
+               stuff: [from: "my_app.created.stuff", other: :stuff],
+               dynamic: [from: "my_app.created.dynamic_stuff", other: :stuff],
+               prepend: [from: "my_app.created.prepend"]
+             }
     end
   end
 
@@ -123,8 +133,13 @@ defmodule Conduit.BrokerTest do
 
       assert_received {:pass_through, %Conduit.Message{}, :outgoing}
 
-      assert_received {:publish, Broker, :more_stuff, %Conduit.Message{}, [adapter: Conduit.TestAdapter],
+      assert_received {:publish, Broker, :more_stuff, message, [adapter: Conduit.TestAdapter],
                        [exchange: "amq.topic", to: "my_app.created.more_stuff"]}
+
+      assert %Conduit.Message{
+               destination: "my_app.created.more_stuff",
+               private: %{broker: Conduit.BrokerTest.Broker, opts: [], received: :more_stuff}
+             } = message
     end
 
     test "plugs are called in order" do
@@ -136,6 +151,24 @@ defmodule Conduit.BrokerTest do
       assert_received {:publish, Broker, :prepend, message, _, _}
 
       assert message.assigns.list == [4, 3, 2, 1]
+    end
+
+    test "sets destination when dynamic" do
+      Process.register(self(), __MODULE__)
+      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      Broker.publish(:dynamic, %Conduit.Message{})
+
+      assert_received {:pass_through, %Conduit.Message{}, :outgoing}
+      assert_received {:publish, Conduit.BrokerTest.Broker, :dynamic, message, _, opts}
+
+      assert %Conduit.Message{
+               destination: "my_app.created.more_dynamic_stuff",
+               private: %{broker: Conduit.BrokerTest.Broker, opts: [], received: :dynamic}
+             } = message
+
+      assert [exchange: "amq.topic", to: fun] = opts
+      assert is_function(fun)
     end
 
     @expected_message """
@@ -161,6 +194,14 @@ defmodule Conduit.BrokerTest do
       assert_received {:pass_through, %Conduit.Message{}, :incoming}
 
       assert_received {:subscriber, %Conduit.Message{}, from: "my_app.created.stuff", other: :stuff}
+    end
+
+    test "it calls the subscriber and it's pipeline when dynamic" do
+      Broker.receives(:dynamic, %Conduit.Message{})
+
+      assert_received {:pass_through, %Conduit.Message{}, :incoming}
+      assert_received {:subscriber, %Conduit.Message{source: "my_app.created.dynamic_stuff"}, from: fun, other: :stuff}
+      assert is_function(fun)
     end
 
     test "plugs are called in order" do

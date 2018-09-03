@@ -1,15 +1,8 @@
 defmodule Conduit.Plug.LogIncomingTest do
   use ExUnit.Case
   import ExUnit.CaptureLog
-  alias Conduit.Plug.LogIncoming
   alias Conduit.Message
-
-  describe ".init" do
-    test "it returns the log level" do
-      assert :info = LogIncoming.init([])
-      assert :debug = LogIncoming.init(log: :debug)
-    end
-  end
+  alias Conduit.Plug.LogIncoming
 
   describe ".run" do
     test "it logs the message being processed and how long it took" do

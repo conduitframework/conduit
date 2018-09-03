@@ -47,59 +47,38 @@ defmodule Conduit.Broker.DSLTest do
   describe ".topology" do
     test "returns a list of everything to setup" do
       assert Broker.topology() == [
-               %Conduit.Broker.Topology.Exchange{name: "amq.topic", opts: []},
-               %Conduit.Broker.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]}
+               %Conduit.Topology.Exchange{name: "amq.topic", opts: []},
+               %Conduit.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]}
              ]
     end
   end
 
   describe ".subscribe_routes" do
     test "it returns all the subscribe routes defined" do
-      assert Broker.subscribe_routes() == [
-               %Conduit.Broker.SubscribeRoute{
+      assert [
+               %Conduit.SubscribeRoute{
                  name: :stuff,
                  opts: [from: "my_app.created.stuff"],
-                 pipelines: [
-                   %Conduit.Broker.Pipeline{
-                     name: :incoming,
-                     plugs: [
-                       {:put_headers, %{"test" => true}},
-                       {Conduit.Broker.DSLTest.PassThrough, []}
-                     ]
-                   }
-                 ],
+                 pipelines: [:incoming],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                },
-               %Conduit.Broker.SubscribeRoute{
+               %Conduit.SubscribeRoute{
                  name: :dynamic,
                  opts: [from: "my_app.dynamically.created.stuff"],
-                 pipelines: [
-                   %Conduit.Broker.Pipeline{
-                     name: :incoming,
-                     plugs: [{:put_headers, %{"test" => true}}, {Conduit.Broker.DSLTest.PassThrough, []}]
-                   }
-                 ],
+                 pipelines: [:incoming],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
-             ]
+             ] = Broker.subscribe_routes()
     end
   end
 
   describe "publish_routes" do
     test "it returns all the publish routes defined" do
       assert Broker.publish_routes() == [
-               %Conduit.Broker.PublishRoute{
+               %Conduit.PublishRoute{
                  name: :more_stuff,
                  opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
-                 pipelines: [
-                   %Conduit.Broker.Pipeline{
-                     name: :outgoing,
-                     plugs: [
-                       {:put_headers, %{"test" => true}},
-                       {Conduit.Broker.DSLTest.PassThrough, []}
-                     ]
-                   }
-                 ]
+                 pipelines: [:outgoing]
                }
              ]
     end

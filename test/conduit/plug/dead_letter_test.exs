@@ -1,5 +1,6 @@
 defmodule Conduit.Plug.DeadLetterTest do
   use ExUnit.Case
+  alias Conduit.Message
 
   defmodule Broker do
     def publish(name, message, opts) do
@@ -18,9 +19,9 @@ defmodule Conduit.Plug.DeadLetterTest do
     end
 
     test "it publishes the message to the dead letter destination and acks the message" do
-      assert %Conduit.Message{status: :nack} = NackedDeadLetter.run(%Conduit.Message{})
+      assert %Message{status: :nack} = NackedDeadLetter.run(%Message{})
 
-      assert_received {:publish, :error, %Conduit.Message{}, broker: Broker, publish_to: :error}
+      assert_received {:publish, :error, %Message{}, broker: Broker, publish_to: :error}
     end
   end
 
@@ -34,12 +35,12 @@ defmodule Conduit.Plug.DeadLetterTest do
 
     test "it publishes the message to the dead letter destination and reraises the error" do
       assert_raise(RuntimeError, "failure", fn ->
-        ErroredDeadLetter.run(%Conduit.Message{})
+        ErroredDeadLetter.run(%Message{})
       end)
 
-      assert_received {:publish, :error, %Conduit.Message{} = message, broker: Broker, publish_to: :error}
+      assert_received {:publish, :error, %Message{} = message, broker: Broker, publish_to: :error}
 
-      assert Conduit.Message.get_header(message, "exception") =~ "failure"
+      assert Message.get_header(message, "exception") =~ "failure"
     end
   end
 
@@ -52,9 +53,9 @@ defmodule Conduit.Plug.DeadLetterTest do
     end
 
     test "it does not send a dead letter" do
-      assert %Conduit.Message{status: :ack} = AckDeadLetter.run(%Conduit.Message{})
+      assert %Message{status: :ack} = AckDeadLetter.run(%Message{})
 
-      refute_received {:publish, _, %Conduit.Message{}, _}
+      refute_received {:publish, _, %Message{}, _}
     end
   end
 end
