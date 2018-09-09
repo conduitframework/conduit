@@ -95,6 +95,7 @@ defmodule Conduit.Broker.OutgoingScope do
 
       def publish(name, message, opts) when is_atom(name) do
         require Logger
+
         warning = """
         Calling #{inspect(__MODULE__)}.publish/3 with message as second argument is deprecated to enable pipeline usage.
 
@@ -106,6 +107,7 @@ defmodule Conduit.Broker.OutgoingScope do
 
             #{inspect(__MODULE__)}.publish(message, #{inspect(name)}, opts)
         """
+
         Logger.warn(warning)
         publish(message, name, opts)
       end

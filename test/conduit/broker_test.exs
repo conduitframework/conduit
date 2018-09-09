@@ -207,9 +207,10 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      warning = capture_log(fn ->
-        Broker.publish(:more_stuff, %Conduit.Message{})
-      end)
+      warning =
+        capture_log(fn ->
+          Broker.publish(:more_stuff, %Conduit.Message{})
+        end)
 
       assert warning == @expected_warning
     end
