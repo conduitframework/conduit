@@ -41,4 +41,8 @@ if Mix.env() == :test do
   config :conduit, Sqs.Broker, adapter: ConduitSQS
 
   config :conduit, NoAdapter.Broker, []
+
+  config :logger, :console,
+    format: "\n$metadata[$level] $levelpad$message\n",
+    colors: [enabled: false]
 end

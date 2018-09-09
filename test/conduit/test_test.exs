@@ -23,11 +23,11 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "assert_message_published/1" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published :message
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_published %Conduit.Message{}
@@ -35,11 +35,11 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "assert_message_published/2" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published :message, %Conduit.Message{}
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_published %Conduit.Message{}, to: "somewhere"
@@ -47,7 +47,7 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "assert_message_published/3" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published(:message, %Conduit.Message{}, to: "somewhere")
   end
@@ -73,11 +73,11 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "assert_message_publish/1" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message)
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_publish %Conduit.Message{}
@@ -85,27 +85,27 @@ defmodule Conduit.TestSharedTest do
   end
 
   test "assert_message_publish/2" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish :message, %Conduit.Message{}
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish :message, 10
   end
 
   test "assert_message_publish/3" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, to: "somewhere")
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
   end
@@ -163,11 +163,11 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "assert_message_published/1" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published :message
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_published %Conduit.Message{}
@@ -175,11 +175,11 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "assert_message_published/2" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published :message, %Conduit.Message{}
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_published %Conduit.Message{}, to: "somewhere"
@@ -187,7 +187,7 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "assert_message_published/3" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published(:message, %Conduit.Message{}, to: "somewhere")
   end
@@ -213,11 +213,11 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "assert_message_publish/1" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message)
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert capture_io(:stderr, fn ->
              assert_message_publish %Conduit.Message{}
@@ -225,27 +225,27 @@ defmodule Conduit.TestUnsharedTest do
   end
 
   test "assert_message_publish/2" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish :message, %Conduit.Message{}
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish :message, 10
   end
 
   test "assert_message_publish/3" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, to: "somewhere")
 
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
-    Broker.publish(:message, %Conduit.Message{})
+    Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
   end

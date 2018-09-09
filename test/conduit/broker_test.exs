@@ -1,6 +1,7 @@
 defmodule Conduit.BrokerTest do
   use ExUnit.Case
   use Conduit.Test, shared: true
+  import ExUnit.CaptureLog
 
   defmodule PassThrough do
     @moduledoc false
@@ -130,7 +131,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      Broker.publish(:more_stuff, %Conduit.Message{})
+      Broker.publish(%Conduit.Message{}, :more_stuff)
 
       assert_received {:pass_through, %Conduit.Message{}, :outgoing}
 
@@ -148,7 +149,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      Broker.publish(:prepend, %Conduit.Message{})
+      Broker.publish(%Conduit.Message{}, :prepend)
 
       assert_received {:publish, Broker, :prepend, message, _, _}
 
@@ -159,7 +160,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      Broker.publish(:dynamic, %Conduit.Message{})
+      Broker.publish(%Conduit.Message{}, :dynamic)
 
       assert_received {:pass_through, %Conduit.Message{}, :outgoing}
       assert_received {:publish, Conduit.BrokerTest.Broker, :dynamic, message, _, opts}
@@ -185,8 +186,29 @@ defmodule Conduit.BrokerTest do
     """
     test "it produces a useful error when publishing to an undefined publish route" do
       assert_raise Conduit.UndefinedPublishRouteError, @expected_message, fn ->
-        Broker.publish(:non_existent, %Conduit.Message{})
+        Broker.publish(%Conduit.Message{}, :non_existent)
       end
+    end
+
+    @expected_warning """
+
+    [warn]  Calling Conduit.BrokerTest.Broker.publish/3 with message as second argument is deprecated to enable pipeline usage.
+
+    Replace:
+
+        Conduit.BrokerTest.Broker.publish(:more_stuff, message, opts)
+
+    With:
+
+        Conduit.BrokerTest.Broker.publish(message, :more_stuff, opts)
+
+    """
+    test "it produces a deprecation warning when message is passed as second arg to publish" do
+      warning = capture_log(fn ->
+        Broker.publish(:more_stuff, %Conduit.Message{})
+      end)
+
+      assert warning == @expected_warning
     end
   end
 

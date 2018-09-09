@@ -91,19 +91,36 @@ defmodule Conduit.Broker.OutgoingScope do
       publish_routes = Enum.map(@publish_routes, &Conduit.Broker.PublishRoute.escape/1)
       def publish_routes, do: unquote(publish_routes)
 
-      def publish(name, message, opts \\ [])
+      def publish(message, name, opts \\ [])
+
+      def publish(name, message, opts) when is_atom(name) do
+        require Logger
+        warning = """
+        Calling #{inspect(__MODULE__)}.publish/3 with message as second argument is deprecated to enable pipeline usage.
+
+        Replace:
+
+            #{inspect(__MODULE__)}.publish(#{inspect(name)}, message, opts)
+
+        With:
+
+            #{inspect(__MODULE__)}.publish(message, #{inspect(name)}, opts)
+        """
+        Logger.warn(warning)
+        publish(message, name, opts)
+      end
 
       for route <- @publish_routes do
         pipeline = Conduit.Broker.OutgoingScope.compile(__MODULE__, route)
 
-        def publish(unquote(route.name), message, opts) do
+        def publish(message, unquote(route.name), opts) do
           message
           |> Conduit.Message.put_private(:opts, opts)
           |> unquote(pipeline).()
         end
       end
 
-      def publish(name, _, _) do
+      def publish(_, name, _) do
         message = """
         Undefined publish route #{inspect(name)}.
 
