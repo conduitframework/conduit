@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+## 0.12.6 (2018-09-09)
+
+### Deprecates
+
+- Broker.publish(:route, message) was changed to Broker.publish(message, :route) to help with pipelining. The old form is dreprecated.
+
+### Fixes
+
+- Various bugs in generator instructions
+- Functions for dynamic to and from are no longer run at compile time (regression)
+
 ## 0.12.5 (2018-08-05)
 
 ### Fixes
