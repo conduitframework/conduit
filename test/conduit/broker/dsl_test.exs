@@ -34,13 +34,19 @@ defmodule Conduit.Broker.DSLTest do
       pipe_through :incoming
 
       subscribe :stuff, StuffSubscriber, from: "my_app.created.stuff"
-      subscribe :dynamic, StuffSubscriber, from: fn -> "my_app.dynamically.created.stuff" end
+
+      subscribe :dynamic, StuffSubscriber,
+        from: fn -> Application.get_env(:conduit, :dynamic_from, "my_app.dynamically.created.stuff") end
     end
 
     outgoing do
       pipe_through :outgoing
 
       publish :more_stuff, exchange: "amq.topic", to: "my_app.created.more_stuff"
+
+      publish :dynamic,
+        exchange: "amq.topic",
+        to: fn -> Application.get_env(:conduit, :dynamic_to, "my_app.created.more_stuff") end
     end
   end
 
@@ -68,19 +74,56 @@ defmodule Conduit.Broker.DSLTest do
                  pipelines: [:incoming],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
-             ] = Broker.subscribe_routes()
+             ] == Broker.subscribe_routes()
+
+      Application.put_env(:conduit, :dynamic_from, "my_app.dynamically.created.other_stuff")
+
+      assert [
+               %Conduit.SubscribeRoute{
+                 name: :stuff,
+                 opts: [from: "my_app.created.stuff"],
+                 pipelines: [:incoming],
+                 subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
+               },
+               %Conduit.SubscribeRoute{
+                 name: :dynamic,
+                 opts: [from: "my_app.dynamically.created.other_stuff"],
+                 pipelines: [:incoming],
+                 subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
+               }
+             ] == Broker.subscribe_routes()
+
+      Application.delete_env(:conduit, :dynamic_from)
     end
   end
 
   describe "publish_routes" do
     test "it returns all the publish routes defined" do
-      assert Broker.publish_routes() == [
+      assert [
                %Conduit.PublishRoute{
                  name: :more_stuff,
                  opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
                  pipelines: [:outgoing]
-               }
-             ]
+               },
+               %Conduit.PublishRoute{name: :dynamic, opts: [exchange: "amq.topic", to: fun], pipelines: [:outgoing]}
+             ] = Broker.publish_routes()
+
+      assert fun.() == "my_app.created.more_stuff"
+
+      Application.put_env(:conduit, :dynamic_to, "my_app.dynamically.created.other_stuff")
+
+      assert [
+               %Conduit.PublishRoute{
+                 name: :more_stuff,
+                 opts: [exchange: "amq.topic", to: "my_app.created.more_stuff"],
+                 pipelines: [:outgoing]
+               },
+               %Conduit.PublishRoute{name: :dynamic, opts: [exchange: "amq.topic", to: fun], pipelines: [:outgoing]}
+             ] = Broker.publish_routes()
+
+      assert fun.() == "my_app.dynamically.created.other_stuff"
+
+      Application.delete_env(:conduit, :dynamic_to)
     end
   end
 

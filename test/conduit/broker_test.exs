@@ -54,6 +54,7 @@ defmodule Conduit.BrokerTest do
     end
 
     pipeline :outgoing do
+      plug Conduit.Plug.CreatedBy, app: "conduit"
       plug PassThrough, :outgoing
     end
 
@@ -138,6 +139,7 @@ defmodule Conduit.BrokerTest do
 
       assert %Conduit.Message{
                destination: "my_app.created.more_stuff",
+               created_by: "conduit",
                private: %{broker: Conduit.BrokerTest.Broker, opts: [], received: :more_stuff}
              } = message
     end
@@ -164,6 +166,7 @@ defmodule Conduit.BrokerTest do
 
       assert %Conduit.Message{
                destination: "my_app.created.more_dynamic_stuff",
+               created_by: "conduit",
                private: %{broker: Conduit.BrokerTest.Broker, opts: [], received: :dynamic}
              } = message
 

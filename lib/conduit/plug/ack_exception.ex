@@ -9,7 +9,21 @@ defmodule Conduit.Plug.AckException do
 
   ## Examples
 
-      plug Conduit.Plug.AckException
+    iex> defmodule MyPipeline do
+    iex>   use Conduit.Plug.Builder
+    iex>   plug Conduit.Plug.AckException
+    iex>
+    iex>   def call(_message, _next, _opts) do
+    iex>     raise "hell"
+    iex>   end
+    iex> end
+    iex>
+    iex> log = ExUnit.CaptureLog.capture_log(fn ->
+    iex>   message = MyPipeline.run(%Conduit.Message{status: :nack})
+    iex>   :ack = message.status
+    iex> end)
+    iex> log =~ "[warn]  Ignoring raised exception because exceptions are set to be acked"
+    true
 
   """
 

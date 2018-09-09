@@ -6,9 +6,12 @@ defmodule Conduit.Plug.CreatedBy do
 
   ## Examples
 
-      plug Conduit.Plug.CreatedBy, app: "myapp"
-
-      iex> message = Conduit.Plug.CreatedBy.run(%Conduit.Message{}, app: "myapp")
+      iex> defmodule MyPipeline do
+      iex>   use Conduit.Plug.Builder
+      iex>
+      iex>   plug Conduit.Plug.CreatedBy, app: "myapp"
+      iex> end
+      iex> message = MyPipeline.run(%Conduit.Message{})
       iex> message.created_by
       "myapp"
 

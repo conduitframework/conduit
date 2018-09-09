@@ -8,9 +8,12 @@ defmodule Conduit.Plug.CorrelationId do
 
   ## Examples
 
-      plug Conduit.Plug.CorrelationId
-
-      iex> message = Conduit.Plug.CorrelationId.run(%Conduit.Message{})
+      iex> defmodule MyPipeline do
+      iex>   use Conduit.Plug.Builder
+      iex>   plug Conduit.Plug.CorrelationId
+      iex> end
+      iex>
+      iex> message = MyPipeline.run(%Conduit.Message{})
       iex> message.correlation_id == Logger.metadata[:correlation_id]
       true
 
