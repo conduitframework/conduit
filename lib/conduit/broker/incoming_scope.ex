@@ -75,7 +75,7 @@ defmodule Conduit.Broker.IncomingScope do
       |> Enum.map(&{:pipeline, &1})
       |> Enum.reverse()
 
-    plugs = [{route.subscriber, route.opts} | pipeline_plugs] ++ [{:put_source, source}]
+    plugs = [{route.subscriber, route.opts} | pipeline_plugs] ++ [{:put_new_source, source}]
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
 

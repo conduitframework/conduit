@@ -19,3 +19,7 @@ erl_crash.dump
 
 /plt
 .elixir_ls
+
+# Intellij
+/.idea
+*.iml
