@@ -49,10 +49,11 @@ defmodule Conduit.UtilTest do
     test "returns when condition is true" do
       Process.register(self(), __MODULE__)
 
-      result = Util.wait_until(fn ->
-        send(Conduit.UtilTest, :attempt)
-        true
-      end)
+      result =
+        Util.wait_until(fn ->
+          send(Conduit.UtilTest, :attempt)
+          true
+        end)
 
       assert :ok == result
 
