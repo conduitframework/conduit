@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 0.12.7 (2018-10-23)
+
+### Added
+
+- Conduit.Util - commonly used functions for adapters
+
+### Changed
+
+- Adapters can now set the source of a message
+
 ## 0.12.6 (2018-09-09)
 
 ### Deprecates
