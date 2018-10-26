@@ -483,6 +483,44 @@ defmodule Conduit.Message do
     %{message | created_at: created_at}
   end
 
+  @fields [
+    :source,
+    :destination,
+    :user_id,
+    :correlation_id,
+    :message_id,
+    :content_type,
+    :content_encoding,
+    :created_by,
+    :created_at
+  ]
+  @doc """
+  Returns all non-`nil` fields from the message as a map.
+
+  The following fields will be returned:
+  #{@fields |> Enum.map(&"* `#{inspect(&1)}`") |> Enum.join("\n  ")}
+
+  ## Examples
+
+      iex> import Conduit.Message
+      iex> message =
+      iex>   %Conduit.Message{}
+      iex>   |> put_message_id("1")
+      iex>   |> put_correlation_id("2")
+      iex> get_fields(message)
+      %{
+        message_id: "1",
+        correlation_id: "2"
+      }
+  """
+  @spec get_fields(__MODULE__.t()) :: %{atom() => term()}
+  def get_fields(%__MODULE__{} = message) do
+    message
+    |> Map.take(@fields)
+    |> Enum.filter(fn {_, value} -> value != nil end)
+    |> Enum.into(%{})
+  end
+
   @doc """
   Returns a header from the message specified by `key`.
 
