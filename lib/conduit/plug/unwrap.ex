@@ -7,7 +7,7 @@ defmodule Conduit.Plug.Unwrap do
   By default this plug expects the body to be a map containing 3 string keys:
 
   * `"headers"` - will be put into the message headers
-  * `"fields" - will be put into the messages fields (i.e. `:message_id`, `:correlation_id`, etc.)
+  * `"fields"` - will be put into the messages fields (i.e. `:message_id`, `:correlation_id`, etc.)
   * `"body"` - will replace the current wrapper body
 
   If you want a different wrapping structure for the message, you can pass the the

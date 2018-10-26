@@ -119,7 +119,9 @@ defmodule Conduit.Mixfile do
         "Conduit.Plug.MessageId",
         "Conduit.Plug.NackException",
         "Conduit.Plug.Parse",
-        "Conduit.Plug.Retry"
+        "Conduit.Plug.Retry",
+        "Conduit.Plug.Unwrap",
+        "Conduit.Plug.Wrap"
       ],
       Adapter: [
         "Conduit.Adapter"

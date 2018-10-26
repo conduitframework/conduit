@@ -498,7 +498,7 @@ defmodule Conduit.Message do
   Returns all non-`nil` fields from the message as a map.
 
   The following fields will be returned:
-  #{@fields |> Enum.map(&"* `#{inspect(&1)}`") |> Enum.join("\n  ")}
+  #{@fields |> Enum.map(&"* `#{inspect(&1)}`") |> Enum.join("\n")}
 
   ## Examples
 
