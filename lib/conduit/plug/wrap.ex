@@ -40,6 +40,35 @@ defmodule Conduit.Plug.Wrap do
         },
         "body" => %{}
       }
+
+      iex> alias Conduit.Message
+      iex> defmodule MyOtherPipeline do
+      iex>   use Conduit.Plug.Builder
+      iex>   plug Conduit.Plug.Wrap, wrap_fn: fn message, fields, headers, body ->
+      iex>     body =
+      iex>       body
+      iex>       |> Map.put("meta", fields)
+      iex>       |> put_in(["meta", "headers"], headers)
+      iex>
+      iex>     Conduit.Message.put_body(message, body)
+      iex>   end
+      iex> end
+      iex>
+      iex> message =
+      iex>   %Message{}
+      iex>   |> Message.put_correlation_id("1")
+      iex>   |> Message.put_header("foo", "bar")
+      iex>   |> Message.put_body(%{})
+      iex>   |> MyOtherPipeline.run()
+      iex> message.body
+      %{
+        "meta" => %{
+          "correlation_id" => "1",
+          "headers" => %{
+            "foo" => "bar"
+          },
+        }
+      }
   """
   use Conduit.Plug.Builder
 
