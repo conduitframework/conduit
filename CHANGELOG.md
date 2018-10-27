@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.8 (2018-10-27)
+
+### Added
+
+- Conduit.Plug.Wrap and Conduit.Plug.Unwrap. Useful for brokers without native support for headers.
+
 ## 0.12.7 (2018-10-23)
 
 ### Added
