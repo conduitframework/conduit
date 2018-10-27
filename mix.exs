@@ -148,7 +148,7 @@ defmodule Conduit.Mixfile do
         "Conduit.SubscribeRoute",
         "Conduit.Pipeline"
       ],
-      "Utils": [
+      Utils: [
         "Conduit.Util"
       ]
     ]
