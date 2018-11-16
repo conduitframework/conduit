@@ -54,7 +54,7 @@ defmodule Conduit.Plug.DeadLetter do
     broker = Keyword.get(opts, :broker)
     publish_to = Keyword.get(opts, :publish_to)
 
-    broker.publish(publish_to, message, opts)
+    broker.publish(message, publish_to, opts)
 
     message
   end
