@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.9 (2018-11-16)
+
+### Fixed
+
+- Conduit.Plug.DeadLetter was using the deprecated form of publish.
+
 ## 0.12.8 (2018-10-27)
 
 ### Added
