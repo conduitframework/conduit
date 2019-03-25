@@ -31,7 +31,7 @@ defmodule Conduit.Plug.LogOutgoing do
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
-        diff = System.convert_time_unit(stop - start, :native, :microseconds)
+        diff = System.convert_time_unit(stop - start, :native, :microsecond)
 
         ["Sent message to ", message.destination, " in ", formatted_diff(diff)]
       end)

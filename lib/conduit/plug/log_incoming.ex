@@ -31,7 +31,7 @@ defmodule Conduit.Plug.LogIncoming do
     after
       Logger.log(level, fn ->
         stop = System.monotonic_time()
-        diff = System.convert_time_unit(stop - start, :native, :microseconds)
+        diff = System.convert_time_unit(stop - start, :native, :microsecond)
 
         ["Processed message from ", message.source, " in ", formatted_diff(diff)]
       end)
