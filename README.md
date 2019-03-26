@@ -18,7 +18,7 @@ The package can be installed as:
 
 ```elixir
 def deps do
-  [{:conduit, "~> 0.10"}]
+  [{:conduit, "~> 0.12"}]
 end
 ```
 

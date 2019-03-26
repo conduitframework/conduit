@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+## 0.12.10 (2019-03-25)
+
+### Fixed
+
+- Deprecation warning for `System.convert_time_unit/3` `:microsecond` instead of `:microseconds`
+
 ## 0.12.9 (2018-11-16)
 
 ### Fixed
