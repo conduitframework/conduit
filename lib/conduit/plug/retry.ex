@@ -38,7 +38,7 @@ defmodule Conduit.Plug.Retry do
     message = next.(message)
 
     case message.status do
-      :nack -> retry(message, next, retries, :nack, opts)
+      :nack -> retry(message, next, retries, :nack, [], opts)
       :ack -> message
     end
   rescue
@@ -46,7 +46,7 @@ defmodule Conduit.Plug.Retry do
       retry(message, next, retries, error, System.stacktrace(), opts)
   end
 
-  defp retry(message, _, retries, :nack, %{attempts: attempts})
+  defp retry(message, _, retries, :nack, _, %{attempts: attempts})
        when retries >= attempts - 1 do
     nack(message)
   end
