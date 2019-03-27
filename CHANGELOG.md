@@ -7,6 +7,7 @@
 ### Fixed
 
 - Deprecation warning for `System.convert_time_unit/3` `:microsecond` instead of `:microseconds`
+- Retry on nack would raise exception
 
 ## 0.12.9 (2018-11-16)
 
