@@ -32,7 +32,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
              Add conduit_amqp to your dependencies in mix.exs:
 
-                 {:conduit_amqp, "~> 0.4"}
+                 {:conduit_amqp, "~> 0.6.3"}
 
              Make sure to add the following to your config.exs:
 
@@ -81,7 +81,7 @@ defmodule Mix.Tasks.Conduit.Gen.BrokerTest do
 
              Add conduit_sqs to your dependencies in mix.exs:
 
-                 {:conduit_sqs, "~> 0.1"}
+                 {:conduit_sqs, "~> 0.2.7"}
 
              Make sure to add the following to your config.exs:
 
