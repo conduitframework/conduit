@@ -18,9 +18,9 @@ defmodule Conduit.Broker.Topology.Queue do
   end
 
   @doc false
-  # Conduit.Topology.Queue.new(name, opts)
+  # Conduit.Topology.Queue.new(name, opts, config)
   def escape(%__MODULE__{} = queue) do
     quote(do: Conduit.Topology.Queue.new())
-    |> put_elem(2, [queue.name, queue.opts])
+    |> put_elem(2, [queue.name, queue.opts, Macro.var(:config, Conduit.Broker.Topology)])
   end
 end

@@ -24,8 +24,9 @@ defmodule Conduit.Broker.Topology.Exchange do
   end
 
   @doc false
+  # Conduit.Topology.Exchange.new(name, opts, config)
   def escape(%__MODULE__{} = exchange) do
     quote(do: Conduit.Topology.Exchange.new())
-    |> put_elem(2, [exchange.name, exchange.opts])
+    |> put_elem(2, [exchange.name, exchange.opts, Macro.var(:config, Conduit.Broker.Topology)])
   end
 end

@@ -220,7 +220,9 @@ defmodule Conduit.Broker.DSL do
   defmacro __before_compile__(env) do
     quote do
       import Conduit.Plug.MessageActions
-      unquote(Topology.methods())
+      require Conduit.Broker.Topology
+
+      Conduit.Broker.Topology.deftopology()
       unquote(Pipeline.methods())
       unquote(IncomingScope.methods(env.module))
       unquote(OutgoingScope.methods(env.module))

@@ -47,16 +47,18 @@ defmodule Conduit.Broker.Topology do
     end
   end
 
-  def methods do
-    quote unquote: false do
-      topology =
-        @topology
-        |> Enum.map(fn %{__struct__: module} = data ->
-          module.escape(data)
-        end)
-        |> Enum.reverse()
+  defmacro deftopology() do
+    topology =
+      __CALLER__.module
+      |> Module.get_attribute(:topology)
+      |> Enum.map(fn %{__struct__: module} = data ->
+        module.escape(data)
+      end)
+      |> Enum.reverse()
 
-      def topology do
+    # Generate topology function and replace body with constructed one
+    quote do
+      def topology(config) do
         unquote(topology)
       end
     end

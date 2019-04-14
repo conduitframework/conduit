@@ -72,7 +72,7 @@ defmodule Conduit.Broker do
           |> Application.get_env(__MODULE__, [])
           |> Keyword.merge(opts)
 
-        Conduit.Broker.init(__MODULE__, topology(), subscribe_routes(), config)
+        Conduit.Broker.init(__MODULE__, topology(config), subscribe_routes(), config)
       end
     end
   end

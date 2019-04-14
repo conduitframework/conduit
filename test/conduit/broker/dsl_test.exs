@@ -18,6 +18,7 @@ defmodule Conduit.Broker.DSLTest do
       exchange "amq.topic"
 
       queue "my_app.created.stuff", from: ["#.created.stuff"]
+      queue fn config -> config[:node] <> ".dynamic" end, fn config -> [from: ["#.#{config[:node]}.stuff"]] end
     end
 
     pipeline :incoming do
@@ -50,11 +51,12 @@ defmodule Conduit.Broker.DSLTest do
     end
   end
 
-  describe ".topology" do
+  describe "topology/1" do
     test "returns a list of everything to setup" do
-      assert Broker.topology() == [
+      assert Broker.topology([node: "node1"]) == [
                %Conduit.Topology.Exchange{name: "amq.topic", opts: []},
-               %Conduit.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]}
+               %Conduit.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]},
+               %Conduit.Topology.Queue{name: "node1.dynamic", opts: [from: ["#.node1.stuff"]]}
              ]
     end
   end
