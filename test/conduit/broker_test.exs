@@ -101,7 +101,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      Broker.start_link()
+      start_supervised(Broker)
 
       assert_received {:adapter,
                        [
@@ -123,6 +123,23 @@ defmodule Conduit.BrokerTest do
                dynamic: [from: "my_app.created.dynamic_stuff", other: :stuff],
                prepend: [from: "my_app.created.prepend"]
              }
+    end
+  end
+
+  describe "start_link/1" do
+    test "overrides application config with options passed to start link" do
+      Process.register(self(), __MODULE__)
+      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      start_supervised({Broker, [[override: :value]]})
+
+      assert_received {:adapter,
+                       [
+                         Conduit.BrokerTest.Broker,
+                         topology,
+                         subscribers,
+                         [adapter: Conduit.TestAdapter, override: :value]
+                       ]}
     end
   end
 
