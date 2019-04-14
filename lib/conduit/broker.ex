@@ -67,17 +67,18 @@ defmodule Conduit.Broker do
 
       @doc false
       def init([opts]) do
-        Conduit.Broker.init(@otp_app, __MODULE__, topology(), subscribe_routes(), opts)
+        config =
+          @otp_app
+          |> Application.get_env(__MODULE__, [])
+          |> Keyword.merge(opts)
+
+        Conduit.Broker.init(__MODULE__, topology(), subscribe_routes(), config)
       end
     end
   end
 
   @doc false
-  def init(otp_app, broker, topology, subscribe_routes, opts) do
-    config =
-      otp_app
-      |> Application.get_env(broker, [])
-      |> Keyword.merge(opts)
+  def init(broker, topology, subscribe_routes, config) do
     adapter = Keyword.get(config, :adapter) || raise Conduit.AdapterNotConfiguredError
 
     subscribers =
