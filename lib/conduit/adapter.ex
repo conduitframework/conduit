@@ -3,27 +3,28 @@ defmodule Conduit.Adapter do
   Defines the behavior for an adapter.
   """
 
-  @type broker :: module
   @type topology :: [{atom, binary, Keyword.t()}]
   @type subscribers :: %{atom => {module, Keyword.t()}}
-  @type config :: Keyword.t()
   @type opts :: Keyword.t()
 
-  @callback start_link(broker, topology, subscribers, config) :: GenServer.on_start()
+  @callback start_link(Conduit.Broker.t(), topology, subscribers, Conduit.Config.t()) :: GenServer.on_start()
 
-  @callback publish(Conduit.Message.t(), config, opts) ::
+  @callback publish(Conduit.Message.t(), Conduit.Config.t(), opts) ::
               {:ok, Conduit.Message.t()} | {:error, binary | atom} | no_return
-  @callback publish(module, Conduit.Message.t(), config, opts) :: {:ok, Conduit.Message.t()} | {:error, term}
+  @callback publish(module, Conduit.Message.t(), Conduit.Config.t(), opts) ::
+              {:ok, Conduit.Message.t()} | {:error, term}
 
   @doc false
   defmacro __using__(_opts) do
     quote do
       @behaviour Conduit.Adapter
 
+      @impl true
       def publish(message, config, opts) do
         raise RuntimeError, "#{__MODULE__} should implement Conduit.Adapter.publish/4 callback."
       end
 
+      @impl true
       def publish(broker, message, config, opts) do
         require Logger
 

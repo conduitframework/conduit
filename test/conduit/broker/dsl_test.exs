@@ -53,7 +53,7 @@ defmodule Conduit.Broker.DSLTest do
 
   describe "topology/1" do
     test "returns a list of everything to setup" do
-      assert Broker.topology([node: "node1"]) == [
+      assert Broker.topology(node: "node1") == [
                %Conduit.Topology.Exchange{name: "amq.topic", opts: []},
                %Conduit.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]},
                %Conduit.Topology.Queue{name: "node1.dynamic", opts: [from: ["#.node1.stuff"]]}
@@ -76,7 +76,7 @@ defmodule Conduit.Broker.DSLTest do
                  pipelines: [:incoming],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
-             ] == Broker.subscribe_routes()
+             ] == Broker.subscribe_routes([])
 
       Application.put_env(:conduit, :dynamic_from, "my_app.dynamically.created.other_stuff")
 
@@ -93,7 +93,7 @@ defmodule Conduit.Broker.DSLTest do
                  pipelines: [:incoming],
                  subscriber: Conduit.Broker.DSLTest.MyApp.StuffSubscriber
                }
-             ] == Broker.subscribe_routes()
+             ] == Broker.subscribe_routes([])
 
       Application.delete_env(:conduit, :dynamic_from)
     end
@@ -108,7 +108,7 @@ defmodule Conduit.Broker.DSLTest do
                  pipelines: [:outgoing]
                },
                %Conduit.PublishRoute{name: :dynamic, opts: [exchange: "amq.topic", to: fun], pipelines: [:outgoing]}
-             ] = Broker.publish_routes()
+             ] = Broker.publish_routes([])
 
       assert fun.() == "my_app.created.more_stuff"
 
@@ -121,7 +121,7 @@ defmodule Conduit.Broker.DSLTest do
                  pipelines: [:outgoing]
                },
                %Conduit.PublishRoute{name: :dynamic, opts: [exchange: "amq.topic", to: fun], pipelines: [:outgoing]}
-             ] = Broker.publish_routes()
+             ] = Broker.publish_routes([])
 
       assert fun.() == "my_app.dynamically.created.other_stuff"
 

@@ -79,39 +79,53 @@ defmodule Conduit.Broker.IncomingScope do
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
 
-  @doc """
-  Defines subscriber related methods for the broker.
-  """
-  @spec methods(module) :: term | no_return
-  def methods(module) do
+  defmacro defsubscribe_routes do
+    module = __CALLER__.module
     validate_routes!(module)
 
-    quote unquote: false do
-      subscribe_routes = Enum.map(@subscribe_routes, &Conduit.Broker.SubscribeRoute.escape/1)
-      def subscribe_routes, do: unquote(subscribe_routes)
+    subscribe_routes =
+      module
+      |> Module.get_attribute(:subscribe_routes)
+      |> Enum.map(&Conduit.Broker.SubscribeRoute.escape(&1, __MODULE__))
 
-      for route <- @subscribe_routes do
-        pipeline = Conduit.Broker.IncomingScope.compile(route)
+    quote location: :keep do
+      def subscribe_routes(config) do
+        unquote(subscribe_routes)
+      end
+    end
+  end
 
-        def receives(unquote(route.name), message) do
-          unquote(pipeline).(message)
+  defmacro defreceives do
+    module = __CALLER__.module
+    subscribe_routes = Module.get_attribute(module, :subscribe_routes)
+
+    receives =
+      for route <- subscribe_routes, pipeline = compile(route) do
+        quote location: :keep do
+          def receives(unquote(route.name), message) do
+            unquote(pipeline).(message)
+          end
         end
       end
 
-      def receives(name, _) do
-        message = """
-        Undefined subscribe route #{inspect(name)}.
+    fallback_receive =
+      quote location: :keep do
+        def receives(name, _) do
+          message = """
+          Undefined subscribe route #{inspect(name)}.
 
-        Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+          Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
 
-            incoming MyApp do
-              subscribe #{inspect(name)}, MySubscriber, from: "my.source", other: "options"
-            end
-        """
+              incoming MyApp do
+                subscribe #{inspect(name)}, MySubscriber, from: "my.source", other: "options"
+              end
+          """
 
-        raise Conduit.UndefinedSubscribeRouteError, message
+          raise Conduit.UndefinedSubscribeRouteError, message
+        end
       end
-    end
+
+    receives ++ [fallback_receive]
   end
 
   defp validate_routes!(module) do

@@ -101,7 +101,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      start_supervised(Broker)
+      start_supervised!(Broker)
 
       assert_received {:adapter,
                        [
@@ -131,7 +131,7 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
-      start_supervised({Broker, [[override: :value]]})
+      start_supervised!({Broker, [[override: :value]]})
 
       assert_received {:adapter,
                        [
@@ -147,6 +147,8 @@ defmodule Conduit.BrokerTest do
     test "it delegates to the adapter after passing through the pipeline" do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      start_supervised!(Broker)
 
       Broker.publish(%Conduit.Message{}, :more_stuff)
 
@@ -166,6 +168,8 @@ defmodule Conduit.BrokerTest do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
 
+      start_supervised!(Broker)
+
       Broker.publish(%Conduit.Message{}, :prepend)
 
       assert_received {:publish, Broker, :prepend, message, _, _}
@@ -176,6 +180,8 @@ defmodule Conduit.BrokerTest do
     test "sets destination when dynamic" do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      start_supervised!(Broker)
 
       Broker.publish(%Conduit.Message{}, :dynamic)
 
@@ -223,6 +229,8 @@ defmodule Conduit.BrokerTest do
     test "it produces a deprecation warning when message is passed as second arg to publish" do
       Process.register(self(), __MODULE__)
       Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
+
+      start_supervised!(Broker)
 
       warning =
         capture_log(fn ->

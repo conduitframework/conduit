@@ -80,67 +80,89 @@ defmodule Conduit.Broker.OutgoingScope do
     Conduit.Plug.Builder.compile(plugs, quote(do: & &1))
   end
 
-  @doc """
-  Defines publishing related methods for the broker.
-  """
-  @spec methods(module) :: term | no_return
-  def methods(module) do
+  defmacro defpublish_routes() do
+    module = __CALLER__.module
     validate_routes!(module)
 
-    quote unquote: false do
-      publish_routes = Enum.map(@publish_routes, &Conduit.Broker.PublishRoute.escape/1)
-      def publish_routes, do: unquote(publish_routes)
+    publish_routes =
+      module
+      |> Module.get_attribute(:publish_routes)
+      |> Enum.map(&Conduit.Broker.PublishRoute.escape(&1, __MODULE__))
 
-      def publish(message, name, opts \\ [])
-
-      def publish(name, message, opts) when is_atom(name) do
-        require Logger
-
-        warning = """
-        Calling #{inspect(__MODULE__)}.publish/3 with message as second argument is deprecated to enable pipeline usage.
-
-        Replace:
-
-            #{inspect(__MODULE__)}.publish(#{inspect(name)}, message, opts)
-
-        With:
-
-            #{inspect(__MODULE__)}.publish(message, #{inspect(name)}, opts)
-        """
-
-        Logger.warn(warning)
-        publish(message, name, opts)
+    quote location: :keep do
+      def publish_routes(config) do
+        unquote(publish_routes)
       end
+    end
+  end
 
-      for route <- @publish_routes do
-        pipeline = Conduit.Broker.OutgoingScope.compile(__MODULE__, route)
+  defmacro defpublish() do
+    publish_with_default = quote(do: def(publish(message, name, opts \\ [])))
 
-        def publish(message, unquote(route.name), opts) do
-          message
-          |> Conduit.Message.put_private(:opts, opts)
-          |> unquote(pipeline).()
+    deprecated_publish =
+      quote location: :keep do
+        def publish(name, message, opts) when is_atom(name) do
+          require Logger
+
+          warning = """
+          Calling #{inspect(__MODULE__)}.publish/3 with message as second argument is deprecated to enable pipeline usage.
+
+          Replace:
+
+              #{inspect(__MODULE__)}.publish(#{inspect(name)}, message, opts)
+
+          With:
+
+              #{inspect(__MODULE__)}.publish(message, #{inspect(name)}, opts)
+          """
+
+          Logger.warn(warning)
+          publish(message, name, opts)
         end
       end
 
-      def publish(_, name, _) do
-        message = """
-        Undefined publish route #{inspect(name)}.
+    module = __CALLER__.module
 
-        Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+    publishes =
+      for route <- Module.get_attribute(module, :publish_routes),
+          pipeline = Conduit.Broker.OutgoingScope.compile(module, route) do
+        quote location: :keep do
+          def publish(message, unquote(route.name), opts) do
+            config = Conduit.Broker.get_config(__MODULE__, opts)
 
-            outgoing do
-              publish #{inspect(name)}, to: "my.destination", other: "options"
-            end
-        """
-
-        raise Conduit.UndefinedPublishRouteError, message
+            message
+            |> Conduit.Message.put_private(:opts, opts)
+            |> Conduit.Message.put_private(:broker_config, config)
+            |> unquote(pipeline).()
+          end
+        end
       end
 
-      @doc false
-      def raw_publish(message, _next, broker_opts) do
-        opts = Conduit.Message.get_private(message, :opts)
+    fallback_publish =
+      quote location: :keep do
+        def publish(_, name, _) do
+          message = """
+          Undefined publish route #{inspect(name)}.
 
-        Conduit.Broker.raw_publish(@otp_app, __MODULE__, message, Keyword.merge(broker_opts, opts))
+          Perhaps #{inspect(name)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+
+              outgoing do
+                publish #{inspect(name)}, to: "my.destination", other: "options"
+              end
+          """
+
+          raise Conduit.UndefinedPublishRouteError, message
+        end
+      end
+
+    [publish_with_default, deprecated_publish | publishes] ++ [fallback_publish]
+  end
+
+  defmacro defraw_publish do
+    quote location: :keep do
+      @doc false
+      def raw_publish(message, _next, opts) do
+        Conduit.Broker.raw_publish(__MODULE__, message, opts)
       end
     end
   end

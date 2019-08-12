@@ -61,31 +61,45 @@ defmodule Conduit.Broker.Pipeline do
     Conduit.Plug.Builder.compile(pipeline.plugs, quote(do: next))
   end
 
-  def methods do
-    quote unquote: false do
-      pipelines = Enum.map(@pipelines, &Conduit.Broker.Pipeline.escape/1)
+  defmacro defpipelines do
+    pipelines =
+      __CALLER__.module
+      |> Module.get_attribute(:pipelines)
+      |> Enum.map(&escape/1)
 
+    quote do
       def pipelines, do: unquote(pipelines)
+    end
+  end
 
-      for pipeline <- @pipelines, compiled_pipeline = Conduit.Broker.Pipeline.compile(pipeline) do
-        def pipeline(message, next, unquote(pipeline.name)) do
-          unquote(compiled_pipeline).(message)
+  defmacro defpipeline do
+    pipelines =
+      for pipeline <- Module.get_attribute(__CALLER__.module, :pipelines),
+          compiled_pipeline = compile(pipeline) do
+        quote do
+          def pipeline(message, next, unquote(pipeline.name)) do
+            unquote(compiled_pipeline).(message)
+          end
         end
       end
 
-      def pipeline(_message, _next, pipeline) do
-        message = """
-        Undefined pipeline #{inspect(pipeline)}.
+    fallback_pipeline =
+      quote do
+        def pipeline(_message, _next, pipeline) do
+          message = """
+          Undefined pipeline #{inspect(pipeline)}.
 
-        Perhaps #{inspect(pipeline)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
+          Perhaps #{inspect(pipeline)} is misspelled. Otherwise, it can be defined in #{inspect(__MODULE__)} by adding:
 
-            pipeline #{inspect(pipeline)} do
-              # plugs ...
-            end
-        """
+              pipeline #{inspect(pipeline)} do
+                # plugs ...
+              end
+          """
 
-        raise Conduit.UndefinedPipelineError, message
+          raise Conduit.UndefinedPipelineError, message
+        end
       end
-    end
+
+    pipelines ++ [fallback_pipeline]
   end
 end

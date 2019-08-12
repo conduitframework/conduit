@@ -41,8 +41,8 @@ defmodule Conduit.Broker.SubscribeRoute do
     %{route | pipelines: pipelines}
   end
 
-  def escape(%__MODULE__{} = route) do
+  def escape(%__MODULE__{} = route, module) do
     quote(do: Conduit.SubscribeRoute.new())
-    |> put_elem(2, [route.name, Macro.escape(route.subscriber), route.pipelines, route.opts])
+    |> put_elem(2, [route.name, Macro.escape(route.subscriber), route.pipelines, route.opts, Macro.var(:config, module)])
   end
 end

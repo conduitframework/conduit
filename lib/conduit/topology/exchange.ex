@@ -39,7 +39,9 @@ defmodule Conduit.Topology.Exchange do
 
   defp eval({:arity, 0}, fun, _config), do: fun.()
   defp eval({:arity, 1}, fun, config), do: fun.(config)
+
   defp eval({:arity, arity}, _fun, _config) do
-    raise Conduit.BadArityError, "Exchange declared with function that has invalidy arity. Expected 0 or 1, got #{arity}"
+    raise Conduit.BadArityError,
+          "Exchange declared with function that has invalidy arity. Expected 0 or 1, got #{arity}"
   end
 end

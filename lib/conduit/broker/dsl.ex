@@ -217,15 +217,22 @@ defmodule Conduit.Broker.DSL do
   end
 
   @doc false
-  defmacro __before_compile__(env) do
+  defmacro __before_compile__(_env) do
     quote do
       import Conduit.Plug.MessageActions
       require Conduit.Broker.Topology
+      require Conduit.Broker.Pipeline
+      require Conduit.Broker.IncomingScope
+      require Conduit.Broker.OutgoingScope
 
       Conduit.Broker.Topology.deftopology()
-      unquote(Pipeline.methods())
-      unquote(IncomingScope.methods(env.module))
-      unquote(OutgoingScope.methods(env.module))
+      Conduit.Broker.Pipeline.defpipelines()
+      Conduit.Broker.Pipeline.defpipeline()
+      Conduit.Broker.IncomingScope.defsubscribe_routes()
+      Conduit.Broker.IncomingScope.defreceives()
+      Conduit.Broker.OutgoingScope.defpublish_routes()
+      Conduit.Broker.OutgoingScope.defpublish()
+      Conduit.Broker.OutgoingScope.defraw_publish()
     end
   end
 end

@@ -19,12 +19,21 @@ defmodule Conduit.Topology.Queue do
 
   ## Examples
 
-    iex> Conduit.Topology.Queue.new("my_app.event", [from: ["my_app.event_queue"]], [])
+    iex> Conduit.Topology.Queue.new(
+    iex>   "my_app.event",
+    iex>   [from: ["my_app.event_queue"]],
+    iex>   [])
     %Conduit.Topology.Queue{name: "my_app.event", opts: [from: ["my_app.event_queue"]]}
-    iex> Conduit.Topology.Queue.new(fn -> "dynamic.name" end, fn -> [from: ["my_app.event_queue"]] end, [])
+    iex> Conduit.Topology.Queue.new(
+    iex>   fn -> "dynamic.name" end,
+    iex>   fn -> [from: ["my_app.event_queue"]] end,
+    iex>   [])
     %Conduit.Topology.Queue{name: "dynamic.name", opts: [from: ["my_app.event_queue"]]}
     iex> config = [name: "dynamic.name", opts: [from: ["my_app.event_queue"]]]
-    iex> Conduit.Topology.Queue.new(fn config -> config[:name] end, fn -> config[:opts] end, config)
+    iex> Conduit.Topology.Queue.new(
+    iex>   fn config -> config[:name] end,
+    iex>   fn -> config[:opts] end,
+    iex>   config)
     %Conduit.Topology.Queue{name: "dynamic.name", opts: [from: ["my_app.event_queue"]]}
   """
   @spec new(name, opts, config) :: t()
@@ -39,6 +48,7 @@ defmodule Conduit.Topology.Queue do
 
   defp eval({:arity, 0}, fun, _config), do: fun.()
   defp eval({:arity, 1}, fun, config), do: fun.(config)
+
   defp eval({:arity, arity}, _fun, _config) do
     raise Conduit.BadArityError, "Queue declared with function that has invalidy arity. Expected 0 or 1, got #{arity}"
   end

@@ -18,11 +18,13 @@ defmodule Conduit.TestAdapter do
   end
 
   @doc false
+  @impl true
   def start_link(broker, topology, subscribers, opts) do
     Supervisor.start_link(__MODULE__, [broker, topology, subscribers, opts])
   end
 
   @doc false
+  @impl true
   def init(opts) do
     import Supervisor.Spec
 
@@ -36,6 +38,7 @@ defmodule Conduit.TestAdapter do
   Sends a publish message to the current process or the shared_test_process
   if that is configured.
   """
+  @impl true
   def publish(broker, message, config, opts) do
     process = Application.get_env(:conduit, :shared_test_process, self())
     name = Conduit.Message.get_private(message, :received)

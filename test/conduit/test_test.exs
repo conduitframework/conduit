@@ -3,16 +3,6 @@ defmodule Conduit.TestSharedTest do
   use Conduit.Test, shared: true
   import ExUnit.CaptureIO
 
-  setup do
-    Application.put_env(
-      :shared_test_app,
-      Conduit.TestSharedTest.Broker,
-      adapter: Conduit.TestAdapter
-    )
-
-    :ok
-  end
-
   defmodule Broker do
     @moduledoc false
     use Conduit.Broker, otp_app: :shared_test_app
@@ -20,6 +10,18 @@ defmodule Conduit.TestSharedTest do
     outgoing do
       publish :message, to: "somewhere"
     end
+  end
+
+  setup do
+    Application.put_env(
+      :shared_test_app,
+      Conduit.TestSharedTest.Broker,
+      adapter: Conduit.TestAdapter
+    )
+
+    start_supervised!(Broker)
+
+    :ok
   end
 
   test "assert_message_published/1" do
@@ -144,6 +146,14 @@ defmodule Conduit.TestUnsharedTest do
   use Conduit.Test, shared: false
   import ExUnit.CaptureIO
 
+  defmodule Broker do
+    use Conduit.Broker, otp_app: :unshared_test_app
+
+    outgoing do
+      publish :message, to: "somewhere"
+    end
+  end
+
   setup do
     Application.put_env(
       :unshared_test_app,
@@ -151,15 +161,9 @@ defmodule Conduit.TestUnsharedTest do
       adapter: Conduit.TestAdapter
     )
 
+    start_supervised!(Broker)
+
     :ok
-  end
-
-  defmodule Broker do
-    use Conduit.Broker, otp_app: :unshared_test_app
-
-    outgoing do
-      publish :message, to: "somewhere"
-    end
   end
 
   test "assert_message_published/1" do

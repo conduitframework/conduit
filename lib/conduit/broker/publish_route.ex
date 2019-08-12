@@ -32,8 +32,12 @@ defmodule Conduit.Broker.PublishRoute do
     %{route | pipelines: pipelines}
   end
 
-  def escape(%__MODULE__{} = route) do
+  @doc """
+  Generates code to initialize a Conduit.PublishRoute
+  """
+  @spec escape(Conduit.Broker.PublishRoute.t(), module()) :: Macro.t()
+  def escape(%__MODULE__{} = route, module) do
     quote(do: Conduit.PublishRoute.new())
-    |> put_elem(2, [route.name, route.pipelines, route.opts])
+    |> put_elem(2, [route.name, route.pipelines, route.opts, Macro.var(:config, module)])
   end
 end
