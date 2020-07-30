@@ -61,7 +61,7 @@ defmodule Conduit.Mixfile do
       {:junit_formatter, "~> 2.0", only: :test},
       {:excoveralls, "~> 0.5", only: :test},
       {:credo, "~> 0.7", only: [:dev, :test]},
-      {:inch_ex, "~> 1.0", only: [:dev, :test]}
+      {:inch_ex, "~> 2.0", only: [:dev, :test]}
     ]
   end
 
