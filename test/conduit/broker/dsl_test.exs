@@ -53,7 +53,7 @@ defmodule Conduit.Broker.DSLTest do
 
   describe "topology/1" do
     test "returns a list of everything to setup" do
-      assert Broker.topology([node: "node1"]) == [
+      assert Broker.topology(node: "node1") == [
                %Conduit.Topology.Exchange{name: "amq.topic", opts: []},
                %Conduit.Topology.Queue{name: "my_app.created.stuff", opts: [from: ["#.created.stuff"]]},
                %Conduit.Topology.Queue{name: "node1.dynamic", opts: [from: ["#.node1.stuff"]]}
