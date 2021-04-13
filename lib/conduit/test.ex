@@ -77,15 +77,11 @@ defmodule Conduit.Test do
       MyApp.Broker.publish(:message, %Conduit.Message{})
       assert_message_published(:message)
       message_name = :message
-      assert_message_published(message_name)
+      assert_message_published(^message_name)
 
   """
-  defmacro assert_message_published(name) when is_atom(name) do
-    quote do: assert_received({:publish, _, unquote(name), _, _, _})
-  end
-
   defmacro assert_message_published(name) do
-    quote do: assert_received({:publish, _, ^unquote(name), _, _, _})
+    quote do: assert_received({:publish, _, unquote(name), _, _, _})
   end
 
   @doc """
@@ -101,15 +97,11 @@ defmodule Conduit.Test do
       assert_message_published(:message, message)
       assert_message_published(:message, ^message)
       message_name = :message
-      assert_message_published(message_name, %Conduit.Message{body: body})
+      assert_message_published(^message_name, %Conduit.Message{body: body})
 
   """
-  defmacro assert_message_published(name, message_pattern) when is_atom(name) do
-    quote do: assert_received({:publish, _, unquote(name), unquote(message_pattern), _, _})
-  end
-
   defmacro assert_message_published(name, message_pattern) do
-    quote do: assert_received({:publish, _, ^unquote(name), unquote(message_pattern), _, _})
+    quote do: assert_received({:publish, _, unquote(name), unquote(message_pattern), _, _})
   end
 
   @doc """
@@ -125,15 +117,11 @@ defmodule Conduit.Test do
       assert_message_published(:message, message, [to: destination])
       assert_message_published(:message, ^message, ^opts)
       message_name = :message
-      assert_message_published(message_name, %Conduit.Message{body: body}, [to: "queue"])
+      assert_message_published(^message_name, %Conduit.Message{body: body}, [to: "queue"])
 
   """
-  defmacro assert_message_published(name, message_pattern, opts_pattern) when is_atom(name) do
-    quote do: assert_received({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
-  end
-
   defmacro assert_message_published(name, message_pattern, opts_pattern) do
-    quote do: assert_received({:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
+    quote do: assert_received({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
   end
 
   @doc """
@@ -146,15 +134,11 @@ defmodule Conduit.Test do
 
       refute_message_published(:message)
       message_name = :message
-      refute_message_published(message_name)
+      refute_message_published(^message_name)
 
   """
-  defmacro refute_message_published(name) when is_atom(name) do
-    quote do: refute_received({:publish, _, unquote(name), _, _, _})
-  end
-
   defmacro refute_message_published(name) do
-    quote do: refute_received({:publish, _, ^unquote(name), _, _, _})
+    quote do: refute_received({:publish, _, unquote(name), _, _, _})
   end
 
   @doc """
@@ -168,15 +152,11 @@ defmodule Conduit.Test do
       MyApp.Broker.publish(:message, %Conduit.Message{body: "bar"})
       refute_message_published(:message, %Conduit.Message{body: "foo"})
       message_name = :message
-      refute_message_published(message_name, %Conduit.Message{body: "foo"})
+      refute_message_published(^message_name, %Conduit.Message{body: "foo"})
 
   """
-  defmacro refute_message_published(name, message_pattern) when is_atom(name) do
-    quote do: refute_received({:publish, _, unquote(name), unquote(message_pattern), _, _})
-  end
-
   defmacro refute_message_published(name, message_pattern) do
-    quote do: refute_received({:publish, _, ^unquote(name), unquote(message_pattern), _, _})
+    quote do: refute_received({:publish, _, unquote(name), unquote(message_pattern), _, _})
   end
 
   @doc """
@@ -190,15 +170,11 @@ defmodule Conduit.Test do
       MyApp.Broker.publish(:message, %Conduit.Message{body: "bar"}, to: "queue")
       refute_message_published(:message, %Conduit.Message{body: "bar"}, to: "elsewhere")
       message_name = :message
-      refute_message_published(message_name, %Conduit.Message{body: "bar"}, to: "elsewhere")
+      refute_message_published(^message_name, %Conduit.Message{body: "bar"}, to: "elsewhere")
 
   """
-  defmacro refute_message_published(name, message_pattern, opts_pattern) when is_atom(name) do
-    quote do: refute_received({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
-  end
-
   defmacro refute_message_published(name, message_pattern, opts_pattern) do
-    quote do: refute_received({:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
+    quote do: refute_received({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)})
   end
 
   @doc """
@@ -211,15 +187,11 @@ defmodule Conduit.Test do
       MyApp.Broker.publish(:message, %Conduit.Message{})
       assert_message_publish(:message)
       message_name = :message
-      assert_message_publish(message_name)
+      assert_message_publish(^message_name)
 
   """
-  defmacro assert_message_publish(name) when is_atom(name) do
-    quote do: assert_receive({:publish, _, unquote(name), _, _, _}, 100)
-  end
-
   defmacro assert_message_publish(name) do
-    quote do: assert_receive({:publish, _, ^unquote(name), _, _, _}, 100)
+    quote do: assert_receive({:publish, _, unquote(name), _, _, _}, 100)
   end
 
   @doc """
@@ -234,23 +206,15 @@ defmodule Conduit.Test do
       assert_message_publish(:message, 200)
       assert_message_publish(:message, ^message)
       message_name = :message
-      assert_message_publish(message_name, 200)
+      assert_message_publish(^message_name, 200)
 
   """
-  defmacro assert_message_publish(name, timeout) when is_atom(name) and is_integer(timeout) do
+  defmacro assert_message_publish(name, timeout) when is_integer(timeout) do
     quote do: assert_receive({:publish, _, unquote(name), _, _, _}, unquote(timeout))
   end
 
-  defmacro assert_message_publish(name, message_pattern) when is_atom(name) do
-    quote do: assert_receive({:publish, _, unquote(name), unquote(message_pattern), _, _}, 100)
-  end
-
-  defmacro assert_message_publish(name, timeout) when is_integer(timeout) do
-    quote do: assert_receive({:publish, _, ^unquote(name), _, _, _}, unquote(timeout))
-  end
-
   defmacro assert_message_publish(name, message_pattern) do
-    quote do: assert_receive({:publish, _, ^unquote(name), unquote(message_pattern), _, _}, 100)
+    quote do: assert_receive({:publish, _, unquote(name), unquote(message_pattern), _, _}, 100)
   end
 
   @doc """
@@ -266,30 +230,18 @@ defmodule Conduit.Test do
       assert_message_publish(:message, %{body: body}, [to: "here"])
       assert_message_publish(:message, ^message, 300)
       message_name = :message
-      assert_message_publish(message_name, %{body: body}, 200)
+      assert_message_publish(^message_name, %{body: body}, 200)
 
   """
-  defmacro assert_message_publish(name, message_pattern, timeout) when is_atom(name) and is_integer(timeout) do
+  defmacro assert_message_publish(name, message_pattern, timeout) when is_integer(timeout) do
     quote do
       assert_receive {:publish, _, unquote(name), unquote(message_pattern), _, _}, unquote(timeout)
     end
   end
 
-  defmacro assert_message_publish(name, message_pattern, opts_pattern) when is_atom(name) do
-    quote do
-      assert_receive {:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100
-    end
-  end
-
-  defmacro assert_message_publish(name, message_pattern, timeout) when is_integer(timeout) do
-    quote do
-      assert_receive {:publish, _, ^unquote(name), unquote(message_pattern), _, _}, unquote(timeout)
-    end
-  end
-
   defmacro assert_message_publish(name, message_pattern, opts_pattern) do
     quote do
-      assert_receive {:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100
+      assert_receive {:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100
     end
   end
 
@@ -306,20 +258,12 @@ defmodule Conduit.Test do
       assert_message_publish(:message, message, [to: "here"], 300)
       assert_message_publish(:message, ^message, ^opts, 300)
       message_name = :message
-      assert_message_publish(message_name, %{body: body}, [to: "here"], 200)
+      assert_message_publish(^message_name, %{body: body}, [to: "here"], 200)
 
   """
-  defmacro assert_message_publish(name, message_pattern, opts_pattern, timeout)
-           when is_atom(name) and is_integer(timeout) do
+  defmacro assert_message_publish(name, message_pattern, opts_pattern, timeout) when is_integer(timeout) do
     quote do
       assert_receive {:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, unquote(timeout)
-    end
-  end
-
-  defmacro assert_message_publish(name, message_pattern, opts_pattern, timeout)
-           when is_integer(timeout) do
-    quote do
-      assert_receive {:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, unquote(timeout)
     end
   end
 
@@ -332,15 +276,11 @@ defmodule Conduit.Test do
 
       refute_message_publish(:message)
       message_name = :message
-      refute_message_publish(message_name)
+      refute_message_publish(^message_name)
 
   """
-  defmacro refute_message_publish(name) when is_atom(name) do
-    quote do: refute_receive({:publish, _, unquote(name), _, _, _}, 100)
-  end
-
   defmacro refute_message_publish(name) do
-    quote do: refute_receive({:publish, _, ^unquote(name), _, _, _}, 100)
+    quote do: refute_receive({:publish, _, unquote(name), _, _, _}, 100)
   end
 
   @doc """
@@ -355,23 +295,15 @@ defmodule Conduit.Test do
       refute_message_publish(:message, %{body: body})
       refute_message_publish(:message, ^message)
       message_name = :message
-      refute_message_publish(message_name, 200)
+      refute_message_publish(^message_name, 200)
 
   """
-  defmacro refute_message_publish(name, timeout) when is_atom(name) and is_integer(timeout) do
+  defmacro refute_message_publish(name, timeout) when is_integer(timeout) do
     quote do: refute_receive({:publish, _, unquote(name), _, _, _}, unquote(timeout))
   end
 
-  defmacro refute_message_publish(name, message_pattern) when is_atom(name) do
-    quote do: refute_receive({:publish, _, unquote(name), unquote(message_pattern), _, _}, 100)
-  end
-
-  defmacro refute_message_publish(name, timeout) when is_integer(timeout) do
-    quote do: refute_receive({:publish, _, ^unquote(name), _, _, _}, unquote(timeout))
-  end
-
   defmacro refute_message_publish(name, message_pattern) do
-    quote do: refute_receive({:publish, _, ^unquote(name), unquote(message_pattern), _, _}, 100)
+    quote do: refute_receive({:publish, _, unquote(name), unquote(message_pattern), _, _}, 100)
   end
 
   @doc """
@@ -386,23 +318,15 @@ defmodule Conduit.Test do
       refute_message_publish(:message, %{body: body}, [to: "elsewhere"])
       refute_message_publish(:message, ^message, ^options)
       message_name = :message
-      refute_message_publish(message_name, %Conduit.Message{}, 200)
+      refute_message_publish(^message_name, %Conduit.Message{}, 200)
 
   """
-  defmacro refute_message_publish(name, message_pattern, timeout) when is_atom(name) and is_integer(timeout) do
+  defmacro refute_message_publish(name, message_pattern, timeout) when is_integer(timeout) do
     quote do: refute_receive({:publish, _, unquote(name), unquote(message_pattern), _, _}, unquote(timeout))
   end
 
-  defmacro refute_message_publish(name, message_pattern, opts_pattern) when is_atom(name) do
-    quote do: refute_receive({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100)
-  end
-
-  defmacro refute_message_publish(name, message_pattern, timeout) when is_integer(timeout) do
-    quote do: refute_receive({:publish, _, ^unquote(name), unquote(message_pattern), _, _}, unquote(timeout))
-  end
-
   defmacro refute_message_publish(name, message_pattern, opts_pattern) do
-    quote do: refute_receive({:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100)
+    quote do: refute_receive({:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)}, 100)
   end
 
   @doc """
@@ -417,24 +341,13 @@ defmodule Conduit.Test do
       refute_message_publish(:message, %{body: body}, [to: "elsewhere"], 10)
       refute_message_publish(:message, ^message, ^options, 50)
       message_name = :message
-      refute_message_publish(message_name, %Conduit.Message{}, [to: "elsewhere"], 200)
+      refute_message_publish(^message_name, %Conduit.Message{}, [to: "elsewhere"], 200)
 
   """
-  defmacro refute_message_publish(name, message_pattern, opts_pattern, timeout)
-           when is_atom(name) and is_integer(timeout) do
+  defmacro refute_message_publish(name, message_pattern, opts_pattern, timeout) when is_integer(timeout) do
     quote do
       refute_receive(
         {:publish, _, unquote(name), unquote(message_pattern), _, unquote(opts_pattern)},
-        unquote(timeout)
-      )
-    end
-  end
-
-  defmacro refute_message_publish(name, message_pattern, opts_pattern, timeout)
-           when is_integer(timeout) do
-    quote do
-      refute_receive(
-        {:publish, _, ^unquote(name), unquote(message_pattern), _, unquote(opts_pattern)},
         unquote(timeout)
       )
     end

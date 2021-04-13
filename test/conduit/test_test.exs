@@ -29,7 +29,7 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published message_name
+    assert_message_published ^message_name
   end
 
   test "assert_message_published/2" do
@@ -40,7 +40,7 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published message_name, %Conduit.Message{}
+    assert_message_published ^message_name, %Conduit.Message{}
   end
 
   test "assert_message_published/3" do
@@ -51,28 +51,28 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published(message_name, %Conduit.Message{}, to: "somewhere")
+    assert_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "refute_message_published/1" do
     refute_message_published :message
 
     message_name = :message
-    refute_message_published message_name
+    refute_message_published ^message_name
   end
 
   test "refute_message_published/2" do
     refute_message_published :message, %Conduit.Message{}
 
     message_name = :message
-    refute_message_published message_name, %Conduit.Message{}
+    refute_message_published ^message_name, %Conduit.Message{}
   end
 
   test "refute_message_published/3" do
     refute_message_published(:message, %Conduit.Message{}, to: "somewhere")
 
     message_name = :message
-    refute_message_published(message_name, %Conduit.Message{}, to: "somewhere")
+    refute_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "assert_message_publish/1" do
@@ -83,7 +83,7 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name)
+    assert_message_publish(^message_name)
   end
 
   test "assert_message_publish/2" do
@@ -94,7 +94,7 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish message_name, 10
+    assert_message_publish ^message_name, 10
   end
 
   test "assert_message_publish/3" do
@@ -105,7 +105,7 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name, %Conduit.Message{}, 10)
+    assert_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
@@ -116,14 +116,14 @@ defmodule Conduit.TestSharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name, %Conduit.Message{}, [to: "somewhere"], 10)
+    assert_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 
   test "refute_message_publish/1" do
     refute_message_publish :message
 
     message_name = :message
-    refute_message_publish message_name
+    refute_message_publish ^message_name
   end
 
   test "refute_message_publish/2" do
@@ -132,9 +132,9 @@ defmodule Conduit.TestSharedTest do
     refute_message_publish :message, 10
 
     message_name = :message
-    refute_message_publish message_name, %Conduit.Message{}
+    refute_message_publish ^message_name, %Conduit.Message{}
 
-    refute_message_publish message_name, 10
+    refute_message_publish ^message_name, 10
   end
 
   test "refute_message_publish/3" do
@@ -143,16 +143,16 @@ defmodule Conduit.TestSharedTest do
     refute_message_publish(:message, %Conduit.Message{}, 10)
 
     message_name = :message
-    refute_message_publish(message_name, %Conduit.Message{}, to: "somewhere")
+    refute_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
 
-    refute_message_publish(message_name, %Conduit.Message{}, 10)
+    refute_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "refute_message_publish/4" do
     refute_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
 
     message_name = :message
-    refute_message_publish(message_name, %Conduit.Message{}, [to: "somewhere"], 10)
+    refute_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 end
 
@@ -186,7 +186,7 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published message_name
+    assert_message_published ^message_name
   end
 
   test "assert_message_published/2" do
@@ -197,7 +197,7 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published message_name, %Conduit.Message{}
+    assert_message_published ^message_name, %Conduit.Message{}
   end
 
   test "assert_message_published/3" do
@@ -208,28 +208,28 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_published(message_name, %Conduit.Message{}, to: "somewhere")
+    assert_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "refute_message_published/1" do
     refute_message_published :message
 
     message_name = :message
-    refute_message_published message_name
+    refute_message_published ^message_name
   end
 
   test "refute_message_published/2" do
     refute_message_published :message, %Conduit.Message{}
 
     message_name = :message
-    refute_message_published message_name, %Conduit.Message{}
+    refute_message_published ^message_name, %Conduit.Message{}
   end
 
   test "refute_message_published/3" do
     refute_message_published(:message, %Conduit.Message{}, to: "somewhere")
 
     message_name = :message
-    refute_message_published(message_name, %Conduit.Message{}, to: "somewhere")
+    refute_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "assert_message_publish/1" do
@@ -240,7 +240,7 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name)
+    assert_message_publish(^message_name)
   end
 
   test "assert_message_publish/2" do
@@ -255,11 +255,11 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish message_name, %Conduit.Message{}
+    assert_message_publish ^message_name, %Conduit.Message{}
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert_message_publish message_name, 10
+    assert_message_publish ^message_name, 10
   end
 
   test "assert_message_publish/3" do
@@ -274,11 +274,11 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name, %Conduit.Message{}, to: "somewhere")
+    assert_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert_message_publish(message_name, %Conduit.Message{}, 10)
+    assert_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
@@ -289,14 +289,14 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     message_name = :message
-    assert_message_publish(message_name, %Conduit.Message{}, [to: "somewhere"], 10)
+    assert_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 
   test "refute_message_publish/1" do
     refute_message_publish :message
 
     message_name = :message
-    refute_message_publish message_name
+    refute_message_publish ^message_name
   end
 
   test "refute_message_publish/2" do
@@ -305,9 +305,9 @@ defmodule Conduit.TestUnsharedTest do
     refute_message_publish :message, 10
 
     message_name = :message
-    refute_message_publish message_name, %Conduit.Message{}
+    refute_message_publish ^message_name, %Conduit.Message{}
 
-    refute_message_publish message_name, 10
+    refute_message_publish ^message_name, 10
   end
 
   test "refute_message_publish/3" do
@@ -316,15 +316,15 @@ defmodule Conduit.TestUnsharedTest do
     refute_message_publish(:message, %Conduit.Message{}, 10)
 
     message_name = :message
-    refute_message_publish(message_name, %Conduit.Message{}, to: "somewhere")
+    refute_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
 
-    refute_message_publish(message_name, %Conduit.Message{}, 10)
+    refute_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "refute_message_publish/4" do
     refute_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
 
     message_name = :message
-    refute_message_publish(message_name, %Conduit.Message{}, [to: "somewhere"], 10)
+    refute_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 end
