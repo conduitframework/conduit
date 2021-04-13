@@ -1,7 +1,6 @@
 defmodule Conduit.TestSharedTest do
   use ExUnit.Case, async: false
   use Conduit.Test, shared: true
-  import ExUnit.CaptureIO
 
   setup do
     Application.put_env(
@@ -29,9 +28,8 @@ defmodule Conduit.TestSharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_published %Conduit.Message{}
-           end) =~ "Calling assert_message_published"
+    message_name = :message
+    assert_message_published ^message_name
   end
 
   test "assert_message_published/2" do
@@ -41,35 +39,40 @@ defmodule Conduit.TestSharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_published %Conduit.Message{}, to: "somewhere"
-           end) =~ "Calling assert_message_published"
+    message_name = :message
+    assert_message_published ^message_name, %Conduit.Message{}
   end
 
   test "assert_message_published/3" do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published(:message, %Conduit.Message{}, to: "somewhere")
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "refute_message_published/1" do
     refute_message_published :message
 
-    assert capture_io(:stderr, fn ->
-             refute_message_published %Conduit.Message{}
-           end) =~ "Calling refute_message_published"
+    message_name = :message
+    refute_message_published ^message_name
   end
 
   test "refute_message_published/2" do
     refute_message_published :message, %Conduit.Message{}
 
-    assert capture_io(:stderr, fn ->
-             refute_message_published %Conduit.Message{}, to: "somewhere"
-           end) =~ "Calling refute_message_published"
+    message_name = :message
+    refute_message_published ^message_name, %Conduit.Message{}
   end
 
   test "refute_message_published/3" do
     refute_message_published(:message, %Conduit.Message{}, to: "somewhere")
+
+    message_name = :message
+    refute_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "assert_message_publish/1" do
@@ -79,9 +82,8 @@ defmodule Conduit.TestSharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_publish %Conduit.Message{}
-           end) =~ "Calling assert_message_publish"
+    message_name = :message
+    assert_message_publish(^message_name)
   end
 
   test "assert_message_publish/2" do
@@ -91,7 +93,8 @@ defmodule Conduit.TestSharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert_message_publish :message, 10
+    message_name = :message
+    assert_message_publish ^message_name, 10
   end
 
   test "assert_message_publish/3" do
@@ -101,21 +104,26 @@ defmodule Conduit.TestSharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert_message_publish(:message, %Conduit.Message{}, 10)
+    message_name = :message
+    assert_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 
   test "refute_message_publish/1" do
     refute_message_publish :message
 
-    assert capture_io(:stderr, fn ->
-             refute_message_publish %Conduit.Message{}
-           end) =~ "Calling refute_message_publish"
+    message_name = :message
+    refute_message_publish ^message_name
   end
 
   test "refute_message_publish/2" do
@@ -123,26 +131,34 @@ defmodule Conduit.TestSharedTest do
 
     refute_message_publish :message, 10
 
-    assert capture_io(:stderr, fn ->
-             refute_message_publish %Conduit.Message{}, 10
-           end) =~ "Calling refute_message_publish"
+    message_name = :message
+    refute_message_publish ^message_name, %Conduit.Message{}
+
+    refute_message_publish ^message_name, 10
   end
 
   test "refute_message_publish/3" do
     refute_message_publish(:message, %Conduit.Message{}, to: "somewhere")
 
     refute_message_publish(:message, %Conduit.Message{}, 10)
+
+    message_name = :message
+    refute_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
+
+    refute_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "refute_message_publish/4" do
     refute_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
+
+    message_name = :message
+    refute_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 end
 
 defmodule Conduit.TestUnsharedTest do
   use ExUnit.Case, async: true
   use Conduit.Test, shared: false
-  import ExUnit.CaptureIO
 
   setup do
     Application.put_env(
@@ -169,9 +185,8 @@ defmodule Conduit.TestUnsharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_published %Conduit.Message{}
-           end) =~ "Calling assert_message_published"
+    message_name = :message
+    assert_message_published ^message_name
   end
 
   test "assert_message_published/2" do
@@ -181,35 +196,40 @@ defmodule Conduit.TestUnsharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_published %Conduit.Message{}, to: "somewhere"
-           end) =~ "Calling assert_message_published"
+    message_name = :message
+    assert_message_published ^message_name, %Conduit.Message{}
   end
 
   test "assert_message_published/3" do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_published(:message, %Conduit.Message{}, to: "somewhere")
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "refute_message_published/1" do
     refute_message_published :message
 
-    assert capture_io(:stderr, fn ->
-             refute_message_published %Conduit.Message{}
-           end) =~ "Calling refute_message_published"
+    message_name = :message
+    refute_message_published ^message_name
   end
 
   test "refute_message_published/2" do
     refute_message_published :message, %Conduit.Message{}
 
-    assert capture_io(:stderr, fn ->
-             refute_message_published %Conduit.Message{}, to: "somewhere"
-           end) =~ "Calling refute_message_published"
+    message_name = :message
+    refute_message_published ^message_name, %Conduit.Message{}
   end
 
   test "refute_message_published/3" do
     refute_message_published(:message, %Conduit.Message{}, to: "somewhere")
+
+    message_name = :message
+    refute_message_published(^message_name, %Conduit.Message{}, to: "somewhere")
   end
 
   test "assert_message_publish/1" do
@@ -219,9 +239,8 @@ defmodule Conduit.TestUnsharedTest do
 
     Broker.publish(%Conduit.Message{}, :message)
 
-    assert capture_io(:stderr, fn ->
-             assert_message_publish %Conduit.Message{}
-           end) =~ "Calling assert_message_publish"
+    message_name = :message
+    assert_message_publish(^message_name)
   end
 
   test "assert_message_publish/2" do
@@ -232,6 +251,15 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish :message, 10
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_publish ^message_name, %Conduit.Message{}
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    assert_message_publish ^message_name, 10
   end
 
   test "assert_message_publish/3" do
@@ -242,20 +270,33 @@ defmodule Conduit.TestUnsharedTest do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, 10)
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    assert_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "assert_message_publish/4" do
     Broker.publish(%Conduit.Message{}, :message)
 
     assert_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
+
+    Broker.publish(%Conduit.Message{}, :message)
+
+    message_name = :message
+    assert_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 
   test "refute_message_publish/1" do
     refute_message_publish :message
 
-    assert capture_io(:stderr, fn ->
-             refute_message_publish %Conduit.Message{}
-           end) =~ "Calling refute_message_publish"
+    message_name = :message
+    refute_message_publish ^message_name
   end
 
   test "refute_message_publish/2" do
@@ -263,18 +304,27 @@ defmodule Conduit.TestUnsharedTest do
 
     refute_message_publish :message, 10
 
-    assert capture_io(:stderr, fn ->
-             refute_message_publish %Conduit.Message{}, 10
-           end) =~ "Calling refute_message_publish"
+    message_name = :message
+    refute_message_publish ^message_name, %Conduit.Message{}
+
+    refute_message_publish ^message_name, 10
   end
 
   test "refute_message_publish/3" do
     refute_message_publish(:message, %Conduit.Message{}, to: "somewhere")
 
     refute_message_publish(:message, %Conduit.Message{}, 10)
+
+    message_name = :message
+    refute_message_publish(^message_name, %Conduit.Message{}, to: "somewhere")
+
+    refute_message_publish(^message_name, %Conduit.Message{}, 10)
   end
 
   test "refute_message_publish/4" do
     refute_message_publish(:message, %Conduit.Message{}, [to: "somewhere"], 10)
+
+    message_name = :message
+    refute_message_publish(^message_name, %Conduit.Message{}, [to: "somewhere"], 10)
   end
 end
