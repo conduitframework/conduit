@@ -39,7 +39,7 @@ defmodule Conduit.Mixfile do
   #
   # Type "mix help compile.app" for more information
   def application do
-    [extra_applications: [:logger, :eex]]
+    [extra_applications: [:logger, :eex, :crypto]]
   end
 
   # Dependencies can be Hex packages:
@@ -56,11 +56,11 @@ defmodule Conduit.Mixfile do
       {:elixir_uuid, "~> 1.1"},
       {:timex, "~> 3.0"},
       {:jason, "~> 1.0"},
-      {:ex_doc, "~> 0.19.0", only: [:dev]},
-      {:dialyxir, "1.0.0-rc.4", only: [:dev], runtime: false},
-      {:junit_formatter, "~> 2.0", only: :test},
-      {:excoveralls, "~> 0.5", only: :test},
-      {:credo, "~> 0.7", only: [:dev, :test]},
+      {:ex_doc, "~> 0.24.2", only: [:dev]},
+      {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
+      {:junit_formatter, "~> 3.3", only: :test},
+      {:excoveralls, "~> 0.14.1", only: :test},
+      {:credo, "~> 1.5", only: [:dev, :test]},
       {:inch_ex, "~> 2.0", only: [:dev, :test]}
     ]
   end

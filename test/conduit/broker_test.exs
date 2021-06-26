@@ -1,7 +1,6 @@
 defmodule Conduit.BrokerTest do
   use ExUnit.Case
   use Conduit.Test, shared: true
-  import ExUnit.CaptureLog
 
   defmodule PassThrough do
     @moduledoc false
@@ -136,8 +135,8 @@ defmodule Conduit.BrokerTest do
       assert_received {:adapter,
                        [
                          Conduit.BrokerTest.Broker,
-                         topology,
-                         subscribers,
+                         _topology,
+                         _subscribers,
                          [adapter: Conduit.TestAdapter, override: :value]
                        ]}
     end
@@ -205,31 +204,6 @@ defmodule Conduit.BrokerTest do
       assert_raise Conduit.UndefinedPublishRouteError, @expected_message, fn ->
         Broker.publish(%Conduit.Message{}, :non_existent)
       end
-    end
-
-    @expected_warning """
-
-    [warn]  Calling Conduit.BrokerTest.Broker.publish/3 with message as second argument is deprecated to enable pipeline usage.
-
-    Replace:
-
-        Conduit.BrokerTest.Broker.publish(:more_stuff, message, opts)
-
-    With:
-
-        Conduit.BrokerTest.Broker.publish(message, :more_stuff, opts)
-
-    """
-    test "it produces a deprecation warning when message is passed as second arg to publish" do
-      Process.register(self(), __MODULE__)
-      Application.put_env(:my_app, Broker, adapter: Conduit.TestAdapter)
-
-      warning =
-        capture_log(fn ->
-          Broker.publish(:more_stuff, %Conduit.Message{})
-        end)
-
-      assert warning == @expected_warning
     end
   end
 

@@ -145,6 +145,7 @@ defmodule Conduit.Message do
         MapSet.new(@allowed_fields),
         MapSet.new(fields)
       )
+      |> MapSet.to_list()
 
     Map.merge(to, Map.take(from, fields))
   end

@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+## 1.0.0 (2021-06-26)
+
+- Remove deprecated test methods
+- Remove deprecated adapter publish/3
+
 ## 0.12.10 (2019-03-25)
 
 ### Fixed

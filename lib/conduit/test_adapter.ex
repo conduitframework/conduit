@@ -24,12 +24,10 @@ defmodule Conduit.TestAdapter do
 
   @doc false
   def init(opts) do
-    import Supervisor.Spec
-
     process = Application.get_env(:conduit, :shared_test_process)
     if process, do: send(process, {:adapter, opts})
 
-    supervise([], strategy: :one_for_one)
+    Supervisor.init([], strategy: :one_for_one)
   end
 
   @doc """

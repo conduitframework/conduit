@@ -93,25 +93,6 @@ defmodule Conduit.Broker.OutgoingScope do
 
       def publish(message, name, opts \\ [])
 
-      def publish(name, message, opts) when is_atom(name) do
-        require Logger
-
-        warning = """
-        Calling #{inspect(__MODULE__)}.publish/3 with message as second argument is deprecated to enable pipeline usage.
-
-        Replace:
-
-            #{inspect(__MODULE__)}.publish(#{inspect(name)}, message, opts)
-
-        With:
-
-            #{inspect(__MODULE__)}.publish(message, #{inspect(name)}, opts)
-        """
-
-        Logger.warn(warning)
-        publish(message, name, opts)
-      end
-
       for route <- @publish_routes do
         pipeline = Conduit.Broker.OutgoingScope.compile(__MODULE__, route)
 
