@@ -38,7 +38,10 @@ jobs:
       - run: mix compile
       - run: MIX_ENV=test mix compile
       - run: MIX_ENV=prod mix compile
-      - run: mix dialyzer --plt --no-compile
+      - run: 
+          name: Dialyzer
+          command: mix dialyzer --plt --no-compile
+          no_output_timeout: 30m 
       - save_cache:
           key: v6-build-{{checksum "mix.lock.frozen"}}
           paths:
