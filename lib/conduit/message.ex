@@ -141,10 +141,9 @@ defmodule Conduit.Message do
   @spec merge_fields(to :: __MODULE__.t(), from :: __MODULE__.t(), fields :: [atom]) :: __MODULE__.t()
   def merge_fields(%__MODULE__{} = to, %__MODULE__{} = from, fields \\ @allowed_fields) do
     fields =
-      MapSet.intersection(
-        MapSet.new(@allowed_fields),
-        MapSet.new(fields)
-      )
+      @allowed_fields
+      |> MapSet.new()
+      |> MapSet.intersection(MapSet.new(fields))
       |> MapSet.to_list()
 
     Map.merge(to, Map.take(from, fields))
