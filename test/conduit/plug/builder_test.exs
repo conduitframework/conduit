@@ -104,7 +104,7 @@ defmodule Conduit.Plug.BuilderTest do
     end
   end
 
-  @error_message "Couldn't find module MissingPlug"
+  @error_message "Module MissingPlug does not implement init/1 and __build__/2. Make sure to use Conduit.Plug."
   test "raises error when module plug can't be found" do
     assert_raise Conduit.UnknownPlugError, @error_message, fn ->
       defmodule FailPlug do
