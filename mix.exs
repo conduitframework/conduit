@@ -56,7 +56,7 @@ defmodule Conduit.Mixfile do
       {:elixir_uuid, "~> 1.1"},
       {:timex, "~> 3.0"},
       {:jason, "~> 1.0"},
-      {:ex_doc, "~> 0.24.2", only: [:dev]},
+      {:ex_doc, "~> 0.25.0", only: [:dev]},
       {:dialyxir, "~> 1.1", only: [:dev], runtime: false},
       {:junit_formatter, "~> 3.3", only: :test},
       {:excoveralls, "~> 0.14.1", only: :test},
