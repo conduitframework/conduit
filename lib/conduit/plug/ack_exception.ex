@@ -36,7 +36,7 @@ defmodule Conduit.Plug.AckException do
     error ->
       formatted_error = Exception.format(:error, error)
 
-      Logger.warn([
+      Logger.warning([
         "Ignoring raised exception because exceptions are set to be acked\n",
         formatted_error
       ])
